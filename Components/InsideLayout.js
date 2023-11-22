@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { StyleSheet, Text, View, Keyboard } from 'react-native';
+import React, { useState,useEffect } from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './Home';
 import NewWorkout from './NewWorkout';
 import AppNavbar from './AppNavbar';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider} from 'react-native-safe-area-context';
+
 
 const InsideStack = createNativeStackNavigator();
 

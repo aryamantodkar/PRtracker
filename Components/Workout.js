@@ -21,16 +21,16 @@ const Workout = () => {
                     </View>
                     <View style={styles.exerciseList}>
                         <View style={styles.exerciseName}>
-                            <Text style={{borderBottomColor: '#C3C3C3',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5}}>Bench Press</Text>
-                            <Text style={{fontSize: 17,}}> x 3</Text>
+                            <Text style={{borderColor: '#fff',borderWidth: 2,fontSize: 17,padding: 5,color: 'white',borderRadius: 10,paddingLeft: 10,paddingRight: 10}}>Bench Press</Text>
+                            <Text style={{fontSize: 17,color: 'white',padding: 5}}> x 3</Text>
                         </View>
                         <View style={styles.exerciseName}>
-                            <Text style={{borderBottomColor: '#C3C3C3',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5}}>Squats</Text>
-                            <Text style={{fontSize: 17,}}> x 3</Text>
+                            <Text style={{borderColor: '#fff',borderWidth: 2,fontSize: 17,padding: 5,color: 'white',borderRadius: 10,paddingLeft: 10,paddingRight: 10}}>Squats</Text>
+                            <Text style={{fontSize: 17,color: 'white',padding: 5}}> x 3</Text>
                         </View>
                         <View style={styles.exerciseName}>
-                            <Text style={{borderBottomColor: '#C3C3C3',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5}}>Lunges</Text>
-                            <Text style={{fontSize: 17,}}> x 3</Text>
+                            <Text style={{borderColor: '#fff',borderWidth: 2,fontSize: 17,padding: 5,color: 'white',borderRadius: 10,paddingLeft: 10,paddingRight: 10}}>Lunges</Text>
+                            <Text style={{fontSize: 17,color: 'white',padding: 5}}> x 3</Text>
                         </View>
                     </View>
                     <Text style={styles.workoutTime}>9:05 AM</Text>
@@ -86,13 +86,12 @@ const styles = StyleSheet.create({
     },
     workout: {
         marginTop: 30,
-        backgroundColor: '#f5f4f4',
         height: 'auto',
         display: 'flex',
         flexDirection: 'column',
         // justifyContent: 'center',
         borderRadius: 15,
-        elevation: 10,
+        backgroundColor: 'black'
     },
     workoutTitleContainer: {
         display: 'flex',
@@ -100,11 +99,10 @@ const styles = StyleSheet.create({
         justifyContent: 'left',
         alignItems: 'center',
 
-        backgroundColor: 'black',
-        borderTopLeftRadius: 15,
-        borderTopRightRadius: 15,
         padding: 10,
         fontWeight: '600',
+        borderBottomWidth:2,
+        borderBottomColor: "white"
     },
     workoutTitle: {
         fontSize: 20,
@@ -116,12 +114,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 10,
         right: 10,
-        fontWeight: '600'
+        fontWeight: '600',
+        color: 'white'
     },
     exerciseList:{
         padding: 10,
         marginTop: 5,
-        marginBottom: 20,
+        marginBottom: 5,
     },
     exerciseName:{
         paddingTop: 5,
@@ -130,9 +129,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         
         alignSelf: 'flex-start',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     exerciseReps: {
-        borderColor: '#f5f4f4'
+        // borderColor: '#f5f4f4'
     },
     workoutIcon: {
         height: 30,
@@ -140,14 +141,15 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     interactComponent: {
-        backgroundColor: '#808080',
+        backgroundColor: '#000',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 15,
-        padding: 5
+        padding: 5,
+
     },
     likeIcon: {
         height: 35,

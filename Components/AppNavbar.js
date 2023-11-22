@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View, Pressable, Image } from 'react-native'
-import React,{useState} from 'react'
+import { StyleSheet, Text, View, Pressable, Image, Keyboard, KeyboardAvoidingView,Platform } from 'react-native'
+import React,{useEffect, useState} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native';
-const plusWhite = require("../assets/plus-icon-white.png");
-const plusBlack = require("../assets/plus-icon-black.png");
+import { useRoute } from '@react-navigation/native';
+const workoutWhite = require("../assets/workout-icon-white.png");
+const workoutBlack = require("../assets/workout-icon-black.png");
 const homeWhite = require("../assets/home-icon-white.png");
 const homeBlack = require("../assets/home-icon-black.png");
 const accountWhite = require("../assets/account-icon-white.png");
@@ -16,11 +17,14 @@ const AppNavbar = () => {
   const [account,setAccount] = useState(false);
 
   const navigation = useNavigation();
+  const route = useRoute();
 
   const goToHome = () => {
     setHome(true);
     setAccount(false);
     setPlus(false);
+
+    navigation.navigate('Home');
   }
   
   const addWorkout = () => {
@@ -37,9 +41,28 @@ const AppNavbar = () => {
     setPlus(false);
   }
 
+  const [keyboardStatus, setKeyboardStatus] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardStatus(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardStatus(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
   return (
-    <SafeAreaView>
-      <View style={{position: 'absolute', left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{backgroundColor:'transparent'}}>
+      {
+        !keyboardStatus
+        ?
+        <View style={{position: 'absolute', left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
           <View style={styles.navbar}>
               {
                 home ?
@@ -54,11 +77,11 @@ const AppNavbar = () => {
               {
                 plus ?
                 <Pressable style={styles.navBtnActivated}>
-                  <Image source={plusWhite} style={styles.plusIcon}/>
+                  <Image source={workoutWhite} style={{height: 40, width: 40}}/>
                 </Pressable>
                 :
                 <Pressable style={styles.navAdd} onPress={addWorkout}>
-                  <Image source={plusBlack} style={styles.plusIcon}/>
+                  <Image source={workoutBlack} style={{height: 40, width: 40}}/>
                 </Pressable>
               }
               {
@@ -73,7 +96,10 @@ const AppNavbar = () => {
               }
           </View>
         </View>
-    </SafeAreaView>
+        :
+        null
+      }
+    </KeyboardAvoidingView>
   )
 }
 
@@ -94,7 +120,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 30,
         elevation: 10,
-        
+        marginTop: 50
       },
       plusIcon:{
         height: 25,

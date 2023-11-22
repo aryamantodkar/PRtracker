@@ -82,11 +82,6 @@ export default function Login({navigation}) {
                 <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign In</Text>
               </Pressable>
             </View>
-            {/* <View style={[styles.btnContainer, styles.inputContainer]}>
-              <Pressable style={styles.btn} onPress={googleSignIn}>
-                <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign in with Google</Text>
-              </Pressable>
-            </View> */}
             <Pressable style={styles.registerContainer} onPress={goToRegister}>
               <Text >New User?</Text>
             </Pressable>
