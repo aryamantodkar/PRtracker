@@ -1,13 +1,17 @@
 import { StyleSheet, Text, View,ScrollView, TextInput, Pressable,Image,KeyboardAvoidingView,Platform,Keyboard } from 'react-native'
 import React, { useState,useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import axios from 'axios';
-
 import {useRef} from 'react';
+import { Firestore, Timestamp, doc, serverTimestamp, setDoc } from "firebase/firestore"; 
+import { FIREBASE_DB } from '../FirebaseConfig';
+import { getAuth } from "firebase/auth";
+
 const plusWhite = require("../assets/plus-icon-white.png");
 const deleteIcon = require("../assets/delete-icon.png");
 const crossIconWhite = require("../assets/cross-icon-white.png");
+const crossIconBlack = require("../assets/cross-icon-black.png");
 const tickIcon = require("../assets/tick-icon.png");
+const tickIconBlack = require("../assets/tick-icon-black.png");
 const editIcon = require("../assets/edit-icon.png");
 
 const NewWorkout = ({navigation}) => {
@@ -21,12 +25,12 @@ const NewWorkout = ({navigation}) => {
     const [totalWorkouts,setTotalWorkouts] = useState(0);
     const [showExerciseContainer,setShowExerciseContainer] = useState(true);
 
-    const [weight,setWeight] = useState("");
-    const [reps,setReps] = useState("");
+    const [weight,setWeight] = useState(0);
+    const [reps,setReps] = useState(0);
 
     const[addSet,setAddSet] = useState(false);
     const[delSet,setDelSet] = useState(false);
-    const [deleteID,setDeleteID] = useState("");
+    const [deleteID,setDeleteID] = useState(0);
 
     const weightRef = useRef(null);
     const repsRef = useRef(null);
@@ -39,7 +43,13 @@ const NewWorkout = ({navigation}) => {
 
     const [workoutsTillNow,setWorkoutsTillNow] = useState(0);
 
-    const [deleteWorkoutID,setDeleteWorkoutID] = useState("");
+    const [deleteWorkoutID,setDeleteWorkoutID] = useState(0);
+
+    const [editWorkoutID,setEditWorkoutID] = useState(-1);
+
+    const [editWorkoutBool,setEditWorkoutBool] = useState(false);
+
+    const [editedWorkoutName,setEditedWorkoutName] = useState("");
 
     //track input
     useEffect(() => {
@@ -115,6 +125,20 @@ const NewWorkout = ({navigation}) => {
         
     },[allWorkouts])
 
+    useEffect(() => {
+        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardStatus(true);
+        });
+        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardStatus(false);
+        });
+
+        return () => {
+            showSubscription.remove();
+            hideSubscription.remove();
+        };
+    }, []);
+
     const addSets = () => {
         setTotalSets(totalSets+1);
         setAddSet(true);
@@ -153,19 +177,23 @@ const NewWorkout = ({navigation}) => {
         setDeleteWorkoutID(id);
     }
 
-    useEffect(() => {
-        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-            setKeyboardStatus(true);
-        });
-        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-            setKeyboardStatus(false);
-        });
+    const addWorkoutToDB = async () => {
+        const auth = getAuth();
+        const userID = auth.currentUser.uid;
 
-        return () => {
-            showSubscription.remove();
-            hideSubscription.remove();
-        };
-    }, []);
+        await setDoc(doc(FIREBASE_DB,`${userID}`,`${workoutName}`),{
+            workoutName,
+            allWorkouts,
+            timeStamp: serverTimestamp()
+        })
+    }
+
+    const editWorkout = (workout) => {
+        setEditWorkoutID(workout.id);
+        setEditWorkoutBool(true);
+        setEditedWorkoutName(workout.exerciseName);
+    }
+
 
     return (  
         <KeyboardAvoidingView style={styles.home} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={-25}>
@@ -199,45 +227,168 @@ const NewWorkout = ({navigation}) => {
                                 showAddedExercises
                                 ?
                                 allWorkouts.map(workout => {
-                                    return (
-                                        <View style={styles.prevWorkoutContainer} key={workout.id}>
-                                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center'}}>
-                                                <View>
-                                                    <Text style={styles.prevWorkoutName}>{workout.exerciseName}</Text>
-                                                </View>
-                                                <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                                                    <Image source={editIcon} style={{height: 20,width: 20,marginRight: 10}}/>
-                                                    <Pressable onPress={()=>{
-                                                        deleteExercise(workout.id)
-                                                    }}>
-                                                        <Image source={deleteIcon} style={{height: 20,width: 20,marginLeft: 10}}/>
-                                                    </Pressable>
-                                                </View>
-                                            </View>
-                                            {
-                                                workout.allSets.map(set => {
-                                                    return(
-                                                        <View style={styles.prevWorkoutSet} key={set.id}>
-                                                            <View style={[styles.setBox,{padding: 10,paddingTop:5,paddingBottom: 5,borderColor: '#fff',borderWidth: 2}]}>
-                                                                <Text style={{color: '#fff',fontSize: 15,fontWeight: '600'}}>Set {set.id}</Text>
-                                                            </View>
-                                                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                                                                <View style={{padding: 10,width: 70,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                    <Text style={{color: '#fff',fontSize: 16,fontWeight: '600',borderBottomWidth: 2,borderBottomColor: 'white',alignSelf: 'center',paddingBottom: 5}}>{set.weight} Kg</Text>
-                                                                </View>
-                                                                <View>
-                                                                    <Text style={{fontWeight: '500',fontSize: 20,color: '#fff'}}> x </Text>
-                                                                </View>
-                                                                <View style={{padding: 10,width: 80,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                    <Text style={{color: '#fff',fontSize: 15,fontWeight: '600',borderWidth: 2,borderBottomColor: 'white',alignSelf: 'center',paddingBottom: 5}}>{set.reps}</Text>
-                                                                </View>
-                                                            </View>
+                                    if(workout!=undefined){
+                                        if((!editWorkoutBool) ||(editWorkoutBool && (editWorkoutID!=workout.id))){
+                                            return (
+                                                <View style={styles.prevWorkoutContainer} key={workout.id}>
+                                                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center'}}>
+                                                        <View>
+                                                            <Text style={styles.prevWorkoutName}>{workout.exerciseName}</Text>
                                                         </View>
-                                                    )
-                                                })
-                                            }
-                                        </View>
-                                    )
+                                                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
+                                                            <Pressable onPress={()=>{
+                                                                editWorkout(workout)
+                                                            }}>
+                                                                <Image source={editIcon} style={{height: 20,width: 20,marginRight: 10}}/>
+                                                            </Pressable>
+                                                            <Pressable onPress={()=>{
+                                                                deleteExercise(workout.id)
+                                                            }}>
+                                                                <Image source={deleteIcon} style={{height: 20,width: 20,marginLeft: 10}}/>
+                                                            </Pressable>
+                                                        </View>
+                                                    </View>
+                                                    {
+                                                        workout.allSets.map(set => {
+                                                            return(
+                                                                <View style={styles.prevWorkoutSet} key={set.id}>
+                                                                    <View style={[styles.setBox,{padding: 10,paddingTop:5,paddingBottom: 5,borderColor: '#fff',borderWidth: 2}]}>
+                                                                        <Text style={{color: '#fff',fontSize: 15,fontWeight: '600'}}>Set {set.id}</Text>
+                                                                    </View>
+                                                                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
+                                                                        <View style={{padding: 10,width: 70,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                                            <Text style={{color: '#fff',fontSize: 16,fontWeight: '600',borderBottomWidth: 2,borderBottomColor: 'white',alignSelf: 'center',paddingBottom: 5}}>{set.weight} Kg</Text>
+                                                                        </View>
+                                                                        <View>
+                                                                            <Text style={{fontWeight: '500',fontSize: 20,color: '#fff'}}> x </Text>
+                                                                        </View>
+                                                                        <View style={{padding: 10,width: 80,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                                            <Text style={{color: '#fff',fontSize: 15,fontWeight: '600',borderWidth: 2,borderBottomColor: 'white',alignSelf: 'center',paddingBottom: 5}}>{set.reps}</Text>
+                                                                        </View>
+                                                                    </View>
+                                                                </View>
+                                                            )
+                                                        })
+                                                    }
+                                                </View>
+                                            )
+                                        }
+                                        else{
+                                            return(
+                                                    <View style={[styles.exerciseContainer,{borderWidth: 2,borderColor: '#DDD',width: '85%',marginTop: 20,borderRadius: 10,}]} key={workout.id}>
+                                                        <TextInput style={[styles.inputBox,{paddingLeft: 0}]} placeholder='Enter Exercise Name' value={editedWorkoutName} onChangeText={text =>{
+                                                            setEditedWorkoutName(text)
+                                                        }}/>
+                                                        {
+                                                            workout.allSets.map(set =>{
+                                                                return (
+                                                                    <View style={styles.setContainer} key={set.id}>
+                                                                        <View style={[styles.setBox,{padding: 15}]}>
+                                                                            <View>
+                                                                                <Text style={{color: '#fff', fontWeight: '600', fontSize: 15}}>Set {set.id}</Text>
+                                                                            </View>
+                                                                        </View>
+                                                                        <View style={[styles.setInput,{minWidth: 60}]}>
+                                                                            <TextInput ref={weightRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={set.weight} onChangeText={text => {
+                                                                                setAllWorkouts(allWorkouts.map(w => {
+                                                                                    if(w!=undefined){
+                                                                                        if(w.id==workout.id){
+                                                                                            const replaceArray = w.allSets.filter(arr => arr.id!=set.id);
+                                                                                            
+                                                                                            const workoutObj = {
+                                                                                                exerciseName: editedWorkoutName,
+                                                                                                allSets: [
+                                                                                                    ...replaceArray,
+                                                                                                    {
+                                                                                                        weight:text,
+                                                                                                        reps: set.reps,
+                                                                                                        id: set.id
+                                                                                                    }
+                                                                                                ],
+                                                                                                id: w.id
+                                                                                            }
+
+                                                                                            workoutObj.allSets.sort((a,b) => a.id-b.id);
+
+                                                                                            return workoutObj;
+                                                                                        }
+                                                                                        else{
+                                                                                            return w;
+                                                                                        }
+                                                                                    }
+                                                                                }))
+                                                                            }}></TextInput>
+                                                                            <Pressable onPress={()=>{
+                                                                                weightRef.current.focus()
+                                                                            }}>
+                                                                                <Text style={{color: '#373737',fontWeight: '500'}}>Kg</Text>
+                                                                            </Pressable>
+                                                                        </View>
+                                                                        <View style={[styles.setInput,{minWidth: 60}]}>
+                                                                            <TextInput ref={repsRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={set.reps} onChangeText={text => {
+                                                                                setAllWorkouts(allWorkouts.map(w => {
+                                                                                    if(w!=undefined){
+                                                                                        if(w.id==workout.id){
+                                                                                            const replaceArray = w.allSets.filter(arr => arr.id!=set.id);
+                                                                                            
+                                                                                            const workoutObj = {
+                                                                                                exerciseName: editedWorkoutName,
+                                                                                                allSets: [
+                                                                                                    ...replaceArray,
+                                                                                                    {
+                                                                                                        weight:set.weight,
+                                                                                                        reps: text,
+                                                                                                        id: set.id
+                                                                                                    }
+                                                                                                ],
+                                                                                                id: w.id
+                                                                                            }
+
+                                                                                            workoutObj.allSets.sort((a,b) => a.id-b.id);
+
+                                                                                            return workoutObj;
+                                                                                        }
+                                                                                        else{
+                                                                                            return w;
+                                                                                        }
+                                                                                    }
+                                                                                }))
+                                                                            }}></TextInput>
+                                                                            <Pressable onPress={()=>{
+                                                                                repsRef.current.focus()
+                                                                            }}>
+                                                                                <Text style={{color: '#373737',fontWeight: '500'}}>Reps</Text>
+                                                                            </Pressable>
+                                                                        </View>
+                                                                        <View>
+                                                                            <Pressable onPress={()=>{
+                                                                                deleteSet(set.id)
+                                                                            }} style={styles.plusIconContainer}>
+                                                                                <Image source={deleteIcon} style={[styles.plusIcon,{height:17,width: 17}]}/>
+                                                                            </Pressable>
+                                                                        </View>
+                                                                    </View>
+                                                                )})
+                                                        }
+                                                        <View style={{display:"flex",flexDirection: 'row',marginBottom: 10,justifyContent: 'center',alignItems: 'center'}}>
+                                                            <Pressable style={{marginLeft: 10,marginRight:10,padding: 10,borderRadius: 15,backgroundColor: 'black'}} onPress={()=>{
+                                                                setEditWorkoutBool(false);
+                                                                setEditWorkoutID(-1);
+                                                            }}>
+                                                                <Image style={{height:17.5,width: 17.5}} source={crossIconWhite}/>
+                                                            </Pressable>
+                                                            <Pressable style={{marginLeft: 10,marginRight:10,padding: 10,borderRadius: 15,backgroundColor: 'black'}} onPress={()=>{
+                                                                setEditWorkoutBool(false);
+                                                                setEditWorkoutID(-1);
+                                                            }}>
+                                                                <Image style={{height:17.5,width: 17.5}} source={tickIcon}/>
+                                                            </Pressable>
+                                                        </View>
+                                                    </View>
+                                            )
+                                        }
+                                    }
+                                    
                                 })
                                 :
                                 null
@@ -340,7 +491,7 @@ const NewWorkout = ({navigation}) => {
                     </View>
             </ScrollView>
             {
-                !keyboardStatus
+                !keyboardStatus && !editWorkoutBool
                 ?
                 <View style={{position: 'absolute', left: 0, right: 0, bottom: 20, justifyContent: 'center', alignItems: 'center',display: 'flex',flexDirection: 'row'}}>
                     <View style={{backgroundColor: '#000',borderRadius: 50,padding: 17.5,marginRight: 10,borderWidth: 3,borderColor: '#fff'}}>
@@ -348,13 +499,13 @@ const NewWorkout = ({navigation}) => {
                     </View>
                     {
                         !showExerciseContainer && workoutName!="" && allWorkouts.length>0 ?
-                        <View style={{backgroundColor: '#000',borderRadius: 50,padding: 17.5,marginLeft: 10,borderWidth: 3,borderColor: '#fff'}}>
+                        <Pressable onPress={addWorkoutToDB} style={{backgroundColor: '#000',borderRadius: 50,padding: 17.5,marginLeft: 10,borderWidth: 3,borderColor: '#fff'}}>
                             <Image source={tickIcon} style={{height: 22.5,width: 22.5}}/>
-                        </View>
+                        </Pressable>
                         :
-                        <View style={{backgroundColor: '#DDDDDD',borderRadius: 50,padding: 17.5,marginLeft: 10,borderWidth: 3,borderColor: '#fff'}}>
+                        <Pressable style={{backgroundColor: '#DDDDDD',borderRadius: 50,padding: 17.5,marginLeft: 10,borderWidth: 3,borderColor: '#fff'}}>
                             <Image source={tickIcon} style={{height: 22.5,width: 22.5}}/>
-                        </View>
+                        </Pressable>
                     }
                 </View>
                 :
