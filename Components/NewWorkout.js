@@ -51,6 +51,8 @@ const NewWorkout = ({navigation}) => {
 
     const [editedWorkoutName,setEditedWorkoutName] = useState("");
 
+    const [editTickIconBool,setEditTickIconBool] = useState(false);
+
     //track input
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -278,6 +280,7 @@ const NewWorkout = ({navigation}) => {
                                                     <View style={[styles.exerciseContainer,{borderWidth: 2,borderColor: '#DDD',width: '85%',marginTop: 20,borderRadius: 10,}]} key={workout.id}>
                                                         <TextInput style={[styles.inputBox,{paddingLeft: 0}]} placeholder='Enter Exercise Name' value={editedWorkoutName} onChangeText={text =>{
                                                             setEditedWorkoutName(text)
+                                                            setEditTickIconBool(true)
                                                         }}/>
                                                         {
                                                             workout.allSets.map(set =>{
@@ -290,6 +293,7 @@ const NewWorkout = ({navigation}) => {
                                                                         </View>
                                                                         <View style={[styles.setInput,{minWidth: 60}]}>
                                                                             <TextInput ref={weightRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={set.weight} onChangeText={text => {
+                                                                                setEditTickIconBool(true);
                                                                                 setAllWorkouts(allWorkouts.map(w => {
                                                                                     if(w!=undefined){
                                                                                         if(w.id==workout.id){
@@ -326,6 +330,7 @@ const NewWorkout = ({navigation}) => {
                                                                         </View>
                                                                         <View style={[styles.setInput,{minWidth: 60}]}>
                                                                             <TextInput ref={repsRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={set.reps} onChangeText={text => {
+                                                                                setEditTickIconBool(true);
                                                                                 setAllWorkouts(allWorkouts.map(w => {
                                                                                     if(w!=undefined){
                                                                                         if(w.id==workout.id){
@@ -361,25 +366,131 @@ const NewWorkout = ({navigation}) => {
                                                                             </Pressable>
                                                                         </View>
                                                                         <View>
-                                                                            <Pressable onPress={()=>{
-                                                                                deleteSet(set.id)
-                                                                            }} style={styles.plusIconContainer}>
-                                                                                <Image source={deleteIcon} style={[styles.plusIcon,{height:17,width: 17}]}/>
-                                                                            </Pressable>
+                                                                                <Pressable onPress={()=>{
+                                                                                    const newSets = workout.allSets.filter(arr => arr.id != set.id);
+                                                                                    
+                                                                                    let id = 1;
+
+                                                                                    newSets.map(newSet => {
+                                                                                        if(newSet.id != id){
+                                                                                            newSet.id = id
+                                                                                            id++;
+                                                                                        }
+                                                                                    })
+
+                                                                                    const editedSetWorkout = {
+                                                                                        exerciseName: editedWorkoutName,
+                                                                                        allSets: newSets,
+                                                                                        id: workout.id
+                                                                                    }
+    
+                                                                                    const tempArray = allWorkouts.filter(arr => arr.id != workout.id);
+
+                                                                                    const arr = [...tempArray,editedSetWorkout];
+
+                                                                                    arr.sort((a,b) => a.id-b.id);
+    
+                                                                                    setAllWorkouts(arr);
+    
+                                                                                }} style={styles.plusIconContainer}>
+                                                                                    <Image source={deleteIcon} style={[styles.plusIcon,{height:17,width: 17}]}/>
+                                                                                </Pressable>
                                                                         </View>
                                                                     </View>
                                                                 )})
                                                         }
+                                                        <View style={styles.setContainer}>
+                                                            <View style={[styles.setBox,{padding: 15}]}>
+                                                                <View>
+                                                                    <View>
+                                                                        <Text style={{color: '#fff', fontWeight: '600', fontSize: 15}}>Set {workout.allSets.length+1}</Text>
+                                                                    </View>
+                                                                </View>
+                                                            </View>
+                                                            <View style={[styles.setInput,{minWidth: 60}]}>
+                                                                <TextInput ref={weightRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={weight} onChangeText={text => {
+                                                                    setWeight(text)
+                                                                }}></TextInput>
+                                                                <Pressable onPress={()=>{
+                                                                    weightRef.current.focus()
+                                                                }}>
+                                                                    <Text style={{color: '#373737',fontWeight: '500'}}>Kg</Text>
+                                                                </Pressable>
+                                                            </View>
+                                                            <View style={[styles.setInput,{minWidth: 60}]}>
+                                                                <TextInput ref={repsRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={reps} onChangeText={text => {
+                                                                    setReps(text)
+                                                                }}></TextInput>
+                                                                <Pressable onPress={()=>{
+                                                                    repsRef.current.focus()
+                                                                }}>
+                                                                    <Text style={{color: '#373737',fontWeight: '500'}}>Reps</Text>
+                                                                </Pressable>
+                                                            </View>
+                                                            <View>
+                                                                {
+                                                                    weight!="" && reps!=""
+                                                                    ?
+                                                                    <Pressable onPress={()=>{
+                                                                        setAllWorkouts(allWorkouts.map(w => {
+                                                                            if(w.id == workout.id){
+                                                                                return {
+                                                                                    ...w,
+                                                                                    allSets: [
+                                                                                        ...workout.allSets,
+                                                                                        {
+                                                                                            weight,
+                                                                                            reps,
+                                                                                            id: workout.allSets.length+1
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            }
+                                                                            else{
+                                                                                return w;
+                                                                            }
+                                                                        }))
+                                                                        setWeight(0);
+                                                                        setReps(0);
+                                                                        setEditTickIconBool(true);
+
+                                                                    }} style={styles.plusIconContainer}>
+                                                                        <Image source={plusWhite} style={styles.plusIcon}/>
+                                                                    </Pressable>
+                                                                    :
+                                                                    <Pressable style={[styles.plusIconContainer,{backgroundColor:'#C2C2C2'}]}>
+                                                                        <Image source={plusWhite} style={styles.plusIcon}/>
+                                                                    </Pressable>
+                                                                }
+                                                            </View>
+                                                        </View>
+
+
                                                         <View style={{display:"flex",flexDirection: 'row',marginBottom: 10,justifyContent: 'center',alignItems: 'center'}}>
-                                                            <Pressable style={{marginLeft: 10,marginRight:10,padding: 10,borderRadius: 15,backgroundColor: 'black'}} onPress={()=>{
+                                                            <Pressable style={{marginLeft: 10,marginRight:10,padding: 10,borderRadius: 20,backgroundColor: 'black'}} onPress={()=>{
                                                                 setEditWorkoutBool(false);
                                                                 setEditWorkoutID(-1);
+                                                                setEditTickIconBool(false)
                                                             }}>
                                                                 <Image style={{height:17.5,width: 17.5}} source={crossIconWhite}/>
                                                             </Pressable>
-                                                            <Pressable style={{marginLeft: 10,marginRight:10,padding: 10,borderRadius: 15,backgroundColor: 'black'}} onPress={()=>{
+                                                            <Pressable style={{marginLeft: 10,marginRight:10,padding: 10,borderRadius: 20,backgroundColor: editTickIconBool ? 'black' : '#DDDDDD'}} onPress={()=>{
+                                                                const newWorkoutNameObj = {
+                                                                    ...workout,
+                                                                    exerciseName: editedWorkoutName
+                                                                }
+    
+                                                                const replaceArray = allWorkouts.filter(arr => arr.id!=workout.id);
+
+                                                                const arr = [...replaceArray,newWorkoutNameObj];
+
+                                                                arr.sort((a,b) => a.id-b.id)
+    
+                                                                setAllWorkouts(arr);
+
                                                                 setEditWorkoutBool(false);
                                                                 setEditWorkoutID(-1);
+                                                                setEditTickIconBool(false)
                                                             }}>
                                                                 <Image style={{height:17.5,width: 17.5}} source={tickIcon}/>
                                                             </Pressable>
