@@ -2,8 +2,8 @@ import { StyleSheet, Text, View,ScrollView, TextInput, Pressable,Image,KeyboardA
 import React, { useState,useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {useRef} from 'react';
-import { Firestore, Timestamp, doc, serverTimestamp, setDoc } from "firebase/firestore"; 
-import { FIREBASE_DB } from '../FirebaseConfig';
+import { Firestore, Timestamp, doc, serverTimestamp, setDoc,getDoc,collection,getDocs,getFirestore,onSnapshot,addDoc } from "firebase/firestore"; 
+import { FIREBASE_APP, FIREBASE_DB, firebaseConfig,  } from '../FirebaseConfig';
 import { getAuth } from "firebase/auth";
 
 const plusWhite = require("../assets/plus-icon-white.png");
@@ -25,8 +25,8 @@ const NewWorkout = ({navigation}) => {
     const [totalWorkouts,setTotalWorkouts] = useState(0);
     const [showExerciseContainer,setShowExerciseContainer] = useState(true);
 
-    const [weight,setWeight] = useState(0);
-    const [reps,setReps] = useState(0);
+    const [weight,setWeight] = useState("");
+    const [reps,setReps] = useState("");
 
     const[addSet,setAddSet] = useState(false);
     const[delSet,setDelSet] = useState(false);
@@ -183,7 +183,7 @@ const NewWorkout = ({navigation}) => {
         const auth = getAuth();
         const userID = auth.currentUser.uid;
 
-        await setDoc(doc(FIREBASE_DB,`${userID}`,`${workoutName}`),{
+        const res = await addDoc(collection(FIREBASE_DB, `${userID}`),{
             workoutName,
             allWorkouts,
             timeStamp: serverTimestamp()
