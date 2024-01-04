@@ -19,6 +19,7 @@ const AppNavbar = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
+
   const goToHome = () => {
     setHome(true);
     setAccount(false);
@@ -56,6 +57,16 @@ const AppNavbar = () => {
       hideSubscription.remove();
     };
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      goToHome();
+    });
+
+    return () => {
+      unsubscribe;
+    };
+}, [navigation]);
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{backgroundColor:'transparent'}}>

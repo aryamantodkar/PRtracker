@@ -1,10 +1,12 @@
 import { StyleSheet, Text, View,ScrollView, TextInput, Pressable,Image,KeyboardAvoidingView,Platform,Keyboard } from 'react-native'
 import React, { useState,useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation } from '@react-navigation/native';
 import {useRef} from 'react';
 import { Firestore, Timestamp, doc, serverTimestamp, setDoc,getDoc,collection,getDocs,getFirestore,onSnapshot,addDoc } from "firebase/firestore"; 
 import { FIREBASE_APP, FIREBASE_DB, firebaseConfig,  } from '../FirebaseConfig';
 import { getAuth } from "firebase/auth";
+import AppNavbar from './AppNavbar';
 
 const plusWhite = require("../assets/plus-icon-white.png");
 const deleteIcon = require("../assets/delete-icon.png");
@@ -14,7 +16,9 @@ const tickIcon = require("../assets/tick-icon.png");
 const tickIconBlack = require("../assets/tick-icon-black.png");
 const editIcon = require("../assets/edit-icon.png");
 
-const NewWorkout = ({navigation}) => {
+const NewWorkout = () => {
+    const navigation = useNavigation();
+
     const [workoutName,setWorkoutName] = useState("");
     const [exerciseName,setExerciseName] = useState("");
 
@@ -173,11 +177,22 @@ const NewWorkout = ({navigation}) => {
         setTotalSets(0)
     }
 
+    const editWorkout = (workout) => {
+        setEditWorkoutID(workout.id);
+        setEditWorkoutBool(true);
+        setEditedWorkoutName(workout.exerciseName);
+    }
+    
     const deleteExercise = (id) => {
         setAllWorkouts(allWorkouts.filter(workout => workout.id!= id));
         setTotalWorkouts(totalWorkouts-1);
         setDeleteWorkoutID(id);
     }
+
+    // creates a new collection with name as userID and auto-ids the document inside the collection
+    // userID -> randomID i.e (workout 1) -> workout data
+    //        -> randomID i.e (workout 2) -> workout data
+    //        -> randomID i.e (workout 3) -> workout data
 
     const addWorkoutToDB = async () => {
         const auth = getAuth();
@@ -186,14 +201,14 @@ const NewWorkout = ({navigation}) => {
         const res = await addDoc(collection(FIREBASE_DB, `${userID}`),{
             workoutName,
             allWorkouts,
-            timeStamp: serverTimestamp()
+            timeStamp: serverTimestamp(),
+            id: userID
         })
+        goToHomeScreen();
     }
 
-    const editWorkout = (workout) => {
-        setEditWorkoutID(workout.id);
-        setEditWorkoutBool(true);
-        setEditedWorkoutName(workout.exerciseName);
+    const goToHomeScreen = () => {
+        navigation.navigate('Home');
     }
 
 
@@ -605,9 +620,9 @@ const NewWorkout = ({navigation}) => {
                 !keyboardStatus && !editWorkoutBool
                 ?
                 <View style={{position: 'absolute', left: 0, right: 0, bottom: 20, justifyContent: 'center', alignItems: 'center',display: 'flex',flexDirection: 'row'}}>
-                    <View style={{backgroundColor: '#000',borderRadius: 50,padding: 17.5,marginRight: 10,borderWidth: 3,borderColor: '#fff'}}>
-                        <Image source={crossIconWhite} style={{height: 22.5,width: 22.5}}/>
-                    </View>
+                        <Pressable onPress={goToHomeScreen} style={{backgroundColor: '#000',borderRadius: 50,padding: 17.5,marginRight: 10,borderWidth: 3,borderColor: '#fff'}}>
+                            <Image source={crossIconWhite} style={{height: 22.5,width: 22.5}}/>
+                        </Pressable>
                     {
                         !showExerciseContainer && workoutName!="" && allWorkouts.length>0 ?
                         <Pressable onPress={addWorkoutToDB} style={{backgroundColor: '#000',borderRadius: 50,padding: 17.5,marginLeft: 10,borderWidth: 3,borderColor: '#fff'}}>
