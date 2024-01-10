@@ -5,6 +5,7 @@ import Home from './Home';
 import NewWorkout from './NewWorkout';
 import AppNavbar from './AppNavbar';
 import { SafeAreaProvider} from 'react-native-safe-area-context';
+import IndividualWorkout from './IndividualWorkout';
 
 
 const InsideStack = createNativeStackNavigator();

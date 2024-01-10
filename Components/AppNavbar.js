@@ -11,7 +11,7 @@ const accountWhite = require("../assets/account-icon-white.png");
 const accountBlack = require("../assets/account-icon-black.png");
 
 
-const AppNavbar = () => {
+const AppNavbar = ({showNavbar}) => {
   const [plus,setPlus] = useState(false);
   const [home,setHome] = useState(true);
   const [account,setAccount] = useState(false);
@@ -65,13 +65,13 @@ const AppNavbar = () => {
 
     return () => {
       unsubscribe;
-    };
-}, [navigation]);
+    };  
+  }, [navigation]);
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{backgroundColor:'transparent'}}>
       {
-        !keyboardStatus
+        !keyboardStatus && showNavbar
         ?
         <View style={{position: 'absolute', left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
           <View style={styles.navbar}>

@@ -6,6 +6,8 @@ import {useRef} from 'react';
 import { Firestore, Timestamp, doc, serverTimestamp, setDoc,getDoc,collection,getDocs,getFirestore,onSnapshot,addDoc } from "firebase/firestore"; 
 import { FIREBASE_APP, FIREBASE_DB, firebaseConfig,  } from '../FirebaseConfig';
 import { getAuth } from "firebase/auth";
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 import AppNavbar from './AppNavbar';
 
 const plusWhite = require("../assets/plus-icon-white.png");
@@ -197,12 +199,13 @@ const NewWorkout = () => {
     const addWorkoutToDB = async () => {
         const auth = getAuth();
         const userID = auth.currentUser.uid;
+        let randomID = uuidv4();
 
         const res = await addDoc(collection(FIREBASE_DB, `${userID}`),{
             workoutName,
             allWorkouts,
             timeStamp: serverTimestamp(),
-            id: userID
+            id: randomID,
         })
         goToHomeScreen();
     }

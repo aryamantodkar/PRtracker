@@ -11,6 +11,8 @@ export default function Home({navigation}) {
     FIREBASE_AUTH.signOut();
   }
 
+  const [showNavbar,setShowNavbar] = useState(true);
+
   return (
     <SafeAreaView style={styles.home}>
         <ScrollView contentContainerStyle ={[styles.home,{padding: 30}]}>
@@ -24,9 +26,9 @@ export default function Home({navigation}) {
                 </Pressable>
               </View>
             </View>
-            <Workout/>
+            <Workout showNavbar={setShowNavbar}/>
         </ScrollView>
-        <AppNavbar/>
+        <AppNavbar showNavbar={showNavbar}/>
     </SafeAreaView>
   )
 }
