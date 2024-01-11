@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView,ActivityIndicator } from 'react-native'
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { FIREBASE_DB } from '../FirebaseConfig';
@@ -17,6 +17,7 @@ const Workout = ({showNavbar}) => {
     const [workoutsArray,setWorkoutsArray] = useState([]);
     const [showWorkoutBox,setShowWorkoutBox] = useState(false);
     const [clickedWorkout,setClickedWorkout] = useState({});
+    const [isLoading,setIsLoading] = useState(false);
 
     const navigation = useNavigation();
     const auth = getAuth();
@@ -24,6 +25,7 @@ const Workout = ({showNavbar}) => {
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
+            setIsLoading(true);
             const q = query(collection(FIREBASE_DB, `${userID}`));
 
             const newArray = [];
@@ -38,6 +40,7 @@ const Workout = ({showNavbar}) => {
                 })
     
                 setWorkoutsArray(newArray);
+                setIsLoading(false);
             })
         });
     
@@ -46,23 +49,25 @@ const Workout = ({showNavbar}) => {
         };
     }, [navigation]);
 
-    useEffect(()=>{
-        const q = query(collection(FIREBASE_DB, `${userID}`));
+    useEffect(() => {
+            setIsLoading(true); 
+            const q = query(collection(FIREBASE_DB, `${userID}`));
 
-        const newArray = [];
-
-        const querySnapshot = getDocs(q)
-        .then(snap => {
-            snap.forEach((doc) => {
-                newArray.push(doc.data());
-            });
-            newArray.sort((x,y) => {
-                return y.timeStamp.toMillis() - x.timeStamp.toMillis();
+            const newArray = [];
+    
+            const querySnapshot = getDocs(q)
+            .then(snap => {
+                snap.forEach((doc) => {
+                    newArray.push(doc.data());
+                });
+                newArray.sort((x,y) => {
+                    return y.timeStamp.toMillis() - x.timeStamp.toMillis();
+                })
+    
+                setWorkoutsArray(newArray);
+                setIsLoading(false);
             })
-
-            setWorkoutsArray(newArray);
-        })
-    },[showWorkoutBox])
+    }, [showWorkoutBox]);
 
     const openWorkoutBox = (workout) => {
         setShowWorkoutBox(true);
@@ -85,6 +90,12 @@ const Workout = ({showNavbar}) => {
                     ?
                     workoutsArray.map(workout => {
                         return(
+                            isLoading
+                            ?
+                            <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: '80%'}}>
+                                <ActivityIndicator size="large" color="#000"/>
+                            </View>
+                            :
                             <Pressable onPress={() => {
                                 openWorkoutBox(workout);
                             }} key={workout.id}>
