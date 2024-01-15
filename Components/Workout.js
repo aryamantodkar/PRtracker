@@ -16,7 +16,7 @@ const workoutBlack = require("../assets/workout-icon-black.png");
 const Workout = ({showNavbar}) => {
     const [workoutsArray,setWorkoutsArray] = useState([]);
     const [showWorkoutBox,setShowWorkoutBox] = useState(false);
-    const [clickedWorkout,setClickedWorkout] = useState({});
+    const [clickedWorkoutID,setClickedWorkoutID] = useState();
     const [isLoading,setIsLoading] = useState(false);
 
     const navigation = useNavigation();
@@ -71,7 +71,7 @@ const Workout = ({showNavbar}) => {
 
     const openWorkoutBox = (workout) => {
         setShowWorkoutBox(true);
-        setClickedWorkout(workout);
+        setClickedWorkoutID(workout.id);
         showNavbar(false);
     }
 
@@ -155,7 +155,7 @@ const Workout = ({showNavbar}) => {
                 
             </View>
             :
-            <IndividualWorkout clickedWorkout={clickedWorkout} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar}/>
+            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar}/>
         }
       </ScrollView>
         {/* <View style={styles.plusIconContainer}>
