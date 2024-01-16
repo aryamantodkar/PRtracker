@@ -392,8 +392,8 @@ const NewWorkout = () => {
                                                                                     newSets.map(newSet => {
                                                                                         if(newSet.id != id){
                                                                                             newSet.id = id
-                                                                                            id++;
                                                                                         }
+                                                                                        id++;
                                                                                     })
 
                                                                                     const editedSetWorkout = {

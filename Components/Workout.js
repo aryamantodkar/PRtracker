@@ -92,7 +92,7 @@ const Workout = ({showNavbar}) => {
                         return(
                             isLoading
                             ?
-                            <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: '80%'}}>
+                            <View key={workout.id} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: '80%'}}>
                                 <ActivityIndicator size="large" color="#000"/>
                             </View>
                             :
@@ -100,7 +100,7 @@ const Workout = ({showNavbar}) => {
                                 openWorkoutBox(workout);
                             }} key={workout.id}>
                                 <View style={styles.workout}>
-                                    <View>
+                                    <View >
                                         <View style={styles.workoutTitleContainer}>
                                             <Image source={dumbell} style={styles.workoutIcon}/>
                                             <Text style={styles.workoutTitle}>{workout.workoutName}</Text>
@@ -139,7 +139,7 @@ const Workout = ({showNavbar}) => {
                         )
                     })
                     :
-                    <View style={styles.emptyWorkoutContainer}>
+                    <View  style={styles.emptyWorkoutContainer}>
                         <View style={{display: 'flex',justifyContent: 'center'}}>
                             <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginBottom: 25,marginTop: 20}}>
                                 <Image source={workoutBlack} style={{height: 30, width: 30}}/>
