@@ -18,6 +18,27 @@ const Workout = ({showNavbar}) => {
     const [showWorkoutBox,setShowWorkoutBox] = useState(false);
     const [clickedWorkoutID,setClickedWorkoutID] = useState();
     const [isLoading,setIsLoading] = useState(false);
+    const [myWorkoutsBool,setMyWorkoutsBool] = useState(true)
+    const months = new Map;
+    const dateSuffix = new Map;
+    const dateGroup = new Map;
+
+    months.set('01','January');
+    months.set('02','February');
+    months.set('03','March');
+    months.set('04','April');
+    months.set('05','May');
+    months.set('06','June');
+    months.set('07','July');
+    months.set('08','August');
+    months.set('09','September');
+    months.set('10','October');
+    months.set('11','November');
+    months.set('12','December');
+
+    dateSuffix.set('01','st');
+    dateSuffix.set('02','nd');
+    dateSuffix.set('03','rd');
 
     const navigation = useNavigation();
     const auth = getAuth();
@@ -75,16 +96,54 @@ const Workout = ({showNavbar}) => {
         showNavbar(false);
     }
 
+    const groupByDate = (workout) => {
+        dateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
+        return(
+            <View style={{marginTop: 20,borderBottomColor: '#EBEAEA',borderBottomWidth: 2,paddingBottom: 5,alignSelf: 'flex-start'}}>
+                <Text style={{fontSize: 20,color: '#404040',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
+                    {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
+                    {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
+                </Text>
+            </View>
+        )
+    }
+
   return (
-    <SafeAreaView style={[styles.workoutContainer,{marginTop: 30}]}>
       <ScrollView contentContainerStyle={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutContainer : styles.emptyWorkoutBox}  showsVerticalScrollIndicator={false}>
         {
             !showWorkoutBox
             ?
             <View style={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutList : styles.emptyWorkoutList}>
-                {/* <View style={styles.dateContainer}>
-                    <Text style={styles.date}>Today</Text>
-                </View> */}
+                {
+                    myWorkoutsBool
+                    ?
+                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10}}>
+                        <Pressable onPress={()=>{
+                            setMyWorkoutsBool(false);
+                        }} style={{backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20}}>
+                            <Text style={{color: '#404040',fontSize: 18,fontWeight: 400}}>Following</Text>
+                        </Pressable>
+                        <Pressable onPress={()=>{
+                            setMyWorkoutsBool(true);
+                        }} style={{backgroundColor: '#000',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20}}>
+                            <Text style={{color: '#fff',fontSize: 18,fontWeight: 400}}>My Workouts</Text>
+                        </Pressable>
+                    </View>
+                    :
+                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10}}>
+                        <Pressable onPress={()=>{
+                            setMyWorkoutsBool(false);
+                        }} style={{backgroundColor: '#000',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20}}>
+                            <Text style={{color: '#fff',fontSize: 18,fontWeight: 400}}>Following</Text>
+                        </Pressable>
+                        <Pressable onPress={()=>{
+                            setMyWorkoutsBool(true);
+                        }} style={{backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20}}>
+                            <Text style={{color: '#404040',fontSize: 18,fontWeight: 400}}>My Workouts</Text>
+                        </Pressable>
+                    </View>
+                }
+
                 {
                     workoutsArray!=undefined && workoutsArray.length>0
                     ?
@@ -99,6 +158,15 @@ const Workout = ({showNavbar}) => {
                             <Pressable onPress={() => {
                                 openWorkoutBox(workout);
                             }} key={workout.id}>
+                                {
+                                    // check if date is already present in dateGroup in ddmmyyyy format ->
+                                    !dateGroup.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`)
+                                    ?
+                                    groupByDate(workout)
+                                    :
+                                    null
+                                }
+                                
                                 <View style={styles.workout}>
                                     <View >
                                         <View style={styles.workoutTitleContainer}>
@@ -110,7 +178,7 @@ const Workout = ({showNavbar}) => {
                                                 workout.allWorkouts.map(exercise => {
                                                     return(
                                                         <View style={styles.exerciseName} key={exercise.id}>
-                                                            <Text style={{borderColor: '#fff',borderWidth: 2,fontSize: 17,padding: 5,color: 'white',borderRadius: 10,paddingLeft: 10,paddingRight: 10}}>{exercise.exerciseName}</Text>
+                                                            <Text style={{borderBottomColor: '#fff',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5,color: 'white'}}>{exercise.exerciseName}</Text>
                                                             <Text style={{fontSize: 17,color: 'white',padding: 5}}> x 3</Text>
                                                         </View>
                                                     )
@@ -118,7 +186,7 @@ const Workout = ({showNavbar}) => {
                                             }
                                         </View>
                                         {
-                                            workout.timeStamp.toDate().toTimeString().slice(0,5)<12
+                                            workout.timeStamp.toDate().toTimeString().slice(0,2)<12
                                             ?
                                             <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
                                             :
@@ -158,10 +226,6 @@ const Workout = ({showNavbar}) => {
             <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar}/>
         }
       </ScrollView>
-        {/* <View style={styles.plusIconContainer}>
-            <Image source={plus} style={styles.plusIcon}/>
-        </View> */}
-    </SafeAreaView>
   )
 }
 
@@ -174,6 +238,9 @@ const styles = StyleSheet.create({
         flex: 1,
         height: '100%',
         width: '100%',
+        overflow: 'scroll',
+        marginTop: 20,
+        marginBottom: 50
     },
     emptyWorkoutBox: {
         display: 'flex',
@@ -214,7 +281,7 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     workout: {
-        marginTop: 30,
+        marginTop: 20,
         height: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -230,14 +297,21 @@ const styles = StyleSheet.create({
 
         padding: 10,
         fontWeight: '600',
-        borderBottomWidth:2,
-        borderBottomColor: "white"
+        paddingBottom: 0
+        // borderBottomWidth:2,
+        // borderBottomColor: "white"
     },
     workoutTitle: {
-        fontSize: 20,
+        fontSize: 17.5,
         color: '#fff',
         textAlign: 'center',
-        textAlignVertical: 'center'
+        textAlignVertical: 'center',
+        padding: 5,
+        borderWidth: 2,
+        borderColor: "white",
+        borderRadius: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
     },
     workoutTime: {
         position: 'absolute',

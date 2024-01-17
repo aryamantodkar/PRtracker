@@ -40,6 +40,7 @@ const NewWorkout = () => {
 
     const weightRef = useRef(null);
     const repsRef = useRef(null);
+    const scrollViewRef = useRef();
 
     const [exerciseAdded,setExerciseAdded] = useState(false);
 
@@ -162,6 +163,8 @@ const NewWorkout = () => {
         setExerciseAdded(false);
         setTotalWorkouts(totalWorkouts+1);
         setWorkoutsTillNow(workoutsTillNow+1);
+
+        scrollViewRef.current.scrollToEnd({animated: true});
     }
 
     const addExercise = () => {
@@ -217,7 +220,7 @@ const NewWorkout = () => {
 
     return (  
         <KeyboardAvoidingView style={styles.home} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={-25}>
-            <ScrollView style={{flex: 1,height: '100%',width: '100%'}} keyboardShouldPersistTaps="always">
+            <ScrollView ref={scrollViewRef} style={{flex: 1,height: '100%',width: '100%'}} keyboardShouldPersistTaps="always">
                     <View>
                         <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',marginBottom: 20}}>
                             <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
@@ -276,7 +279,7 @@ const NewWorkout = () => {
                                                                         <Text style={{color: '#fff',fontSize: 15,fontWeight: '600'}}>Set {set.id}</Text>
                                                                     </View>
                                                                     <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                                                                        <View style={{padding: 10,width: 70,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                                        <View style={{padding: 10,width: 90,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
                                                                             <Text style={{color: '#fff',fontSize: 16,fontWeight: '600',borderBottomWidth: 2,borderBottomColor: 'white',alignSelf: 'center',paddingBottom: 5}}>{set.weight} Kg</Text>
                                                                         </View>
                                                                         <View>

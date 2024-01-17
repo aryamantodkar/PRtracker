@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useRef } from 'react'
 import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView, TextInput,ActivityIndicator } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import { collection, query, where, getDocs,doc,deleteDoc,updateDoc } from "firebase/firestore";
@@ -23,6 +23,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar}) => {
     const [isLoading,setIsLoading] = useState(true);
     const [docID,setDocID] = useState("");
 
+    const scrollViewRef = useRef();
 
     const navigation = useNavigation();
     const auth = getAuth();
@@ -78,10 +79,14 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar}) => {
         })
     }
 
+    const autoScroll = () => {
+        scrollViewRef.current.scrollToEnd({animated: true});
+    }
+
   return (
         editWorkout
         ?
-        <ScrollView style={[styles.individualWorkout,{backgroundColor: '#fff',borderColor: '#f5f4f4',borderWidth: 3}]}>
+        <ScrollView ref={scrollViewRef} style={[styles.individualWorkout,{backgroundColor: '#fff',borderColor: '#f5f4f4',borderWidth: 3}]}>
             <View style={styles.individualWorkoutHeader}>
                 <View style={{display: 'flex',flexDirection: 'row'}}>
                     <TextInput value={editedWorkoutName} placeholder={editedWorkoutName} onChangeText={async(text) => {
@@ -131,6 +136,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar}) => {
                         ...clickedWorkout,
                         allWorkouts: newArray
                     })
+
+                    autoScroll();
 
                 }} style={{backgroundColor: 'black',width: '100%',display: 'flex',justifyContent: 'space-between',alignItems: 'center',marginLeft: 'auto',marginRight: 'auto',padding: 7.5,borderRadius: 10,flexDirection: 'row',marginBottom: 20,paddingLeft: 10,paddingRight: 10}}>
                     <Text style={{color: '#fff',fontSize: 17,fontWeight: 500}}>Add Exercise</Text>
@@ -236,7 +243,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar}) => {
                                                             <Text style={{color: '#fff',fontSize: 17.5,display: 'flex',alignItems: 'center',textAlign: 'center',justifyContent: 'center'}}>Set {sets.id}</Text>
                                                         </View>
                                                         <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                                                            <View style={{borderWidth: 2,borderColor: '#DDD',borderRadius: 10,padding: 5,paddingLeft: 10,paddingRight: 10,width: 50}}>
+                                                            <View style={{borderWidth: 2,borderColor: '#DDD',borderRadius: 10,padding: 5,width: 70}}>
                                                                 <TextInput value={sets.weight} onChangeText={(text)=>{
                                                                     const replaceArray = exercises.allSets.filter(arr => arr.id != sets.id);
 
@@ -437,7 +444,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar}) => {
                                                     <View style={{borderWidth: 2,borderColor: '#fff',padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 10,width: 70}}>
                                                         <Text style={{color: '#fff',fontSize: 17.5,display: 'flex',alignItems: 'center',textAlign: 'center',justifyContent: 'center'}}>Set {sets.id}</Text>
                                                     </View>
-                                                    <View style={{borderWidth: 2,borderColor: '#fff',padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 10,width: 80}}>
+                                                    <View style={{borderWidth: 2,borderColor: '#fff',padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 10,width: 90}}>
                                                         <Text style={{color: '#fff',fontSize: 17.5,display: 'flex',alignItems: 'center',textAlign: 'center',justifyContent: 'center'}}>{sets.weight} kg</Text>
                                                     </View>
                                                     <View style={{padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 10}}>

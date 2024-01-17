@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
 import { StyleSheet, Text, View, TextInput,KeyboardAvoidingView,Pressable,SafeAreaView, Platform } from 'react-native';
 import {useState} from 'react'
-import { FIREBASE_AUTH } from '../FirebaseConfig';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
+import { createUserWithEmailAndPassword,updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 export default function Register({navigation}) { 
   const [name,setName] = useState("");
@@ -21,7 +22,13 @@ export default function Register({navigation}) {
   const handleSignup = async () =>{
     setLoading(true);
     try{
-      const resposne = await createUserWithEmailAndPassword(auth,email,password);
+      const resposne = await createUserWithEmailAndPassword(auth,email,password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        updateProfile(user,{
+          displayName: name,
+        });
+      })
       console.log(resposne);
     }
     catch(err){
