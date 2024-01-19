@@ -13,12 +13,14 @@ const workoutBlack = require("../assets/workout-icon-black.png");
 
 
 
-const Workout = ({showNavbar}) => {
+const Workout = ({showNavbar,searchParams}) => {
     const [workoutsArray,setWorkoutsArray] = useState([]);
     const [showWorkoutBox,setShowWorkoutBox] = useState(false);
     const [clickedWorkoutID,setClickedWorkoutID] = useState();
     const [isLoading,setIsLoading] = useState(false);
-    const [myWorkoutsBool,setMyWorkoutsBool] = useState(true)
+    const [myWorkoutsBool,setMyWorkoutsBool] = useState(true);
+    const [originalWorkoutArray,setOriginalWorkoutArray] = useState([]);
+
     const months = new Map;
     const dateSuffix = new Map;
     const dateGroup = new Map;
@@ -107,6 +109,43 @@ const Workout = ({showNavbar}) => {
             </View>
         )
     }
+
+    useEffect(()=>{
+        const q = query(collection(FIREBASE_DB, `${userID}`));
+
+        const newArray = [];
+
+        const querySnapshot = getDocs(q)
+        .then(snap => {
+            snap.forEach((doc) => {
+                newArray.push(doc.data());
+            });
+            newArray.sort((x,y) => {
+                return y.timeStamp.toMillis() - x.timeStamp.toMillis();
+            })
+
+            setOriginalWorkoutArray(newArray);
+
+
+            if(searchParams==""){
+                setWorkoutsArray(originalWorkoutArray);
+            }
+            else{
+                const filterBySearch = originalWorkoutArray.filter((item) => {
+                    let search = false;
+                    item.allWorkouts.map(workout => {
+                        if (workout.exerciseName.toLowerCase()
+                            .includes(searchParams.toLowerCase())){search = true}
+                    })
+                    if (item.workoutName.toLowerCase()
+                        .includes(searchParams.toLowerCase())|| search) { return item; }
+                })
+                setWorkoutsArray(filterBySearch);
+            }
+        })
+
+        
+    },[searchParams]);
 
   return (
       <ScrollView contentContainerStyle={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutContainer : styles.emptyWorkoutBox}  showsVerticalScrollIndicator={false}>
@@ -240,7 +279,7 @@ const styles = StyleSheet.create({
         width: '100%',
         overflow: 'scroll',
         marginTop: 20,
-        marginBottom: 50
+        marginBottom: 50,
     },
     emptyWorkoutBox: {
         display: 'flex',

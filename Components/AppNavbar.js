@@ -40,6 +40,8 @@ const AppNavbar = ({showNavbar}) => {
     setHome(false);
     setAccount(true);
     setPlus(false);
+
+    navigation.navigate('UserPage');  
   }
 
   const [keyboardStatus, setKeyboardStatus] = useState(false);
@@ -60,13 +62,21 @@ const AppNavbar = ({showNavbar}) => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      goToHome();
+      if(route.name!="UserPage"){
+        goToHome();
+      }
+      if(route.name=='UserPage'){
+        setAccount(true);
+        setHome(false);
+        setPlus(false);
+      }
     });
 
     return () => {
       unsubscribe;
     };  
   }, [navigation]);
+
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{backgroundColor:'transparent'}}>
@@ -143,6 +153,8 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         marginBottom: 45,
         padding: 15,
+        borderWidth: 2,
+        borderColor: '#f5f4f4'
       },
       navAdd: {
         // backgroundColor: 'red',

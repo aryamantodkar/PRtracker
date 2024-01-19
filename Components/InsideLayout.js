@@ -6,6 +6,7 @@ import NewWorkout from './NewWorkout';
 import AppNavbar from './AppNavbar';
 import { SafeAreaProvider} from 'react-native-safe-area-context';
 import IndividualWorkout from './IndividualWorkout';
+import UserPage from './UserPage';
 
 
 const InsideStack = createNativeStackNavigator();
@@ -16,6 +17,7 @@ export default function InsideLayout({navigation}) {
         <InsideStack.Navigator screenOptions={{headerShown: false}}>
           <InsideStack.Screen name="Home" component={Home} />
           <InsideStack.Screen name="NewWorkout" component={NewWorkout} />
+          <InsideStack.Screen name="UserPage" component={UserPage} />
         </InsideStack.Navigator>
         {/* <AppNavbar/> */}
       </SafeAreaProvider>
