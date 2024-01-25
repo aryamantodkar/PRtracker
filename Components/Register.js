@@ -3,7 +3,8 @@ import { StyleSheet, Text, View, TextInput,KeyboardAvoidingView,Pressable,SafeAr
 import {useState} from 'react'
 import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
 import { createUserWithEmailAndPassword,updateProfile } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc,collection, addDoc } from 'firebase/firestore';
+import { getAuth } from "firebase/auth";
 
 export default function Register({navigation}) { 
   const [name,setName] = useState("");
@@ -14,6 +15,7 @@ export default function Register({navigation}) {
   const [loading,setLoading] = useState(false);
 
   const auth = FIREBASE_AUTH;
+  const userAuth = getAuth();
 
   const goToRegister = () => {
     navigation.navigate('Login');
@@ -23,10 +25,17 @@ export default function Register({navigation}) {
     setLoading(true);
     try{
       const resposne = await createUserWithEmailAndPassword(auth,email,password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         const user = userCredential.user;
         updateProfile(user,{
           displayName: name,
+        });
+        
+        const docRef = await setDoc(doc(FIREBASE_DB, "Users", `${user.uid}`), {
+          name: `${name}`,
+          uid: `${user.uid}`,
+          followers: [],
+          following: []
         });
       })
       console.log(resposne);

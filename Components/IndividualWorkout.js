@@ -15,20 +15,21 @@ const plusIconWhite = require("../assets/plus-icon-white.png");
 const tickIconBlack = require("../assets/tick-icon-black.png");
 const deleteIconBlack = require("../assets/delete-icon-black.png");
 
-const IndividualWorkout = ({ID,showWorkoutBox,showNavbar}) => {
+const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
     const [editWorkout,setEditWorkout] = useState(false);
     const [clickedWorkout,setClickedWorkout] = useState({});
     const [originalClickedWorkout,setOriginalClickedWorkout] = useState({});
     const [editedWorkoutName,setEditedWorkoutName] = useState("");
     const [isLoading,setIsLoading] = useState(true);
     const [docID,setDocID] = useState("");
+    const [readOnly,setReadOnly] = useState(false);
 
     const scrollViewRef = useRef();
 
     const navigation = useNavigation();
     const auth = getAuth();
-    const userID = auth.currentUser.uid;
-    
+    var userID = auth.currentUser.uid;
+
     const deleteWorkout = async () => {
         const q = query(collection(FIREBASE_DB, `${userID}`));
 
@@ -44,11 +45,18 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar}) => {
 
             await deleteDoc(doc(FIREBASE_DB, `${userID}`, `${docID}`));
             showWorkoutBox(false);
-            showNavbar(true);
+            if(uid==null){
+                showNavbar(true);
+            }
         })
     }
 
     useEffect(()=>{
+        if(uid!=null){
+            userID = uid;
+            setReadOnly(true);
+        }
+        
         const q = query(collection(FIREBASE_DB, `${userID}`));
 
         const querySnapshot = getDocs(q)
@@ -401,29 +409,37 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar}) => {
             </View>
         </ScrollView>
         :
-        <ScrollView style={styles.individualWorkout}>
+        <ScrollView contentContainerStyle={styles.individualWorkout} style={{width: '100%'}}>
             <View style={styles.individualWorkoutHeader}>
                 <View style={{display: 'flex',flexDirection: 'row'}}>
                     <Pressable onPress={() => {
                         showWorkoutBox(false);
-                        showNavbar(true);
+                        if(uid==null){
+                            showNavbar(true);
+                        }
                     }}>
                         <Image source={backIconWhite} style={{display: 'flex',height: 35,width: 35,alignItems: 'center',justifyContent: 'center'}}></Image>
                     </Pressable>
                     <Text style={{display: 'flex',color: '#fff',fontSize: 22.5,alignItems: 'center',justifyContent: 'center',textAlignVertical: 'center',borderBottomColor: 'white',borderBottomWidth: 2,paddingBottom: 5}}>{clickedWorkout.workoutName}</Text>
                 </View>
-                <View style={{display: 'flex',flexDirection: 'row'}}>
-                    <Pressable onPress={()=>{
-                        setEditWorkout(true);
-                    }}>
-                        <Image source={editIcon} style={{height: 20,width: 20,marginRight: 10}}/>
-                    </Pressable>
-                    <Pressable onPress={()=>{
-                        deleteWorkout();
-                    }}>
-                        <Image source={deleteIcon} style={{height: 20,width: 20,marginRight: 10}}/>
-                    </Pressable>
-                </View>
+                {
+                    !readOnly
+                    ?
+                    <View style={{display: 'flex',flexDirection: 'row'}}>
+                        <Pressable onPress={()=>{
+                            setEditWorkout(true);
+                        }}>
+                            <Image source={editIcon} style={{height: 20,width: 20,marginRight: 10}}/>
+                        </Pressable>
+                        <Pressable onPress={()=>{
+                            deleteWorkout();
+                        }}>
+                            <Image source={deleteIcon} style={{height: 20,width: 20,marginRight: 10}}/>
+                        </Pressable>
+                    </View>
+                    :
+                    null
+                }
             </View>
             <View style={styles.individualWorkoutExercises}>
                 {
@@ -476,10 +492,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'black',
         borderRadius: 15,
         display: 'flex',
-        height: '100%',
+        width: '100%',
         overflow: 'scroll',
         padding: 15,
-        
+        // marginBottom: 40
     },
     individualWorkoutHeader: {
         display: 'flex',
@@ -490,7 +506,7 @@ const styles = StyleSheet.create({
     individualWorkoutExercises: {
         marginTop: 15,
         paddingTop: 10,
-        marginBottom: 40
+        // marginBottom: 40
     },
     addSetContainer: {
         backgroundColor: '#000',

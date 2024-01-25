@@ -13,7 +13,7 @@ const workoutBlack = require("../assets/workout-icon-black.png");
 
 
 
-const Workout = ({showNavbar,searchParams}) => {
+const Workout = ({showNavbar,searchParams,uid}) => {
     const [workoutsArray,setWorkoutsArray] = useState([]);
     const [showWorkoutBox,setShowWorkoutBox] = useState(false);
     const [clickedWorkoutID,setClickedWorkoutID] = useState();
@@ -44,9 +44,13 @@ const Workout = ({showNavbar,searchParams}) => {
 
     const navigation = useNavigation();
     const auth = getAuth();
-    const userID = auth.currentUser.uid;
+    var userID = auth.currentUser.uid;
 
     useEffect(() => {
+        if(uid!=null){
+            userID = uid;
+        }
+
         const unsubscribe = navigation.addListener('focus', () => {
             setIsLoading(true);
             const q = query(collection(FIREBASE_DB, `${userID}`));
@@ -90,12 +94,14 @@ const Workout = ({showNavbar,searchParams}) => {
                 setWorkoutsArray(newArray);
                 setIsLoading(false);
             })
-    }, [showWorkoutBox]);
+    }, []);
 
     const openWorkoutBox = (workout) => {
         setShowWorkoutBox(true);
         setClickedWorkoutID(workout.id);
-        showNavbar(false);
+        if(uid==null){
+            showNavbar(false);
+        }
     }
 
     const groupByDate = (workout) => {
@@ -147,6 +153,8 @@ const Workout = ({showNavbar,searchParams}) => {
         
     },[searchParams]);
 
+    
+
   return (
       <ScrollView contentContainerStyle={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutContainer : styles.emptyWorkoutBox}  showsVerticalScrollIndicator={false}>
         {
@@ -154,33 +162,41 @@ const Workout = ({showNavbar,searchParams}) => {
             ?
             <View style={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutList : styles.emptyWorkoutList}>
                 {
-                    myWorkoutsBool
+                    uid==null
                     ?
-                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10}}>
-                        <Pressable onPress={()=>{
-                            setMyWorkoutsBool(false);
-                        }} style={{backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20}}>
-                            <Text style={{color: '#404040',fontSize: 18,fontWeight: 400}}>Following</Text>
-                        </Pressable>
-                        <Pressable onPress={()=>{
-                            setMyWorkoutsBool(true);
-                        }} style={{backgroundColor: '#000',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20}}>
-                            <Text style={{color: '#fff',fontSize: 18,fontWeight: 400}}>My Workouts</Text>
-                        </Pressable>
+                    <View>
+                        {
+                            myWorkoutsBool
+                            ?
+                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10,alignItems: 'center'}}>
+                                <Pressable onPress={()=>{
+                                    setMyWorkoutsBool(false);
+                                }} style={{backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20,marginRight: 10}}>
+                                    <Text style={{color: '#404040',fontSize: 18,fontWeight: 400}}>Following</Text>
+                                </Pressable>
+                                <Pressable onPress={()=>{
+                                    setMyWorkoutsBool(true);
+                                }} style={{backgroundColor: '#000',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20,marginLeft: 10}}>
+                                    <Text style={{color: '#fff',fontSize: 18,fontWeight: 400}}>My Workouts</Text>
+                                </Pressable>
+                            </View>
+                            :
+                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10,alignItems: 'center'}}>
+                                <Pressable onPress={()=>{
+                                    setMyWorkoutsBool(false);
+                                }} style={{backgroundColor: '#000',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20,marginRight: 10}}>
+                                    <Text style={{color: '#fff',fontSize: 18,fontWeight: 400}}>Following</Text>
+                                </Pressable>
+                                <Pressable onPress={()=>{
+                                    setMyWorkoutsBool(true);
+                                }} style={{backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20,marginLeft: 10}}>
+                                    <Text style={{color: '#404040',fontSize: 18,fontWeight: 400}}>My Workouts</Text>
+                                </Pressable>
+                            </View>
+                        }
                     </View>
                     :
-                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10}}>
-                        <Pressable onPress={()=>{
-                            setMyWorkoutsBool(false);
-                        }} style={{backgroundColor: '#000',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20}}>
-                            <Text style={{color: '#fff',fontSize: 18,fontWeight: 400}}>Following</Text>
-                        </Pressable>
-                        <Pressable onPress={()=>{
-                            setMyWorkoutsBool(true);
-                        }} style={{backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20}}>
-                            <Text style={{color: '#404040',fontSize: 18,fontWeight: 400}}>My Workouts</Text>
-                        </Pressable>
-                    </View>
+                    null
                 }
 
                 {
@@ -247,22 +263,28 @@ const Workout = ({showNavbar,searchParams}) => {
                     })
                     :
                     <View  style={styles.emptyWorkoutContainer}>
-                        <View style={{display: 'flex',justifyContent: 'center'}}>
-                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginBottom: 25,marginTop: 20}}>
-                                <Image source={workoutBlack} style={{height: 30, width: 30}}/>
-                                <Text style={{color: 'black',marginLeft: 10,fontSize: 17.5,fontWeight: '600',color: '#000'}}>No Workouts Found</Text>
-                            </View>
-                            <View style={{alignItems: 'center',justifyContent: 'center'}}> 
-                                <Text style={{color: 'black',marginLeft: 10,fontSize: 14,fontWeight: '500',color: '#4F4F4F',width: '85%'}}>Please start adding workouts to view them here.</Text>
-                            </View>
+                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginBottom: 25}}>
+                            <Image source={workoutBlack} style={{height: 30, width: 30}}/>
+                            <Text style={{color: 'black',marginLeft: 10,fontSize: 17.5,fontWeight: '600',color: '#000'}}>No Workouts Found</Text>
                         </View>
+                        {
+                            uid==null
+                            ?
+                            <View style={{display:'flex',alignItems: 'center',justifyContent: 'center'}}> 
+                                <Text style={{color: 'black',fontSize: 14,fontWeight: '500',color: '#4F4F4F',width: '85%',textAlign: 'center'}}>Please start adding workouts to view them here.</Text>
+                            </View>
+                            :
+                            <View style={{display:'flex',alignItems: 'center',justifyContent: 'center',}}> 
+                                <Text style={{color: 'black',fontSize: 14,fontWeight: '500',color: '#4F4F4F',width: '85%',textAlign: 'center'}}>They haven't added any workouts yet.</Text>
+                            </View>
+                        }   
                     </View>
                 }
                 
                 
             </View>
             :
-            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar}/>
+            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={uid}/>
         }
       </ScrollView>
   )
@@ -284,12 +306,13 @@ const styles = StyleSheet.create({
     emptyWorkoutBox: {
         display: 'flex',
         flexDirection: 'column',
-        flex: 1,
         height: '100%',
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 40
+        marginBottom: 40,
+        paddingTop: 20,
+        // backgroundColor: 'red',
     },
     workoutList: {
         display: 'flex',
@@ -299,8 +322,10 @@ const styles = StyleSheet.create({
     emptyWorkoutList: {
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'space-around',
+        alignItems: 'center',
         height: '100%',
+        width: '100%',
         marginBottom: 35
     },
     date: {
@@ -407,9 +432,13 @@ const styles = StyleSheet.create({
         display: 'flex',
         width: '100%',
         backgroundColor: '#f5f4f4',
-        height: 150,
-        width: 250,
+        width: '90%',
         borderRadius: 15,
+        marginTop: 125,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        padding: 20,
+        justifyContent: 'center',
     },
     
 })

@@ -1,16 +1,19 @@
 import { Button, Pressable, StyleSheet, Text, View,KeyboardAvoidingView, ScrollView, Image, TextInput } from 'react-native'
 import React, { useContext, useEffect, useState,useRef } from 'react'
-import { FIREBASE_AUTH } from '../FirebaseConfig';
+import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Workout from './Workout';
 import AppNavbar from './AppNavbar';
 import { getAuth } from "firebase/auth";
+import { useNavigation } from '@react-navigation/native';
+import { collection, getDocs } from "firebase/firestore";
 
 const logout = require("../assets/logout.png");
 const searchIcon = require("../assets/search-icon.png");
 const crossIcon = require("../assets/cross-icon-black.png");
+const usersIcon = require("../assets/findUsers.png");
 
-export default function Home({navigation}) {
+export default function Home() {
   const handleLogout = () =>{
     FIREBASE_AUTH.signOut();
   }
@@ -20,6 +23,7 @@ export default function Home({navigation}) {
   const [searchText,setSearchText] = useState("");
   const [searchParams,setSearchParams] = useState("");
 
+  const navigation = useNavigation();
   const auth = getAuth();
   const user = auth.currentUser;
   const inputRef = useRef(null);
@@ -32,13 +36,20 @@ export default function Home({navigation}) {
                   !searchBar
                   ?
                   <View style={styles.header}>
-                    <Pressable onPress={()=>{
-                      setSearchBar(true);
-                    }} style={styles.headingTitleContainer}>
-                      {/* <Text style={[styles.headingTitle,{fontWeight: 400,fontSize: 28,color: '#676767'}]}>Welcome,</Text>
-                      <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 22,color: '#404040'}]}>{user.displayName.split(/(\s+)/)[0]}</Text> */}
-                      <Image source={searchIcon} style={{height: 35,width: 35,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
-                    </Pressable>
+                    <View style={{display: 'flex',flexDirection: 'row'}}>
+                      <Pressable onPress={()=>{
+                        setSearchBar(true);
+                      }} style={styles.headingTitleContainer}>
+                        {/* <Text style={[styles.headingTitle,{fontWeight: 400,fontSize: 28,color: '#676767'}]}>Welcome,</Text>
+                        <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 22,color: '#404040'}]}>{user.displayName.split(/(\s+)/)[0]}</Text> */}
+                        <Image source={searchIcon} style={{height: 35,width: 35,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                      </Pressable>
+                      <Pressable onPress={()=>{
+                        navigation.navigate('FindUsers');
+                      }} style={styles.headingTitleContainer}>
+                        <Image source={usersIcon} style={{height: 55,width: 55,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                      </Pressable>
+                    </View>
                     <View>
                       <Pressable onPress={handleLogout} style={styles.logoutBtn}>
                         <Image source={logout} style={styles.logoutIcon}/>
@@ -47,7 +58,7 @@ export default function Home({navigation}) {
                   </View>
                   :
                   <View style={{borderBottomColor: '#000',borderBottomWidth: 2,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center'}}>
-                      <TextInput ref={inputRef} value={searchText} placeholder='Search Workouts or Friends' onChangeText={(text)=>{
+                      <TextInput ref={inputRef} value={searchText} placeholder='Search Workouts' onChangeText={(text)=>{
                           setSearchText(text);
                           setSearchParams(text);
                           inputRef.current.focus();
@@ -61,7 +72,7 @@ export default function Home({navigation}) {
                       </Pressable>
                   </View>
                 }
-                <Workout searchParams={searchParams} showNavbar={setShowNavbar}/>
+                <Workout searchParams={searchParams} showNavbar={setShowNavbar} uid={null}/>
             </ScrollView>
             
         </ScrollView>
