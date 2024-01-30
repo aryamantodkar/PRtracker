@@ -120,7 +120,7 @@ export const IndividualUser = () => {
                     <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',position: 'relative'}}>
                         <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',marginLeft: -10}}>
                             <Pressable onPress={()=>{
-                                navigation.navigate('FindUsers')
+                                navigation.goBack();
                             }} style={{margin: 0,padding: 0}}>
                                 <Image source={backIconBlack} style={{height: 35,width: 35}}/>
                             </Pressable>

@@ -58,7 +58,7 @@ export const FindUsers = () => {
             <View style={{marginTop: 30,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center'}}>
                 <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',position: 'relative'}}>
                     <Pressable onPress={()=>{
-                        navigation.push('Home')
+                        navigation.goBack();
                     }}>
                         <Image source={backIconBlack} style={{height: 35,width: 35}}/>
                     </Pressable>
@@ -90,11 +90,11 @@ export const FindUsers = () => {
                                             uid: user.uid,
                                             name: user.name,
                                         })
-                                    }} key={user.uid} style={{width: '100%',height: 80,display: 'flex',flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',paddingLeft: 20,borderWidth: 1,borderColor: '#DDD',backgroundColor: '#f5f4f4',borderRadius: 10,marginTop: 10,marginBottom: 10}}>
-                                        <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50}}/>
+                                    }} key={user.uid} style={{width: '100%',height: 80,display: 'flex',flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',paddingLeft: 20,backgroundColor: '#f5f4f4',borderColor: '#DDD',borderWidth: 1,borderRadius: 10,marginTop: 10,marginBottom: 10}}>
+                                        <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,borderColor: '#DDD',borderWidth: 2}}/>
                                         <View style={{marginLeft: 20,display: 'flex',flexDirection: 'column'}}>
-                                            <Text style={{color: 'black',fontSize: 16,marginBottom: 5,fontWeight: '500'}}>{user.name}</Text>
-                                            <Text style={{color: 'black',fontSize: 12.5,marginBottom: 5,fontWeight: '400'}}>Pune, Maharashtra</Text>
+                                            <Text style={{color: '#007FF4',fontSize: 16,marginBottom: 5,fontWeight: '500'}}>{user.name}</Text>
+                                            <Text style={{color: '#000',fontSize: 12.5,marginBottom: 5,fontWeight: '400'}}>Pune, Maharashtra</Text>
 
                                         </View>
                                     </Pressable>

@@ -9,6 +9,7 @@ import IndividualWorkout from './IndividualWorkout';
 import UserPage from './UserPage';
 import { FindUsers } from './FindUsers';
 import { IndividualUser } from './IndividualUser';
+import ViewFollowers from './ViewFollowers';
 
 
 const InsideStack = createNativeStackNavigator();
@@ -22,6 +23,7 @@ export default function InsideLayout({navigation}) {
           <InsideStack.Screen name="UserPage" component={UserPage} />
           <InsideStack.Screen name="FindUsers" component={FindUsers} />
           <InsideStack.Screen name="IndividualUser" component={IndividualUser} />
+          <InsideStack.Screen name="ViewFollowers" component={ViewFollowers} />
         </InsideStack.Navigator>
         {/* <AppNavbar/> */}
       </SafeAreaProvider>

@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { collection, query, where, getDocs,doc,deleteDoc,updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { FIREBASE_DB } from '../FirebaseConfig';
+import { useRoute } from '@react-navigation/native';
 
 
 const backIconWhite = require("../assets/back-arrow-icon-white.png");
@@ -29,6 +30,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
     const navigation = useNavigation();
     const auth = getAuth();
     var userID = auth.currentUser.uid;
+    const route = useRoute();
 
     const deleteWorkout = async () => {
         const q = query(collection(FIREBASE_DB, `${userID}`));
@@ -414,7 +416,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                 <View style={{display: 'flex',flexDirection: 'row'}}>
                     <Pressable onPress={() => {
                         showWorkoutBox(false);
-                        if(uid==null){
+                        if(route.name!='IndividualUser'){
                             showNavbar(true);
                         }
                     }}>

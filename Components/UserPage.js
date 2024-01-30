@@ -1,7 +1,9 @@
 import { Button, Pressable, StyleSheet, Text, View,KeyboardAvoidingView, ScrollView, Image } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
-import { FIREBASE_AUTH } from '../FirebaseConfig';
+import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
 import AppNavbar from './AppNavbar';
+import { collection, getDocs,doc,updateDoc, getDoc } from "firebase/firestore";
+import { useNavigation } from '@react-navigation/native';
 import { getAuth } from "firebase/auth";
 
 const pfp = require("../assets/pfp.jpg");
@@ -9,8 +11,27 @@ const settingsIcon = require("../assets/settings-icon.png");
 
 const UserPage = () => {
     const [showNavbar,setShowNavbar] = useState(true);
+    const [followingArray,setFollowingArray] = useState([]);
+    const [followersArray,setFollowersArray] = useState([]);
+
+    const navigation = useNavigation();
     const auth = getAuth();
     const user = auth.currentUser;
+
+
+    const getFollowStats = async () => {
+      const docRef = doc(FIREBASE_DB, "Users", `${user.uid}`);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+          setFollowingArray(docSnap.data().following);
+          setFollowersArray(docSnap.data().followers);
+      }
+    }
+
+    useEffect(() => {
+      getFollowStats();
+    },[])
 
   return (
     <View style={styles.home}>
@@ -27,7 +48,24 @@ const UserPage = () => {
         </Pressable>
       </View>
       <View style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
-          <Text style={{fontSize: 14.5,fontWeight: '400',color: '#696969'}}><Text style={{fontWeight: '600',color: 'black'}}>12</Text> Followers | <Text style={{fontWeight: '600',color: 'black'}}>23</Text> Following</Text>
+          <Text style={{fontSize: 14.5,fontWeight: '400',color: '#696969',display: 'flex',flexDirection: 'row'}}>
+            <Pressable onPress={()=>{
+              navigation.navigate('ViewFollowers',{
+                followersTab: true
+              });
+            }} style={{display: 'flex',flexDirection: 'row'}}> 
+              <Text style={{fontWeight: '600',color:'black'}}>{followersArray.length} </Text>
+              <Text>Followers | </Text>
+            </Pressable>
+            <Pressable onPress={()=>{
+              navigation.navigate('ViewFollowers',{
+                followersTab: false,
+              });
+            }} style={{display: 'flex',flexDirection: 'row'}}>
+              <Text style={{fontWeight: '600',color:'black'}}>{followingArray.length} </Text>
+              <Text>Following</Text>
+            </Pressable>
+          </Text>
       </View>
       <View style={{width: '100%',borderBottomWidth: 1,borderBottomColor: '#EBEAEA',marginTop: 15}}></View>
       <View style={{position: 'absolute',bottom: 0,left: 0,right: 0}}>

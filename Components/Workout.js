@@ -8,7 +8,7 @@ import { useRoute } from '@react-navigation/native';
 import IndividualWorkout from './IndividualWorkout';
 
 const dumbell = require("../assets/dumbell.png");
-const like = require("../assets/like-icon.png");
+const like = require("../assets/like-icon-outline.png");
 const comment = require("../assets/comment-icon.png");
 const workoutBlack = require("../assets/workout-icon-black.png");
 const sadSmiley = require("../assets/sad-smiley-icon.jpg");
@@ -23,11 +23,14 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     const [myWorkoutsBool,setMyWorkoutsBool] = useState(true);
     const [originalWorkoutArray,setOriginalWorkoutArray] = useState([]);
     const [followingUserArray,setFollowingUserArray] = useState([]);
+    const [newUid,setNewUid] = useState('');
+    const [newUidBool,setNewUidBool] = useState(false);
 
     const months = new Map;
     const dateSuffix = new Map;
     const dateGroup = new Map;
     const followingDateGroup = new Map;
+    const UserGroup = new Map;
 
     months.set('01','January');
     months.set('02','February');
@@ -100,19 +103,25 @@ const Workout = ({showNavbar,searchParams,uid}) => {
             })
     }, []);
 
-    const openWorkoutBox = (workout) => {
-        setShowWorkoutBox(true);
-        setClickedWorkoutID(workout.id);
+    const openWorkoutBox = (workout,tempUid = null) => {
         if(uid==null){
             showNavbar(false);
         }
+
+        if(tempUid!=null){
+            setNewUidBool(true);
+            setNewUid(tempUid)
+        }
+
+        setClickedWorkoutID(workout.id);
+        setShowWorkoutBox(true);
     }
 
     const groupByDate = (workout) => {
         dateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
         return(
-            <View style={{marginTop: 20,borderBottomColor: '#EBEAEA',borderBottomWidth: 2,paddingBottom: 5,alignSelf: 'flex-start'}}>
-                <Text style={{fontSize: 20,color: '#404040',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
+            <View style={{marginTop: 20,borderColor: '#EFEFEF',borderWidth: 2,padding: 10,alignSelf: 'flex-start',borderRadius: 10,backgroundColor: '#f5f4f4'}}>
+                <Text style={{fontSize: 17,color: '#404040',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
                     {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
                     {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
                 </Text>
@@ -122,13 +131,29 @@ const Workout = ({showNavbar,searchParams,uid}) => {
 
     const followingGroupByDate = (workout) => {
         followingDateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
+        UserGroup.clear();
         return(
-            <View style={{marginTop: 20,borderBottomColor: '#EBEAEA',borderBottomWidth: 2,paddingBottom: 5,alignSelf: 'flex-start'}}>
-                <Text style={{fontSize: 20,color: '#404040',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
+            <View style={{marginTop: 20,marginBottom: 10,borderColor: '#EFEFEF',borderWidth: 2,padding: 10,alignSelf: 'flex-start',borderRadius: 10,backgroundColor: '#f5f4f4'}}>
+                <Text style={{fontSize: 17,color: '#404040',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
                     {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
                     {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
                 </Text>
             </View>
+        )
+    }
+
+    const groupByUser = (workout,profileUid) => {
+        UserGroup.set(`${workout.name}`,'1')
+        return(
+            <Pressable onPress={()=>{
+                navigation.navigate('IndividualUser',{
+                    uid: profileUid,
+                    name: workout.name,
+                })
+            }} style={{marginTop: 15,display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 10,borderRadius: 10,backgroundColor: '#007FF4',borderWidth: 1,borderColor: '#DDD'}}>
+                <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: 'white'}}/>
+                <Text style={{color: 'white',fontSize: 16,marginLeft: 10,fontWeight: '500',borderBottomColor: 'white',borderBottomWidth: 2,paddingBottom: 5}}>{workout.name}</Text>
+            </Pressable>
         )
     }
 
@@ -237,26 +262,26 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                             <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10,alignItems: 'center'}}>
                                 <Pressable onPress={()=>{
                                     setMyWorkoutsBool(false);
-                                }} style={{backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20,marginRight: 10}}>
-                                    <Text style={{color: '#404040',fontSize: 18,fontWeight: 400}}>Following</Text>
+                                }} style={{borderBottomWidth: 2,borderBottomColor: '#DDD',paddingBottom: 10}}>
+                                    <Text style={{color: '#000',fontSize: 18}}>Following</Text>
                                 </Pressable>
                                 <Pressable onPress={()=>{
                                     setMyWorkoutsBool(true);
-                                }} style={{backgroundColor: '#000',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20,marginLeft: 10}}>
-                                    <Text style={{color: '#fff',fontSize: 18,fontWeight: 400}}>My Workouts</Text>
+                                }} style={{borderBottomWidth: 2,borderBottomColor: 'black',paddingBottom: 10}}>
+                                    <Text style={{color: '#000',fontSize: 18,fontWeight: '600'}}>My Workouts</Text>
                                 </Pressable>
                             </View>
                             :
                             <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10,alignItems: 'center'}}>
                                 <Pressable onPress={()=>{
                                     setMyWorkoutsBool(false);
-                                }} style={{backgroundColor: '#000',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20,marginRight: 10}}>
-                                    <Text style={{color: '#fff',fontSize: 18,fontWeight: 400}}>Following</Text>
+                                }} style={{borderBottomWidth: 2,borderBottomColor: 'black',paddingBottom: 10}}>
+                                    <Text style={{color: '#000',fontSize: 18,fontWeight: '600'}}>Following</Text>
                                 </Pressable>
                                 <Pressable onPress={()=>{
                                     setMyWorkoutsBool(true);
-                                }} style={{backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD',borderRadius: 10,padding: 5,paddingLeft: 20,paddingRight: 20,marginLeft: 10}}>
-                                    <Text style={{color: '#404040',fontSize: 18,fontWeight: 400}}>My Workouts</Text>
+                                }} style={{borderBottomWidth: 2,borderBottomColor: '#DDD',paddingBottom: 10}}>
+                                    <Text style={{color: '#000',fontSize: 18}}>My Workouts</Text>
                                 </Pressable>
                             </View>
                         }
@@ -280,9 +305,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                         <ActivityIndicator size="large" color="#000"/>
                                     </View>
                                     :
-                                    <Pressable onPress={() => {
-                                        openWorkoutBox(workout);
-                                    }} key={workout.id}>
+                                    <View key={workout.id}>
                                         {
                                             // check if date is already present in dateGroup in ddmmyyyy format ->
                                             !dateGroup.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`)
@@ -293,7 +316,9 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                         }
                                         
                                         <View style={styles.workout}>
-                                            <View >
+                                            <Pressable onPress={() => {
+                                                openWorkoutBox(workout);
+                                            }} >
                                                 <View style={styles.workoutTitleContainer}>
                                                     <Image source={dumbell} style={styles.workoutIcon}/>
                                                     <Text style={styles.workoutTitle}>{workout.workoutName}</Text>
@@ -304,7 +329,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                             return(
                                                                 <View style={styles.exerciseName} key={exercise.id}>
                                                                     <Text style={{borderBottomColor: '#fff',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5,color: 'white'}}>{exercise.exerciseName}</Text>
-                                                                    <Text style={{fontSize: 17,color: 'white',padding: 5}}> x 3</Text>
+                                                                    <Text style={{fontSize: 17,color: 'white',padding: 5}}> x {exercise.allSets.length}</Text>
                                                                 </View>
                                                             )
                                                         })
@@ -318,7 +343,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                     <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
                                                 }
                                                 
-                                            </View>
+                                            </Pressable>
                                             <View style={styles.interactComponent}>
                                                 <Pressable>
                                                     <Image source={like} style={styles.likeIcon}/>
@@ -328,7 +353,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                 </Pressable>
                                             </View>
                                         </View>
-                                    </Pressable>
+                                    </View>
                                 )
                             })
                             :
@@ -352,7 +377,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                         }
                     </View>
                     : 
-                    <View style={{width: '100%',marginTop: -10}}>
+                    <View style={{width: '100%',marginTop: -10,paddingTop: 20,paddingBottom: 20}}>
                         {
                             followingUserArray.length>0
                             ?
@@ -360,7 +385,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                 {
                                     followingUserArray.map(userProfile => {
                                         return(
-                                            <View key={userProfile.timeStamp}>
+                                            <View  key={userProfile.timeStamp}>
                                                 {
                                                     // check if date is already present in dateGroup in ddmmyyyy format ->
                                                     !followingDateGroup.has(`${userProfile.timeStamp.toDate().toISOString().slice(8,10)}${userProfile.timeStamp.toDate().toISOString().slice(5,7)}${userProfile.timeStamp.toDate().toISOString().slice(0,4)}`)
@@ -369,15 +394,19 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                     :
                                                     null
                                                 }
-                                                <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 10,borderRadius: 10,backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD',marginTop: 20}}>
-                                                    <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50}}/>
-                                                    <Text style={{color: 'black',fontSize: 15,marginLeft: 10,fontWeight: '500'}}>{userProfile.name}</Text>
-                                                </View>
-                                                <Pressable onPress={() => {
-                                                    openWorkoutBox(userProfile.workout);
-                                                }} key={userProfile.workout.id}>
+                                                {
+                                                    // check if date is already present in dateGroup in ddmmyyyy format ->
+                                                    !UserGroup.has(`${userProfile.name}`)
+                                                    ?
+                                                    groupByUser(userProfile,userProfile.uid)
+                                                    :
+                                                    null
+                                                }
+                                                <View key={userProfile.workout.id}>
                                                     <View style={styles.workout}>
-                                                        <View >
+                                                        <Pressable onPress={() => {
+                                                            openWorkoutBox(userProfile.workout,userProfile.uid);
+                                                        }} >
                                                             <View style={styles.workoutTitleContainer}>
                                                                 <Image source={dumbell} style={styles.workoutIcon}/>
                                                                 <Text style={styles.workoutTitle}>{userProfile.workout.workoutName}</Text>
@@ -388,7 +417,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                         return(
                                                                             <View style={styles.exerciseName} key={exercise.id}>
                                                                                 <Text style={{borderBottomColor: '#fff',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5,color: 'white'}}>{exercise.exerciseName}</Text>
-                                                                                <Text style={{fontSize: 17,color: 'white',padding: 5}}> x 3</Text>
+                                                                                <Text style={{fontSize: 17,color: 'white',padding: 5}}> x {exercise.allSets.length}</Text>
                                                                             </View>
                                                                         )
                                                                     })
@@ -402,7 +431,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                 <Text style={styles.workoutTime}>{userProfile.workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
                                                             }
                                                             
-                                                        </View>
+                                                        </Pressable>
                                                         <View style={styles.interactComponent}>
                                                             <Pressable>
                                                                 <Image source={like} style={styles.likeIcon}/>
@@ -412,7 +441,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                             </Pressable>
                                                         </View>
                                                     </View>
-                                                </Pressable>
+                                                </View>
                                                 
                                             </View>
                                         )
@@ -434,7 +463,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                 
             </View>
             :
-            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={uid}/>
+            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid}/>
         }
       </ScrollView>
   )
@@ -494,13 +523,13 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     workout: {
-        marginTop: 20,
+        marginTop: 15,
         height: 'auto',
         display: 'flex',
         flexDirection: 'column',
         // justifyContent: 'center',
         borderRadius: 15,
-        backgroundColor: 'black'
+        backgroundColor: '#000'
     },
     workoutTitleContainer: {
         display: 'flex',
@@ -564,12 +593,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 15,
-        padding: 5,
+        padding: 10,
 
     },
     likeIcon: {
-        height: 35,
-        width: 35,
+        height: 25,
+        width: 25,
     },
     commentIcon: {
         height: 25,
