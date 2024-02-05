@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView,ActivityIndicator } from 'react-native'
-import { collection, query, where, getDocs,doc,getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs,doc,getDoc,updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { FIREBASE_DB } from '../FirebaseConfig';
 import { useNavigation } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import IndividualWorkout from './IndividualWorkout';
 
 const dumbell = require("../assets/dumbell.png");
 const like = require("../assets/like-icon-outline.png");
+const likeBlue = require("../assets/like-icon-blue.png");
 const comment = require("../assets/comment-icon.png");
 const workoutBlack = require("../assets/workout-icon-black.png");
 const sadSmiley = require("../assets/sad-smiley-icon.jpg");
@@ -25,6 +26,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     const [followingUserArray,setFollowingUserArray] = useState([]);
     const [newUid,setNewUid] = useState('');
     const [newUidBool,setNewUidBool] = useState(false);
+    const [likeBool,setLikeBool] = useState(false);
 
     const months = new Map;
     const dateSuffix = new Map;
@@ -199,7 +201,6 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         const docSnap = await getDoc(docRef);
 
         var newArray = [];
-        var allUsersWorkouts = [];
 
         if (docSnap.exists()) {
             let followingArray = docSnap.data().following
@@ -224,6 +225,8 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                             workout: doc.data(),
                             uid: following,
                             name: name,
+                            likes: doc.data().likes,
+                            comments: doc.data().comments
                         })
                     });
                     
@@ -242,8 +245,85 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         }
     }
 
+    const likeWorkout = async (userProfile) => {
+        let docID = "";
+        let likeArray = [];
+
+        const querySnapshot = await getDocs(collection(FIREBASE_DB, `${userProfile.uid}`));
+        querySnapshot.forEach((doc) => {
+            if(userProfile.workout.id==doc.data().id){
+                docID = doc.id;
+                likeArray = doc.data().likes;
+            }
+        });
+
+        likeArray.push(userID);
+        
+        const likeRef = doc(FIREBASE_DB, `${userProfile.uid}`, `${docID}`);
+
+        await updateDoc(likeRef, {
+            likes: likeArray
+        });
+
+        setFollowingUserArray(followingUserArray.map(user => {
+            if(user.uid==userProfile.uid){
+                return{
+                    ...user,
+                    workout: {
+                        ...user.workout,
+                        likes: likeArray,
+                    },
+                    likes: likeArray
+                }
+            }
+            else{
+                return user;
+            }
+        }))
+    }
+
+    const unlikeWorkout = async (userProfile) => {
+        let docID = "";
+        let likeArray = [];
+
+        const querySnapshot = await getDocs(collection(FIREBASE_DB, `${userProfile.uid}`));
+        querySnapshot.forEach((doc) => {
+            if(userProfile.workout.id==doc.data().id){
+                docID = doc.id;
+                likeArray = doc.data().likes;
+            }
+        });
+
+        let newLikeArray = likeArray.filter((like) => {
+            return like != userID;
+        });
+        
+        const likeRef = doc(FIREBASE_DB, `${userProfile.uid}`, `${docID}`);
+
+        await updateDoc(likeRef, {
+            likes: newLikeArray
+        });
+
+        setFollowingUserArray(followingUserArray.map(user => {
+            if(user.uid==userProfile.uid){
+                return{
+                    ...user,
+                    workout: {
+                        ...user.workout,
+                        likes: newLikeArray,
+                    },
+                    likes: newLikeArray
+                }
+            }
+            else{
+                return user;
+            }
+        }))
+    }
+
+
     useEffect(()=>{
-        getFollowing();     
+        getFollowing();    
     },[])
 
   return (
@@ -335,15 +415,28 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                         })
                                                     }
                                                 </View>
-                                                {
-                                                    workout.timeStamp.toDate().toTimeString().slice(0,2)<12
-                                                    ?
-                                                    <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
-                                                    :
-                                                    <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
-                                                }
-                                                
+                                                <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
+                                                    <View>
+                                                        <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>and 7 others like this.</Text>
+                                                        </Pressable>
+                                                    </View>
+                                                    <View >
+                                                        {
+                                                            workout.timeStamp.toDate().toTimeString().slice(0,2)<12
+                                                            ?
+                                                            <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
+                                                            :
+                                                            <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
+                                                        }       
+                                                    </View>
+                                                </View>                                      
                                             </Pressable>
+                                            
+                                            
                                             <View style={styles.interactComponent}>
                                                 <Pressable>
                                                     <Image source={like} style={styles.likeIcon}/>
@@ -384,6 +477,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                             <View style={{width: '100%'}}>
                                 {
                                     followingUserArray.map(userProfile => {
+                                        userProfile
                                         return(
                                             <View  key={userProfile.timeStamp}>
                                                 {
@@ -423,19 +517,44 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                     })
                                                                 }
                                                             </View>
-                                                            {
-                                                                userProfile.workout.timeStamp.toDate().toTimeString().slice(0,2)<12
-                                                                ?
-                                                                <Text style={styles.workoutTime}>{userProfile.workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
-                                                                :
-                                                                <Text style={styles.workoutTime}>{userProfile.workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
-                                                            }
+                                                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
+                                                                <View>
+                                                                    <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>and 7 others like this.</Text>
+                                                                    </Pressable>
+                                                                </View>
+                                                                <View >
+                                                                    {
+                                                                        userProfile.timeStamp.toDate().toTimeString().slice(0,2)<12
+                                                                        ?
+                                                                        <Text style={styles.workoutTime}>{userProfile.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
+                                                                        :
+                                                                        <Text style={styles.workoutTime}>{userProfile.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
+                                                                    }       
+                                                                </View>
+                                                            </View>  
                                                             
                                                         </Pressable>
                                                         <View style={styles.interactComponent}>
-                                                            <Pressable>
-                                                                <Image source={like} style={styles.likeIcon}/>
-                                                            </Pressable>
+                                                            
+                                                            {
+                                                                userProfile.likes.includes(userID)
+                                                                ?
+                                                                <Pressable onPress={()=>{
+                                                                    unlikeWorkout(userProfile);
+                                                                }}>
+                                                                    <Image source={likeBlue} style={[styles.likeIcon,{height: 30,width: 30}]}/>
+                                                                </Pressable>
+                                                                :
+                                                                <Pressable onPress={()=>{
+                                                                    likeWorkout(userProfile);
+                                                                }}>
+                                                                    <Image source={like} style={styles.likeIcon}/>
+                                                                </Pressable>
+                                                            }
                                                             <Pressable>
                                                                 <Image source={comment} style={styles.commentIcon}/>
                                                             </Pressable>
@@ -556,11 +675,8 @@ const styles = StyleSheet.create({
         paddingRight: 10,
     },
     workoutTime: {
-        position: 'absolute',
-        bottom: 10,
-        right: 10,
         fontWeight: '600',
-        color: 'white'
+        color: 'white',
     },
     exerciseList:{
         padding: 10,

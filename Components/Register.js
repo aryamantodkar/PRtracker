@@ -35,7 +35,9 @@ export default function Register({navigation}) {
           name: `${name}`,
           uid: `${user.uid}`,
           followers: [],
-          following: []
+          following: [],
+          likes: [],
+          comments: []
         });
       })
       console.log(resposne);

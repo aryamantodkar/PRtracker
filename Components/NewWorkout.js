@@ -209,6 +209,8 @@ const NewWorkout = () => {
             allWorkouts,
             timeStamp: serverTimestamp(),
             id: randomID,
+            likes: [],
+            comments: []
         })
         goToHomeScreen();
     }
