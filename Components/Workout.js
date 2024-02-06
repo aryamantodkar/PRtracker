@@ -9,11 +9,13 @@ import IndividualWorkout from './IndividualWorkout';
 
 const dumbell = require("../assets/dumbell.png");
 const like = require("../assets/like-icon-outline.png");
+const likeBlack = require("../assets/like-icon-outline-black.png");
 const likeBlue = require("../assets/like-icon-blue.png");
 const comment = require("../assets/comment-icon.png");
 const workoutBlack = require("../assets/workout-icon-black.png");
 const sadSmiley = require("../assets/sad-smiley-icon.jpg");
 const pfp = require("../assets/pfp.jpg");
+const crossIcon = require("../assets/cross-icon-black.png");
 
 
 const Workout = ({showNavbar,searchParams,uid}) => {
@@ -26,7 +28,8 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     const [followingUserArray,setFollowingUserArray] = useState([]);
     const [newUid,setNewUid] = useState('');
     const [newUidBool,setNewUidBool] = useState(false);
-    const [likeBool,setLikeBool] = useState(false);
+    const [showLikesBool,setShowLikesBool] = useState(false);
+    const [likedUsers,setLikesUsers] = useState([]);
 
     const months = new Map;
     const dateSuffix = new Map;
@@ -122,7 +125,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     const groupByDate = (workout) => {
         dateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
         return(
-            <View style={{marginTop: 20,borderColor: '#EFEFEF',borderWidth: 2,padding: 10,alignSelf: 'flex-start',borderRadius: 10,backgroundColor: '#f5f4f4'}}>
+            <View style={{marginTop: 15,borderColor: '#EFEFEF',borderWidth: 2,padding: 10,alignSelf: 'flex-start',borderRadius: 10,backgroundColor: '#f5f4f4'}}>
                 <Text style={{fontSize: 17,color: '#404040',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
                     {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
                     {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
@@ -135,7 +138,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         followingDateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
         UserGroup.clear();
         return(
-            <View style={{marginTop: 20,marginBottom: 10,borderColor: '#EFEFEF',borderWidth: 2,padding: 10,alignSelf: 'flex-start',borderRadius: 10,backgroundColor: '#f5f4f4'}}>
+            <View style={{marginTop: 15,marginBottom: 10,borderColor: '#EFEFEF',borderWidth: 2,padding: 10,alignSelf: 'flex-start',borderRadius: 10,backgroundColor: '#f5f4f4'}}>
                 <Text style={{fontSize: 17,color: '#404040',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
                     {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
                     {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
@@ -152,7 +155,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                     uid: profileUid,
                     name: workout.name,
                 })
-            }} style={{marginTop: 15,display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 10,borderRadius: 10,backgroundColor: '#007FF4',borderWidth: 1,borderColor: '#DDD'}}>
+            }} style={{marginTop: 15,display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 10,borderRadius: 10,backgroundColor: '#018FF5',borderWidth: 1,borderColor: '#DDD'}}>
                 <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: 'white'}}/>
                 <Text style={{color: 'white',fontSize: 16,marginLeft: 10,fontWeight: '500',borderBottomColor: 'white',borderBottomWidth: 2,paddingBottom: 5}}>{workout.name}</Text>
             </Pressable>
@@ -257,7 +260,19 @@ const Workout = ({showNavbar,searchParams,uid}) => {
             }
         });
 
-        likeArray.push(userID);
+        const nameRef = doc(FIREBASE_DB, "Users", `${userID}`);
+        const nameSnap = await getDoc(nameRef);
+        
+        let name = "";
+
+        if(nameSnap.exists()){
+            name = nameSnap.data().name;
+        }
+
+        likeArray.push({
+            uid: userID,
+            name: name
+        });
         
         const likeRef = doc(FIREBASE_DB, `${userProfile.uid}`, `${docID}`);
 
@@ -266,7 +281,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         });
 
         setFollowingUserArray(followingUserArray.map(user => {
-            if(user.uid==userProfile.uid){
+            if(user.uid==userProfile.uid && user.workout.id==userProfile.workout.id){
                 return{
                     ...user,
                     workout: {
@@ -295,7 +310,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         });
 
         let newLikeArray = likeArray.filter((like) => {
-            return like != userID;
+            return like.uid != userID;
         });
         
         const likeRef = doc(FIREBASE_DB, `${userProfile.uid}`, `${docID}`);
@@ -303,9 +318,10 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         await updateDoc(likeRef, {
             likes: newLikeArray
         });
+        
 
         setFollowingUserArray(followingUserArray.map(user => {
-            if(user.uid==userProfile.uid){
+            if(user.uid==userProfile.uid && user.workout.id==userProfile.workout.id){
                 return{
                     ...user,
                     workout: {
@@ -321,270 +337,385 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         }))
     }
 
+    const showLikes = async (likes) => {
+        setShowLikesBool(true);
+        setLikesUsers(likes);
+    }
+
 
     useEffect(()=>{
         getFollowing();    
     },[])
 
   return (
-      <ScrollView contentContainerStyle={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutContainer : styles.emptyWorkoutBox}  showsVerticalScrollIndicator={false}>
+    <View style={{display: 'flex',justifyContent: 'center',marginTop: 'auto',marginBottom: 'auto',marginTop: 0}}>
         {
-            !showWorkoutBox
+            !showLikesBool
             ?
-            <View style={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutList : styles.emptyWorkoutList}>
+            <ScrollView contentContainerStyle={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutContainer : styles.emptyWorkoutBox}  showsVerticalScrollIndicator={false}>
                 {
-                    uid==null
+                    !showWorkoutBox
                     ?
-                    <View>
+                    <View style={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutList : styles.emptyWorkoutList}>
                         {
-                            myWorkoutsBool
+                            uid==null
                             ?
-                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10,alignItems: 'center'}}>
-                                <Pressable onPress={()=>{
-                                    setMyWorkoutsBool(false);
-                                }} style={{borderBottomWidth: 2,borderBottomColor: '#DDD',paddingBottom: 10}}>
-                                    <Text style={{color: '#000',fontSize: 18}}>Following</Text>
-                                </Pressable>
-                                <Pressable onPress={()=>{
-                                    setMyWorkoutsBool(true);
-                                }} style={{borderBottomWidth: 2,borderBottomColor: 'black',paddingBottom: 10}}>
-                                    <Text style={{color: '#000',fontSize: 18,fontWeight: '600'}}>My Workouts</Text>
-                                </Pressable>
-                            </View>
-                            :
-                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10,alignItems: 'center'}}>
-                                <Pressable onPress={()=>{
-                                    setMyWorkoutsBool(false);
-                                }} style={{borderBottomWidth: 2,borderBottomColor: 'black',paddingBottom: 10}}>
-                                    <Text style={{color: '#000',fontSize: 18,fontWeight: '600'}}>Following</Text>
-                                </Pressable>
-                                <Pressable onPress={()=>{
-                                    setMyWorkoutsBool(true);
-                                }} style={{borderBottomWidth: 2,borderBottomColor: '#DDD',paddingBottom: 10}}>
-                                    <Text style={{color: '#000',fontSize: 18}}>My Workouts</Text>
-                                </Pressable>
-                            </View>
-                        }
-                    </View>
-                    :
-                    null
-                }
-
-                {
-                    myWorkoutsBool
-                    ?
-                    <View style={{width: '100%'}}>
-                        {
-                            workoutsArray!=undefined && workoutsArray.length>0
-                            ?
-                            workoutsArray.map(workout => {
-                                return(
-                                    isLoading
+                            <View style={{marginTop: 10,marginBottom: 10}}>
+                                {
+                                    myWorkoutsBool
                                     ?
-                                    <View key={workout.id} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: '80%'}}>
-                                        <ActivityIndicator size="large" color="#000"/>
+                                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 20,alignItems: 'center',marginLeft: 'auto',marginRight: 'auto'}}>
+                                        <Pressable onPress={()=>{
+                                            setMyWorkoutsBool(false);
+                                        }} style={{borderBottomWidth: 2,borderBottomColor: '#DDD',paddingBottom: 10,marginLeft: 25,marginRight: 25}}>
+                                            <Text style={{color: '#000',fontSize: 18}}>Following</Text>
+                                        </Pressable>
+                                        <Pressable onPress={()=>{
+                                            setMyWorkoutsBool(true);
+                                        }} style={{borderBottomWidth: 2,borderBottomColor: 'black',paddingBottom: 10,marginLeft: 25,marginRight: 25}}>
+                                            <Text style={{color: '#000',fontSize: 18,fontWeight: '600'}}>My Workouts</Text>
+                                        </Pressable>
                                     </View>
                                     :
-                                    <View key={workout.id}>
-                                        {
-                                            // check if date is already present in dateGroup in ddmmyyyy format ->
-                                            !dateGroup.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`)
-                                            ?
-                                            groupByDate(workout)
-                                            :
-                                            null
-                                        }
-                                        
-                                        <View style={styles.workout}>
-                                            <Pressable onPress={() => {
-                                                openWorkoutBox(workout);
-                                            }} >
-                                                <View style={styles.workoutTitleContainer}>
-                                                    <Image source={dumbell} style={styles.workoutIcon}/>
-                                                    <Text style={styles.workoutTitle}>{workout.workoutName}</Text>
-                                                </View>
-                                                <View style={styles.exerciseList}>
-                                                    {
-                                                        workout.allWorkouts.map(exercise => {
-                                                            return(
-                                                                <View style={styles.exerciseName} key={exercise.id}>
-                                                                    <Text style={{borderBottomColor: '#fff',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5,color: 'white'}}>{exercise.exerciseName}</Text>
-                                                                    <Text style={{fontSize: 17,color: 'white',padding: 5}}> x {exercise.allSets.length}</Text>
-                                                                </View>
-                                                            )
-                                                        })
-                                                    }
-                                                </View>
-                                                <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
-                                                    <View>
-                                                        <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>and 7 others like this.</Text>
-                                                        </Pressable>
-                                                    </View>
-                                                    <View >
-                                                        {
-                                                            workout.timeStamp.toDate().toTimeString().slice(0,2)<12
-                                                            ?
-                                                            <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
-                                                            :
-                                                            <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
-                                                        }       
-                                                    </View>
-                                                </View>                                      
+                                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 20,alignItems: 'center',marginLeft: 'auto',marginRight: 'auto'}}>
+                                        <View>
+                                            <Pressable onPress={()=>{
+                                                setMyWorkoutsBool(false);
+                                            }} style={{borderBottomWidth: 2,borderBottomColor: 'black',paddingBottom: 10,marginLeft: 25,marginRight: 25}}>
+                                                <Text style={{color: '#000',fontSize: 18,fontWeight: '600'}}>Following</Text>
                                             </Pressable>
-                                            
-                                            
-                                            <View style={styles.interactComponent}>
-                                                <Pressable>
-                                                    <Image source={like} style={styles.likeIcon}/>
-                                                </Pressable>
-                                                <Pressable>
-                                                    <Image source={comment} style={styles.commentIcon}/>
-                                                </Pressable>
-                                            </View>
+                                        </View>
+                                        <View>
+                                            <Pressable onPress={()=>{
+                                                setMyWorkoutsBool(true);
+                                            }} style={{borderBottomWidth: 2,borderBottomColor: '#DDD',paddingBottom: 10,marginLeft: 25,marginRight: 25}}>
+                                                <Text style={{color: '#000',fontSize: 18}}>My Workouts</Text>
+                                            </Pressable>
                                         </View>
                                     </View>
-                                )
-                            })
-                            :
-                            <View  style={styles.emptyWorkoutContainer}>
-                                <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginBottom: 25}}>
-                                    <Image source={workoutBlack} style={{height: 30, width: 30}}/>
-                                    <Text style={{color: 'black',marginLeft: 10,fontSize: 17.5,fontWeight: '600',color: '#000'}}>No Workouts Found</Text>
-                                </View>
-                                {
-                                    uid==null
-                                    ?
-                                    <View style={{display:'flex',alignItems: 'center',justifyContent: 'center'}}> 
-                                        <Text style={{color: 'black',fontSize: 14,fontWeight: '500',color: '#4F4F4F',width: '85%',textAlign: 'center'}}>Please start adding workouts to view them here.</Text>
-                                    </View>
-                                    :
-                                    <View style={{display:'flex',alignItems: 'center',justifyContent: 'center',}}> 
-                                        <Text style={{color: 'black',fontSize: 14,fontWeight: '500',color: '#4F4F4F',width: '85%',textAlign: 'center'}}>They haven't added any workouts yet.</Text>
-                                    </View>
-                                }   
-                            </View>
-                        }
-                    </View>
-                    : 
-                    <View style={{width: '100%',marginTop: -10,paddingTop: 20,paddingBottom: 20}}>
-                        {
-                            followingUserArray.length>0
-                            ?
-                            <View style={{width: '100%'}}>
-                                {
-                                    followingUserArray.map(userProfile => {
-                                        userProfile
-                                        return(
-                                            <View  key={userProfile.timeStamp}>
-                                                {
-                                                    // check if date is already present in dateGroup in ddmmyyyy format ->
-                                                    !followingDateGroup.has(`${userProfile.timeStamp.toDate().toISOString().slice(8,10)}${userProfile.timeStamp.toDate().toISOString().slice(5,7)}${userProfile.timeStamp.toDate().toISOString().slice(0,4)}`)
-                                                    ?
-                                                    followingGroupByDate(userProfile)
-                                                    :
-                                                    null
-                                                }
-                                                {
-                                                    // check if date is already present in dateGroup in ddmmyyyy format ->
-                                                    !UserGroup.has(`${userProfile.name}`)
-                                                    ?
-                                                    groupByUser(userProfile,userProfile.uid)
-                                                    :
-                                                    null
-                                                }
-                                                <View key={userProfile.workout.id}>
-                                                    <View style={styles.workout}>
-                                                        <Pressable onPress={() => {
-                                                            openWorkoutBox(userProfile.workout,userProfile.uid);
-                                                        }} >
-                                                            <View style={styles.workoutTitleContainer}>
-                                                                <Image source={dumbell} style={styles.workoutIcon}/>
-                                                                <Text style={styles.workoutTitle}>{userProfile.workout.workoutName}</Text>
-                                                            </View>
-                                                            <View style={styles.exerciseList}>
-                                                                {
-                                                                    userProfile.workout.allWorkouts.map(exercise => {
-                                                                        return(
-                                                                            <View style={styles.exerciseName} key={exercise.id}>
-                                                                                <Text style={{borderBottomColor: '#fff',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5,color: 'white'}}>{exercise.exerciseName}</Text>
-                                                                                <Text style={{fontSize: 17,color: 'white',padding: 5}}> x {exercise.allSets.length}</Text>
-                                                                            </View>
-                                                                        )
-                                                                    })
-                                                                }
-                                                            </View>
-                                                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
-                                                                <View>
-                                                                    <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>and 7 others like this.</Text>
-                                                                    </Pressable>
-                                                                </View>
-                                                                <View >
-                                                                    {
-                                                                        userProfile.timeStamp.toDate().toTimeString().slice(0,2)<12
-                                                                        ?
-                                                                        <Text style={styles.workoutTime}>{userProfile.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
-                                                                        :
-                                                                        <Text style={styles.workoutTime}>{userProfile.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
-                                                                    }       
-                                                                </View>
-                                                            </View>  
-                                                            
-                                                        </Pressable>
-                                                        <View style={styles.interactComponent}>
-                                                            
-                                                            {
-                                                                userProfile.likes.includes(userID)
-                                                                ?
-                                                                <Pressable onPress={()=>{
-                                                                    unlikeWorkout(userProfile);
-                                                                }}>
-                                                                    <Image source={likeBlue} style={[styles.likeIcon,{height: 30,width: 30}]}/>
-                                                                </Pressable>
-                                                                :
-                                                                <Pressable onPress={()=>{
-                                                                    likeWorkout(userProfile);
-                                                                }}>
-                                                                    <Image source={like} style={styles.likeIcon}/>
-                                                                </Pressable>
-                                                            }
-                                                            <Pressable>
-                                                                <Image source={comment} style={styles.commentIcon}/>
-                                                            </Pressable>
-                                                        </View>
-                                                    </View>
-                                                </View>
-                                                
-                                            </View>
-                                        )
-                                    })
                                 }
                             </View>
                             :
-                            <View  style={[styles.emptyWorkoutContainer,{width: '80%',backgroundColor: '#f5f4f4',paddingTop: 25,paddingBottom: 25,marginTop: 150}]}>
-                                <Image source={sadSmiley} style={{height: 40, width: 40,marginLeft: 'auto',marginRight: 'auto',marginBottom: 10}}/>
-                                <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                    <Text style={{color: 'black',marginLeft: 10,fontSize: 15,fontWeight: '400',color: '#000'}}>Please start following people to view their workouts here :)</Text>
+                            null
+                        }
+
+                        {
+                            myWorkoutsBool
+                            ?
+                            <View style={{width: '100%',marginTop: -10,paddingBottom: 20}}>
+                                {
+                                    workoutsArray!=undefined && workoutsArray.length>0
+                                    ?
+                                    workoutsArray.map(workout => {
+                                        return(
+                                            isLoading
+                                            ?
+                                            <View key={workout.id} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: '80%'}}>
+                                                <ActivityIndicator size="large" color="#000"/>
+                                            </View>
+                                            :
+                                            <View key={workout.id}>
+                                                {
+                                                    // check if date is already present in dateGroup in ddmmyyyy format ->
+                                                    !dateGroup.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`)
+                                                    ?
+                                                    groupByDate(workout)
+                                                    :
+                                                    null
+                                                }
+                                                
+                                                <View style={styles.workout}>
+                                                    <Pressable onPress={() => {
+                                                        openWorkoutBox(workout);
+                                                    }} >
+                                                        <View style={styles.workoutTitleContainer}>
+                                                            <Image source={dumbell} style={styles.workoutIcon}/>
+                                                            <Text style={styles.workoutTitle}>{workout.workoutName}</Text>
+                                                        </View>
+                                                        <View style={styles.exerciseList}>
+                                                            {
+                                                                workout.allWorkouts.map(exercise => {
+                                                                    return(
+                                                                        <View style={styles.exerciseName} key={exercise.id}>
+                                                                            <Text style={{borderBottomColor: '#fff',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5,color: 'white'}}>{exercise.exerciseName}</Text>
+                                                                            <Text style={{fontSize: 17,color: 'white',padding: 5}}> x {exercise.allSets.length}</Text>
+                                                                        </View>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </View>
+                                                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
+                                                            <View>
+                                                                <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>and 7 others like this</Text>
+                                                                </Pressable>
+                                                            </View>
+                                                            <View >
+                                                                {
+                                                                    workout.timeStamp.toDate().toTimeString().slice(0,2)<12
+                                                                    ?
+                                                                    <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
+                                                                    :
+                                                                    <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
+                                                                }       
+                                                            </View>
+                                                        </View>                                      
+                                                    </Pressable>
+                                                    
+                                                    
+                                                    <View style={styles.interactComponent}>
+                                                        <Pressable>
+                                                            <Image source={like} style={styles.likeIcon}/>
+                                                        </Pressable>
+                                                        <Pressable>
+                                                            <Image source={comment} style={styles.commentIcon}/>
+                                                        </Pressable>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        )
+                                    })
+                                    :
+                                    <View  style={styles.emptyWorkoutContainer}>
+                                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginBottom: 25}}>
+                                            <Image source={workoutBlack} style={{height: 30, width: 30}}/>
+                                            <Text style={{color: 'black',marginLeft: 10,fontSize: 17.5,fontWeight: '600',color: '#000'}}>No Workouts Found</Text>
+                                        </View>
+                                        {
+                                            uid==null
+                                            ?
+                                            <View style={{display:'flex',alignItems: 'center',justifyContent: 'center'}}> 
+                                                <Text style={{color: 'black',fontSize: 14,fontWeight: '500',color: '#4F4F4F',width: '85%',textAlign: 'center'}}>Please start adding workouts to view them here.</Text>
+                                            </View>
+                                            :
+                                            <View style={{display:'flex',alignItems: 'center',justifyContent: 'center',}}> 
+                                                <Text style={{color: 'black',fontSize: 14,fontWeight: '500',color: '#4F4F4F',width: '85%',textAlign: 'center'}}>They haven't added any workouts yet.</Text>
+                                            </View>
+                                        }   
+                                    </View>
+                                }
+                            </View>
+                            : 
+                            <View style={{width: '100%',paddingBottom: 20,}}>
+                                {
+                                    followingUserArray.length>0
+                                    ?
+                                    <View style={{width: '100%'}}>
+                                        {
+                                            followingUserArray.map(userProfile => {
+                                                return(
+                                                    <View  key={userProfile.timeStamp}>
+                                                        {
+                                                            // check if date is already present in dateGroup in ddmmyyyy format ->
+                                                            !followingDateGroup.has(`${userProfile.timeStamp.toDate().toISOString().slice(8,10)}${userProfile.timeStamp.toDate().toISOString().slice(5,7)}${userProfile.timeStamp.toDate().toISOString().slice(0,4)}`)
+                                                            ?
+                                                            followingGroupByDate(userProfile)
+                                                            :
+                                                            null
+                                                        }
+                                                        {
+                                                            // check if date is already present in dateGroup in ddmmyyyy format ->
+                                                            !UserGroup.has(`${userProfile.name}`)
+                                                            ?
+                                                            groupByUser(userProfile,userProfile.uid)
+                                                            :
+                                                            null
+                                                        }
+                                                        <View key={userProfile.workout.id}>
+                                                            <View style={styles.workout}>
+                                                                <Pressable onPress={() => {
+                                                                    openWorkoutBox(userProfile.workout,userProfile.uid);
+                                                                }} >
+                                                                    <View style={styles.workoutTitleContainer}>
+                                                                        <Image source={dumbell} style={styles.workoutIcon}/>
+                                                                        <Text style={styles.workoutTitle}>{userProfile.workout.workoutName}</Text>
+                                                                    </View>
+                                                                    <View style={styles.exerciseList}>
+                                                                        {
+                                                                            userProfile.workout.allWorkouts.map(exercise => {
+                                                                                return(
+                                                                                    <View style={styles.exerciseName} key={exercise.id}>
+                                                                                        <Text style={{borderBottomColor: '#fff',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5,color: 'white'}}>{exercise.exerciseName}</Text>
+                                                                                        <Text style={{fontSize: 17,color: 'white',padding: 5}}> x {exercise.allSets.length}</Text>
+                                                                                    </View>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                    </View>
+                                                                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
+                                                                        {
+                                                                            userProfile.likes.length>2
+                                                                            ?
+                                                                            <View>
+                                                                                <Pressable onPress={()=>{
+                                                                                    showLikes(userProfile.likes);
+                                                                                }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                                    {
+                                                                                        userProfile.likes.some(e => e.uid == `${userID}`)
+                                                                                        ?
+                                                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {userProfile.likes.length-1} others like this</Text>
+                                                                                        :
+                                                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{userProfile.likes[0].name.split(" ")[0]} and {userProfile.likes.length-1} others like this</Text>
+                                                                                    }
+                                                                                </Pressable>
+                                                                            </View>
+                                                                            :
+                                                                            <View>
+                                                                            {
+                                                                                userProfile.likes.length>1
+                                                                                ?
+                                                                                <View>
+                                                                                    <Pressable onPress={()=>{
+                                                                                        showLikes(userProfile.likes);
+                                                                                    }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                                        {
+                                                                                            userProfile.likes.some(e => e.uid == `${userID}`)
+                                                                                            ?
+                                                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {userProfile.likes.length-1} others like this</Text>
+                                                                                            :
+                                                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{userProfile.likes[0].name.split(" ")[0]} and {userProfile.likes.length-1} others like this</Text>
+                                                                                        } 
+                                                                                    </Pressable>
+                                                                                </View>
+                                                                                :
+                                                                                <View>
+                                                                                    {
+                                                                                        userProfile.likes.length>0
+                                                                                        ?
+                                                                                        <View>
+                                                                                            <Pressable onPress={()=>{
+                                                                                                showLikes(userProfile.likes);
+                                                                                            }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                                                <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                                                {
+                                                                                                    userProfile.likes[0].uid==userID
+                                                                                                    ?
+                                                                                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You like this</Text>
+                                                                                                    :
+                                                                                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{userProfile.likes[0].name} likes this</Text>
+                                                                                                }                                       
+                                                                                            </Pressable>
+                                                                                        </View>
+                                                                                        :
+                                                                                        <View>
+                                                                                            <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                                                <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>0 likes</Text>
+                                                                                            </Pressable>
+                                                                                        </View>
+                                                                                    }
+                                                                                </View>
+                                                                            }     
+                                                                            </View>
+                                                                        }
+                                                                        <View >
+                                                                            {
+                                                                                userProfile.timeStamp.toDate().toTimeString().slice(0,2)<12
+                                                                                ?
+                                                                                <Text style={styles.workoutTime}>{userProfile.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
+                                                                                :
+                                                                                <Text style={styles.workoutTime}>{userProfile.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
+                                                                            }       
+                                                                        </View>
+                                                                    </View>  
+                                                                    
+                                                                </Pressable>
+                                                                <View style={styles.interactComponent}>
+                                                                    {
+                                                                        userProfile.likes.some(e => e.uid == `${userID}`)
+                                                                        ?
+                                                                        <Pressable onPress={()=>{
+                                                                            unlikeWorkout(userProfile);
+                                                                        }}>
+                                                                            <Image source={likeBlue} style={styles.likeIcon}/>
+                                                                        </Pressable>
+                                                                        :
+                                                                        <Pressable onPress={()=>{
+                                                                            likeWorkout(userProfile);
+                                                                        }}>
+                                                                            <Image source={like} style={styles.likeIcon}/>
+                                                                        </Pressable>
+                                                                    }
+                                                                    <Pressable>
+                                                                        <Image source={comment} style={styles.commentIcon}/>
+                                                                    </Pressable>
+                                                                </View>
+                                                            </View>
+                                                        </View>
+                                                        
+                                                    </View>
+                                                )
+                                            })
+                                        }
+                                    </View>
+                                    :
+                                    <View  style={[styles.emptyWorkoutContainer,{width: '80%',backgroundColor: '#f5f4f4',paddingTop: 25,paddingBottom: 25,marginTop: 150}]}>
+                                        <Image source={sadSmiley} style={{height: 40, width: 40,marginLeft: 'auto',marginRight: 'auto',marginBottom: 10}}/>
+                                        <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                            <Text style={{color: 'black',marginLeft: 10,fontSize: 15,fontWeight: '400',color: '#000'}}>Please start following people to view their workouts here :)</Text>
+                                        </View>
+                                    </View>
+                                    
+                                }
+                            </View>
+                        }
+                        
+                        
+                    </View>
+                    :
+                    <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid}/>
+                }
+            </ScrollView>
+            :
+            <ScrollView contentContainerStyle={{backgroundColor: '#f5f4f4',borderWidth:1,borderColor: '#DDD',width: '100%',display: 'flex',marginTop: 50,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
+                <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative',marginBottom: 20}}>
+                    <View style={{position: 'absolute',left: 0}}>
+                        <Pressable onPress={()=>{
+                            setShowLikesBool(false);
+                        }} >
+                            <Image source={crossIcon} style={{height: 18,width: 18,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        </Pressable>
+                    </View>
+                    <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
+                        <Text style={{display: 'flex',textAlign: 'center',fontSize: 20,fontWeight: '400',borderBottomColor: 'black',borderBottomWidth: 2}}>Likes</Text>
+                        <Image source={likeBlack} style={{height: 18,width: 18,display: 'flex',justifyContent: 'center',alignItems: 'center',marginLeft: 10}}/>
+                    </View>
+                </View>
+                {
+                    likedUsers.length>0
+                    ?
+                    likedUsers.map(user => {
+                        return(
+                            <View key={user.uid} style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',width: '100%',marginTop: 10,marginBottom: 10,backgroundColor: '#000',padding: 10,paddingLeft: 15,paddingRight: 15,borderRadius: 10}}>
+                                <View style={{display:'flex',flexDirection: 'row',justifyContent:'center',alignItems: 'center'}}>
+                                    <Pressable onPress={() => {
+                                        navigation.navigate('UserPage')
+                                    }}>
+                                        <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: 'white'}}/>
+                                    </Pressable>
+                                    <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 15,color: 'white',fontWeight: '500',borderBottomColor: 'white',borderBottomWidth: 2,paddingBottom: 5}}>{user.name}</Text>
+                                </View>
+                                <View style={{marginRight: 10}}>
+                                    <Pressable>
+                                        <Image source={likeBlue} style={{height: 20,width: 20}}/>
+                                    </Pressable>
                                 </View>
                             </View>
-                            
-                        }
-                    </View>
+                        )
+                    })
+                    :
+                    null
                 }
-                
-                
-            </View>
-            :
-            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid}/>
+            </ScrollView>
         }
-      </ScrollView>
+    </View>
   )
 }
 
@@ -598,7 +729,7 @@ const styles = StyleSheet.create({
         height: '100%',
         width: '100%',
         overflow: 'scroll',
-        marginTop: 20,
+        marginTop: 10,
         marginBottom: 50,
     },
     emptyWorkoutBox: {
@@ -620,7 +751,6 @@ const styles = StyleSheet.create({
     emptyWorkoutList: {
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-around',
         alignItems: 'center',
         height: '100%',
         width: '100%',
@@ -713,12 +843,12 @@ const styles = StyleSheet.create({
 
     },
     likeIcon: {
-        height: 25,
-        width: 25,
+        height: 24,
+        width: 24,
     },
     commentIcon: {
-        height: 25,
-        width: 25,
+        height: 24,
+        width: 24,
     },
     emptyWorkoutContainer: {
         borderWidth: 2,

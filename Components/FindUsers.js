@@ -58,7 +58,7 @@ export const FindUsers = () => {
             <View style={{marginTop: 30,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center'}}>
                 <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',position: 'relative'}}>
                     <Pressable onPress={()=>{
-                        navigation.goBack();
+                        navigation.navigate('Home');
                     }}>
                         <Image source={backIconBlack} style={{height: 35,width: 35}}/>
                     </Pressable>

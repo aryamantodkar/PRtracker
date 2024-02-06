@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#fff',
     paddingTop: 20,
-    paddingBottom: 100
+    paddingBottom: 100,
   },
   header: {
     display: 'flex',
