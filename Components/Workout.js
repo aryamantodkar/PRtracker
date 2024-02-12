@@ -31,6 +31,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     const [newUidBool,setNewUidBool] = useState(false);
     const [showLikesBool,setShowLikesBool] = useState(false);
     const [likedUsers,setLikesUsers] = useState([]);
+    const [goToCommentBox,setGoToCommentBox] = useState(false);
 
     const months = new Map;
     const dateSuffix = new Map;
@@ -109,7 +110,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
             })
     }, []);
 
-    const openWorkoutBox = (workout,tempUid = null) => {
+    const openWorkoutBox = (workout,tempUid = null,commentBox = false) => {
         if(uid==null){
             showNavbar(false);
         }
@@ -121,6 +122,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
 
         setClickedWorkoutID(workout.id);
         setShowWorkoutBox(true);
+        setGoToCommentBox(commentBox);
     }
 
     const groupByDate = (workout) => {
@@ -790,7 +792,9 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                                     <Image source={like} style={styles.likeIcon}/>
                                                                                 </Pressable>
                                                                             }
-                                                                            <Pressable>
+                                                                            <Pressable onPress={()=>{
+                                                                                openWorkoutBox(userProfile.workout,userProfile.uid,true);
+                                                                            }}>
                                                                                 <Image source={comment} style={styles.commentIcon}/>
                                                                             </Pressable>
                                                                         </View>
@@ -823,7 +827,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                         
                     </View>
                     :
-                    <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid}/>
+                    <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid} goToCommentBox={goToCommentBox}/>
                 }
             </ScrollView>
             :
@@ -885,6 +889,7 @@ const styles = StyleSheet.create({
         overflow: 'scroll',
         marginTop: 10,
         marginBottom: 50,
+        
     },
     emptyWorkoutBox: {
         display: 'flex',
@@ -895,7 +900,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 40,
         paddingTop: 20,
-        // backgroundColor: 'red',
     },
     workoutList: {
         display: 'flex',
@@ -905,7 +909,7 @@ const styles = StyleSheet.create({
     emptyWorkoutList: {
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        // alignItems: 'center',
         height: '100%',
         width: '100%',
     },
@@ -967,6 +971,7 @@ const styles = StyleSheet.create({
         padding: 10,
         marginTop: 5,
         marginBottom: 5,
+        
     },
     exerciseName:{
         paddingTop: 5,
