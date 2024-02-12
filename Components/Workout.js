@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView,ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView,ActivityIndicator, ViewBase } from 'react-native'
 import { collection, query, where, getDocs,doc,getDoc,updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { FIREBASE_DB } from '../FirebaseConfig';
@@ -16,6 +16,7 @@ const workoutBlack = require("../assets/workout-icon-black.png");
 const sadSmiley = require("../assets/sad-smiley-icon.jpg");
 const pfp = require("../assets/pfp.jpg");
 const crossIcon = require("../assets/cross-icon-black.png");
+const backIconBlack = require("../assets/back-arrow-icon.png");
 
 
 const Workout = ({showNavbar,searchParams,uid}) => {
@@ -236,14 +237,8 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                     newArray.sort((x,y) => {
                         return y.timeStamp.toMillis() - x.timeStamp.toMillis();
                     })
-
-
-                    // console.log("users",newArray)
                 })
             })
-            
-            // console.log("temp",tempArray)
-            
             setFollowingUserArray(newArray);
         }
     }
@@ -342,10 +337,65 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         setLikesUsers(likes);
     }
 
+    const updateWorkouts = async () => {
+        setIsLoading(true);
+        const docRef = doc(FIREBASE_DB, "Users", `${auth.currentUser.uid}`);
+        const docSnap = await getDoc(docRef);
+
+        var newArray = [];
+
+        if (docSnap.exists()) {
+            let followingArray = docSnap.data().following
+
+            followingArray.map(async (following) => {
+                const q = query(collection(FIREBASE_DB, `${following}`));
+                const nameRef = doc(FIREBASE_DB, "Users", `${following}`);
+                const nameSnap = await getDoc(nameRef);
+                
+                let name = "";
+
+                if(nameSnap.exists()){
+                    name = nameSnap.data().name;
+                }
+
+                var newArray = followingUserArray;
+
+                const querySnapshot = getDocs(q)
+                .then((snap) => {
+                    snap.forEach((doc) => {
+                        newArray = newArray.map(user => {
+                            if(clickedWorkoutID == doc.data().id){
+                                return{
+                                    ...user,
+                                    workout: doc.data(),
+                                    likes: doc.data().likes,
+                                    comments: doc.data().comments
+                                }
+                            }
+                            else{
+                                return user;
+                            }
+                        });
+
+                    });
+                    setFollowingUserArray(newArray)
+                    setIsLoading(false);
+                })
+            })
+        }
+    }
+
 
     useEffect(()=>{
         getFollowing();    
     },[])
+
+    useEffect(()=>{
+        if(followingUserArray.length>0){
+            updateWorkouts();
+        }
+    },[showWorkoutBox])
+
 
   return (
     <View style={{display: 'flex',justifyContent: 'center',marginTop: 'auto',marginBottom: 'auto',marginTop: 0}}>
@@ -428,9 +478,20 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                     <Pressable onPress={() => {
                                                         openWorkoutBox(workout);
                                                     }} >
-                                                        <View style={styles.workoutTitleContainer}>
-                                                            <Image source={dumbell} style={styles.workoutIcon}/>
-                                                            <Text style={styles.workoutTitle}>{workout.workoutName}</Text>
+                                                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',padding: 10}}>
+                                                            <View style={styles.workoutTitleContainer}>
+                                                                <Image source={dumbell} style={styles.workoutIcon}/>
+                                                                <Text style={styles.workoutTitle}>{workout.workoutName}</Text>
+                                                            </View>
+                                                            <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                                {
+                                                                    workout.timeStamp.toDate().toTimeString().slice(0,2)<12
+                                                                    ?
+                                                                    <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
+                                                                    :
+                                                                    <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
+                                                                }       
+                                                            </View>
                                                         </View>
                                                         <View style={styles.exerciseList}>
                                                             {
@@ -444,7 +505,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                 })
                                                             }
                                                         </View>
-                                                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
+                                                        {/* <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
                                                             <View>
                                                                 <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
                                                                     <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
@@ -462,12 +523,89 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                     <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
                                                                 }       
                                                             </View>
-                                                        </View>                                      
+                                                        </View>                                       */}
+
+                                                        {/* display likes for my workouts */}
+                                                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
+                                                            {
+                                                                workout.likes.length>2
+                                                                ?
+                                                                <View>
+                                                                    <Pressable onPress={()=>{
+                                                                        showLikes(workout.likes);
+                                                                    }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                        {
+                                                                            workout.likes.some(e => e.uid == `${userID}`)
+                                                                            ?
+                                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {workout.likes.length-1} others like this</Text>
+                                                                            :
+                                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{workout.likes[0].name.split(" ")[0]} and {workout.likes.length-1} others like this</Text>
+                                                                        }
+                                                                    </Pressable>
+                                                                </View>
+                                                                :
+                                                                <View>
+                                                                {
+                                                                    workout.likes.length>1
+                                                                    ?
+                                                                    <View>
+                                                                        <Pressable onPress={()=>{
+                                                                            showLikes(workout.likes);
+                                                                        }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                            {
+                                                                                workout.likes.some(e => e.uid == `${userID}`)
+                                                                                ?
+                                                                                <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {workout.likes.length-1} others like this</Text>
+                                                                                :
+                                                                                <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{workout.likes[0].name.split(" ")[0]} and {workout.likes.length-1} others like this</Text>
+                                                                            } 
+                                                                        </Pressable>
+                                                                    </View>
+                                                                    :
+                                                                    <View>
+                                                                        {
+                                                                            workout.likes.length>0
+                                                                            ?
+                                                                            <View>
+                                                                                <Pressable onPress={()=>{
+                                                                                    showLikes(workout.likes);
+                                                                                }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                                    {
+                                                                                        workout.likes[0].uid==userID
+                                                                                        ?
+                                                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You like this</Text>
+                                                                                        :
+                                                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{workout.likes[0].name} likes this</Text>
+                                                                                    }                                       
+                                                                                </Pressable>
+                                                                            </View>
+                                                                            :
+                                                                            <View>
+                                                                                <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>0 likes</Text>
+                                                                                </Pressable>
+                                                                            </View>
+                                                                        }
+                                                                    </View>
+                                                                }     
+                                                                </View>
+                                                            }
+                                                            
+                                                        </View>
+
                                                     </Pressable>
                                                     
                                                     
                                                     <View style={styles.interactComponent}>
-                                                        <Pressable>
+                                                        <Pressable onPress={()=>{
+                                                            showLikes(workout.likes);
+                                                        }}>
                                                             <Image source={like} style={styles.likeIcon}/>
                                                         </Pressable>
                                                         <Pressable>
@@ -499,174 +637,189 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                 }
                             </View>
                             : 
-                            <View style={{width: '100%',paddingBottom: 20,}}>
+                            <View>
                                 {
-                                    followingUserArray.length>0
+                                    !isLoading
                                     ?
-                                    <View style={{width: '100%'}}>
+                                    <View style={{width: '100%',paddingBottom: 20,}}>
                                         {
-                                            followingUserArray.map(userProfile => {
-                                                return(
-                                                    <View  key={userProfile.timeStamp}>
-                                                        {
-                                                            // check if date is already present in dateGroup in ddmmyyyy format ->
-                                                            !followingDateGroup.has(`${userProfile.timeStamp.toDate().toISOString().slice(8,10)}${userProfile.timeStamp.toDate().toISOString().slice(5,7)}${userProfile.timeStamp.toDate().toISOString().slice(0,4)}`)
-                                                            ?
-                                                            followingGroupByDate(userProfile)
-                                                            :
-                                                            null
-                                                        }
-                                                        {
-                                                            // check if date is already present in dateGroup in ddmmyyyy format ->
-                                                            !UserGroup.has(`${userProfile.name}`)
-                                                            ?
-                                                            groupByUser(userProfile,userProfile.uid)
-                                                            :
-                                                            null
-                                                        }
-                                                        <View key={userProfile.workout.id}>
-                                                            <View style={styles.workout}>
-                                                                <Pressable onPress={() => {
-                                                                    openWorkoutBox(userProfile.workout,userProfile.uid);
-                                                                }} >
-                                                                    <View style={styles.workoutTitleContainer}>
-                                                                        <Image source={dumbell} style={styles.workoutIcon}/>
-                                                                        <Text style={styles.workoutTitle}>{userProfile.workout.workoutName}</Text>
-                                                                    </View>
-                                                                    <View style={styles.exerciseList}>
-                                                                        {
-                                                                            userProfile.workout.allWorkouts.map(exercise => {
-                                                                                return(
-                                                                                    <View style={styles.exerciseName} key={exercise.id}>
-                                                                                        <Text style={{borderBottomColor: '#fff',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5,color: 'white'}}>{exercise.exerciseName}</Text>
-                                                                                        <Text style={{fontSize: 17,color: 'white',padding: 5}}> x {exercise.allSets.length}</Text>
-                                                                                    </View>
-                                                                                )
-                                                                            })
-                                                                        }
-                                                                    </View>
-                                                                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
-                                                                        {
-                                                                            userProfile.likes.length>2
-                                                                            ?
-                                                                            <View>
-                                                                                <Pressable onPress={()=>{
-                                                                                    showLikes(userProfile.likes);
-                                                                                }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                                                    {
-                                                                                        userProfile.likes.some(e => e.uid == `${userID}`)
-                                                                                        ?
-                                                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {userProfile.likes.length-1} others like this</Text>
-                                                                                        :
-                                                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{userProfile.likes[0].name.split(" ")[0]} and {userProfile.likes.length-1} others like this</Text>
-                                                                                    }
-                                                                                </Pressable>
-                                                                            </View>
-                                                                            :
-                                                                            <View>
-                                                                            {
-                                                                                userProfile.likes.length>1
-                                                                                ?
-                                                                                <View>
-                                                                                    <Pressable onPress={()=>{
-                                                                                        showLikes(userProfile.likes);
-                                                                                    }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                                                        {
-                                                                                            userProfile.likes.some(e => e.uid == `${userID}`)
-                                                                                            ?
-                                                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {userProfile.likes.length-1} others like this</Text>
-                                                                                            :
-                                                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{userProfile.likes[0].name.split(" ")[0]} and {userProfile.likes.length-1} others like this</Text>
-                                                                                        } 
-                                                                                    </Pressable>
+                                            followingUserArray.length>0
+                                            ?
+                                            <View style={{width: '100%'}}>
+                                                {
+                                                    followingUserArray.map(userProfile => {
+                                                        return(
+                                                            <View  key={userProfile.timeStamp}>
+                                                                {
+                                                                    // check if date is already present in dateGroup in ddmmyyyy format ->
+                                                                    !followingDateGroup.has(`${userProfile.timeStamp.toDate().toISOString().slice(8,10)}${userProfile.timeStamp.toDate().toISOString().slice(5,7)}${userProfile.timeStamp.toDate().toISOString().slice(0,4)}`)
+                                                                    ?
+                                                                    followingGroupByDate(userProfile)
+                                                                    :
+                                                                    null
+                                                                }
+                                                                {
+                                                                    // check if date is already present in dateGroup in ddmmyyyy format ->
+                                                                    !UserGroup.has(`${userProfile.name}`)
+                                                                    ?
+                                                                    groupByUser(userProfile,userProfile.uid)
+                                                                    :
+                                                                    null
+                                                                }
+                                                                <View key={userProfile.workout.id}>
+                                                                    <View style={styles.workout}>
+                                                                        <Pressable onPress={() => {
+                                                                            openWorkoutBox(userProfile.workout,userProfile.uid);
+                                                                        }} >
+                                                                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',padding: 10}}>
+                                                                                <View style={styles.workoutTitleContainer}>
+                                                                                    <Image source={dumbell} style={styles.workoutIcon}/>
+                                                                                    <Text style={styles.workoutTitle}>{userProfile.workout.workoutName}</Text>
                                                                                 </View>
-                                                                                :
-                                                                                <View>
+                                                                                <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
                                                                                     {
-                                                                                        userProfile.likes.length>0
+                                                                                        userProfile.timeStamp.toDate().toTimeString().slice(0,2)<12
+                                                                                        ?
+                                                                                        <Text style={styles.workoutTime}>{userProfile.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
+                                                                                        :
+                                                                                        <Text style={styles.workoutTime}>{userProfile.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
+                                                                                    }       
+                                                                                </View>
+                                                                            </View>
+                                                                            <View style={styles.exerciseList}>
+                                                                                {
+                                                                                    userProfile.workout.allWorkouts.map(exercise => {
+                                                                                        return(
+                                                                                            <View style={styles.exerciseName} key={exercise.id}>
+                                                                                                <Text style={{borderBottomColor: '#fff',borderBottomWidth: 2,fontSize: 17,paddingBottom: 5,color: 'white'}}>{exercise.exerciseName}</Text>
+                                                                                                <Text style={{fontSize: 17,color: 'white',padding: 5}}> x {exercise.allSets.length}</Text>
+                                                                                            </View>
+                                                                                        )
+                                                                                    })
+                                                                                }
+                                                                            </View>
+
+                                                                            {/* display likes */}
+                                                                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
+                                                                                {
+                                                                                    userProfile.likes.length>2
+                                                                                    ?
+                                                                                    <View>
+                                                                                        <Pressable onPress={()=>{
+                                                                                            showLikes(userProfile.likes);
+                                                                                        }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                                            {
+                                                                                                userProfile.likes.some(e => e.uid == `${userID}`)
+                                                                                                ?
+                                                                                                <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {userProfile.likes.length-1} others like this</Text>
+                                                                                                :
+                                                                                                <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{userProfile.likes[0].name.split(" ")[0]} and {userProfile.likes.length-1} others like this</Text>
+                                                                                            }
+                                                                                        </Pressable>
+                                                                                    </View>
+                                                                                    :
+                                                                                    <View>
+                                                                                    {
+                                                                                        userProfile.likes.length>1
                                                                                         ?
                                                                                         <View>
                                                                                             <Pressable onPress={()=>{
                                                                                                 showLikes(userProfile.likes);
                                                                                             }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
                                                                                                 <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                                                <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
                                                                                                 {
-                                                                                                    userProfile.likes[0].uid==userID
+                                                                                                    userProfile.likes.some(e => e.uid == `${userID}`)
                                                                                                     ?
-                                                                                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You like this</Text>
+                                                                                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {userProfile.likes.length-1} others like this</Text>
                                                                                                     :
-                                                                                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{userProfile.likes[0].name} likes this</Text>
-                                                                                                }                                       
+                                                                                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{userProfile.likes[0].name.split(" ")[0]} and {userProfile.likes.length-1} others like this</Text>
+                                                                                                } 
                                                                                             </Pressable>
                                                                                         </View>
                                                                                         :
                                                                                         <View>
-                                                                                            <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                                                <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>0 likes</Text>
-                                                                                            </Pressable>
+                                                                                            {
+                                                                                                userProfile.likes.length>0
+                                                                                                ?
+                                                                                                <View>
+                                                                                                    <Pressable onPress={()=>{
+                                                                                                        showLikes(userProfile.likes);
+                                                                                                    }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                                                        {
+                                                                                                            userProfile.likes[0].uid==userID
+                                                                                                            ?
+                                                                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You like this</Text>
+                                                                                                            :
+                                                                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{userProfile.likes[0].name} likes this</Text>
+                                                                                                        }                                       
+                                                                                                    </Pressable>
+                                                                                                </View>
+                                                                                                :
+                                                                                                <View>
+                                                                                                    <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
+                                                                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>0 likes</Text>
+                                                                                                    </Pressable>
+                                                                                                </View>
+                                                                                            }
                                                                                         </View>
-                                                                                    }
-                                                                                </View>
-                                                                            }     
-                                                                            </View>
-                                                                        }
-                                                                        <View >
+                                                                                    }     
+                                                                                    </View>
+                                                                                }
+                                                                                
+                                                                            </View>  
+                                                                            
+                                                                        </Pressable>
+                                                                        <View style={styles.interactComponent}>
                                                                             {
-                                                                                userProfile.timeStamp.toDate().toTimeString().slice(0,2)<12
+                                                                                userProfile.likes.some(e => e.uid == `${userID}`)
                                                                                 ?
-                                                                                <Text style={styles.workoutTime}>{userProfile.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
+                                                                                <Pressable onPress={()=>{
+                                                                                    unlikeWorkout(userProfile);
+                                                                                }}>
+                                                                                    <Image source={likeBlue} style={styles.likeIcon}/>
+                                                                                </Pressable>
                                                                                 :
-                                                                                <Text style={styles.workoutTime}>{userProfile.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
-                                                                            }       
+                                                                                <Pressable onPress={()=>{
+                                                                                    likeWorkout(userProfile);
+                                                                                }}>
+                                                                                    <Image source={like} style={styles.likeIcon}/>
+                                                                                </Pressable>
+                                                                            }
+                                                                            <Pressable>
+                                                                                <Image source={comment} style={styles.commentIcon}/>
+                                                                            </Pressable>
                                                                         </View>
-                                                                    </View>  
-                                                                    
-                                                                </Pressable>
-                                                                <View style={styles.interactComponent}>
-                                                                    {
-                                                                        userProfile.likes.some(e => e.uid == `${userID}`)
-                                                                        ?
-                                                                        <Pressable onPress={()=>{
-                                                                            unlikeWorkout(userProfile);
-                                                                        }}>
-                                                                            <Image source={likeBlue} style={styles.likeIcon}/>
-                                                                        </Pressable>
-                                                                        :
-                                                                        <Pressable onPress={()=>{
-                                                                            likeWorkout(userProfile);
-                                                                        }}>
-                                                                            <Image source={like} style={styles.likeIcon}/>
-                                                                        </Pressable>
-                                                                    }
-                                                                    <Pressable>
-                                                                        <Image source={comment} style={styles.commentIcon}/>
-                                                                    </Pressable>
+                                                                    </View>
                                                                 </View>
+                                                                
                                                             </View>
-                                                        </View>
-                                                        
-                                                    </View>
-                                                )
-                                            })
+                                                        )
+                                                    })
+                                                }
+                                            </View>
+                                            :
+                                            <View  style={[styles.emptyWorkoutContainer,{width: '80%',backgroundColor: '#f5f4f4',paddingTop: 25,paddingBottom: 25,marginTop: 150}]}>
+                                                <Image source={sadSmiley} style={{height: 40, width: 40,marginLeft: 'auto',marginRight: 'auto',marginBottom: 10}}/>
+                                                <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                    <Text style={{color: 'black',marginLeft: 10,fontSize: 15,fontWeight: '400',color: '#000'}}>Please start following people to view their workouts here :)</Text>
+                                                </View>
+                                            </View>
+                                            
                                         }
                                     </View>
                                     :
-                                    <View  style={[styles.emptyWorkoutContainer,{width: '80%',backgroundColor: '#f5f4f4',paddingTop: 25,paddingBottom: 25,marginTop: 150}]}>
-                                        <Image source={sadSmiley} style={{height: 40, width: 40,marginLeft: 'auto',marginRight: 'auto',marginBottom: 10}}/>
-                                        <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                            <Text style={{color: 'black',marginLeft: 10,fontSize: 15,fontWeight: '400',color: '#000'}}>Please start following people to view their workouts here :)</Text>
-                                        </View>
+                                    <View >
+                                        <ActivityIndicator size="large" color="#000"/>
                                     </View>
-                                    
                                 }
                             </View>
+                            
                         }
-                        
                         
                     </View>
                     :
@@ -674,18 +827,17 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                 }
             </ScrollView>
             :
-            <ScrollView contentContainerStyle={{backgroundColor: '#f5f4f4',borderWidth:1,borderColor: '#DDD',width: '100%',display: 'flex',marginTop: 50,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
+            <ScrollView contentContainerStyle={{borderWidth:2,borderColor: '#f5f4f4',backgroundColor: '#FDFDFD',width: '100%',display: 'flex',marginTop: 40,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
                 <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative',marginBottom: 20}}>
                     <View style={{position: 'absolute',left: 0}}>
                         <Pressable onPress={()=>{
                             setShowLikesBool(false);
                         }} >
-                            <Image source={crossIcon} style={{height: 18,width: 18,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                            <Image source={backIconBlack} style={{height: 30,width: 30,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
                         </Pressable>
                     </View>
                     <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
-                        <Text style={{display: 'flex',textAlign: 'center',fontSize: 20,fontWeight: '400',borderBottomColor: 'black',borderBottomWidth: 2}}>Likes</Text>
-                        <Image source={likeBlack} style={{height: 18,width: 18,display: 'flex',justifyContent: 'center',alignItems: 'center',marginLeft: 10}}/>
+                        <Text style={{display: 'flex',textAlign: 'center',fontSize: 20,fontWeight: '500',borderBottomColor: 'black',borderBottomWidth: 2}}>Likes</Text>
                     </View>
                 </View>
                 {
@@ -711,7 +863,9 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                         )
                     })
                     :
-                    null
+                    <View style={{display: 'flex',justifyContent: 'center',height: 400,alignItems: 'center',paddingLeft: 10,paddingRight: 10}}>
+                        <Text style={{fontSize: 20}}>No one has liked this workout yet.</Text>
+                    </View>
                 }
             </ScrollView>
         }
@@ -778,15 +932,14 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         // justifyContent: 'center',
         borderRadius: 15,
-        backgroundColor: '#000'
+        backgroundColor: '#000',
+        padding: 10
     },
     workoutTitleContainer: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'left',
         alignItems: 'center',
 
-        padding: 10,
         fontWeight: '600',
         paddingBottom: 0
         // borderBottomWidth:2,
@@ -805,8 +958,10 @@ const styles = StyleSheet.create({
         paddingRight: 10,
     },
     workoutTime: {
-        fontWeight: '600',
+        fontWeight: '500',
         color: 'white',
+        alignItems: 'center',
+        textAlign: 'center'
     },
     exerciseList:{
         padding: 10,
