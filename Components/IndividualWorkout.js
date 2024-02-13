@@ -26,7 +26,7 @@ const commentBlack = require("../assets/comment-icon-black.png");
 const addComment = require("../assets/add-comment.png");
 
 
-const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox}) => {
+const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox,setGoToCommentBox}) => {
     const [editWorkout,setEditWorkout] = useState(false);
     const [clickedWorkout,setClickedWorkout] = useState({});
     const [originalClickedWorkout,setOriginalClickedWorkout] = useState({});
@@ -76,9 +76,6 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox}) =>
             userID = uid;
             setReadOnly(true);
         }
-
-        console.log("comment",goToCommentBox)
-        // autoScroll();
         
         const q = query(collection(FIREBASE_DB, `${userID}`));
 
@@ -211,6 +208,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox}) =>
             name: name,
             id: randomID,
             timeStamp: date,
+            likes: []
         });
         
         const commentRef = doc(FIREBASE_DB, `${uid}`, `${docID}`);
@@ -262,6 +260,99 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox}) =>
             comments: newCommentArray
         })
         setIsLoading(false);
+    }
+
+    const likeComment = async (userProfile) => {
+        let docID = "";
+        var commentArray = [];
+
+        const querySnapshot = await getDocs(collection(FIREBASE_DB, `${uid}`));
+        querySnapshot.forEach((doc) => {
+            if(clickedWorkout.id==doc.data().id){
+                docID = doc.id;
+                commentArray = doc.data().comments; 
+            }
+        });
+
+        const nameRef = doc(FIREBASE_DB, "Users", `${userID}`);
+        const nameSnap = await getDoc(nameRef);
+        
+        let name = "";
+
+        if(nameSnap.exists()){
+            name = nameSnap.data().name;
+        }
+
+        var newCommentArray = commentArray.map((comment) => {
+            if(userProfile.id==comment.id){
+                return {
+                    ...comment,
+                    likes: [...comment.likes,{
+                        uid: userID,
+                        name: name
+                    }]
+                }
+            }
+            else{
+                return comment;
+            }
+        })
+        
+        const likeRef = doc(FIREBASE_DB, `${uid}`, `${docID}`);
+
+        await updateDoc(likeRef, {
+            comments: newCommentArray
+        });
+
+        setClickedWorkout({
+            ...clickedWorkout,
+            comments: newCommentArray
+        })
+    }
+
+    const unlikeComment = async (userProfile) => {
+        let docID = "";
+        var commentArray = [];
+
+        const querySnapshot = await getDocs(collection(FIREBASE_DB, `${uid}`));
+        querySnapshot.forEach((doc) => {
+            if(clickedWorkout.id==doc.data().id){
+                docID = doc.id;
+                commentArray = doc.data().comments; 
+            }
+        });
+
+        const nameRef = doc(FIREBASE_DB, "Users", `${userID}`);
+        const nameSnap = await getDoc(nameRef);
+        
+        let name = "";
+
+        if(nameSnap.exists()){
+            name = nameSnap.data().name;
+        }
+
+        var newCommentArray = commentArray.map((comment) => {
+            if(userProfile.id==comment.id){
+                return {
+                    ...comment,
+                    likes: comment.likes.filter(com => com.uid != userID)
+                }
+            }
+            else{
+                return comment;
+            }
+        })
+        
+        const likeRef = doc(FIREBASE_DB, `${uid}`, `${docID}`);
+
+        await updateDoc(likeRef, {
+            comments: newCommentArray
+        });
+
+        setClickedWorkout({
+            ...clickedWorkout,
+            comments: newCommentArray
+        })
     }
 
   return (
@@ -582,17 +673,18 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox}) =>
             </View>
         </ScrollView>
         :
-        <ScrollView >
+        <ScrollView style={{marginBottom: 0,paddingBottom: 0}}>
             {
                 !showLikesBool
                 ?
-                <ScrollView>
+                <ScrollView style={{marginBottom: 0,paddingBottom: 0}}>
                     <ScrollView contentContainerStyle={styles.individualWorkout} style={{width: '100%'}}>
                         <View style={styles.individualWorkoutHeader}>
                             <View style={{display: 'flex',flexDirection: 'column'}}>
                                 <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
                                     <Pressable onPress={() => {
                                         showWorkoutBox(false);
+                                        setGoToCommentBox(false);
                                         if(route.name!='IndividualUser'){
                                             showNavbar(true);
                                         }
@@ -772,77 +864,98 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox}) =>
                         </View>
                         
                     </ScrollView>
-                    <ScrollView  style={{backgroundColor: '#f5f4f4',borderColor: '#DDD',borderWidth: 1,marginTop: 30,borderRadius: 15,padding: 20,position: 'relative'}}>
-                        <View style={{display: 'flex',flexDirection: 'row',alignItems: 'flex-start',justifyContent: 'flex-start',marginBottom: 10}}>
-                            <Pressable style={{marginRight: 10,justifyContent: 'center',alignItems: 'center'}}>
-                                <Image source={commentBlack} style={styles.commentIcon}/>
-                            </Pressable>
-                            <Text style={{fontSize: 17,color: 'black',textAlignVertical: 'center',textAlign: 'center'}}>0 Comments</Text>
+                    {
+                        isLoading
+                        ?
+                        <View style={{width: '100%',height: '100%'}}>
+                            <ActivityIndicator size="large" color="#000"/>
                         </View>
-                        {/* <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginTop: 20,marginBottom: 20}}>
-                            <Text>No comments found</Text>
-                        </View> */}
-                        {
-                            isLoading
-                            ?
-                            <View>
-                                <ActivityIndicator size="large" color="#000"/>
+                        :
+                        <ScrollView  style={{backgroundColor: '#f5f4f4',borderColor: '#DDD',borderWidth: 1,marginTop: 30,borderRadius: 15,padding: 20,position: 'relative'}}>
+                            <View style={{display: 'flex',flexDirection: 'row',alignItems: 'flex-start',justifyContent: 'flex-start',marginBottom: 10}}>
+                                <Pressable style={{marginRight: 10,justifyContent: 'center',alignItems: 'center'}}>
+                                    <Image source={commentBlack} style={styles.commentIcon}/>
+                                </Pressable>
+                                <Text style={{fontSize: 17,color: 'black',textAlignVertical: 'center',textAlign: 'center',fontWeight: '500'}}>{clickedWorkout.comments.length} Comments</Text>
                             </View>
-                            :
-                            clickedWorkout.comments.map(comment => {
-                                return(
-                                    <View key={comment.id} style={{display: 'flex',flexDirection: 'row',width: '100%',alignItems: 'center',position: 'relative',backgroundColor: '#fff',borderWidth: 1.5,borderColor: '#DDD',padding: 10,borderRadius: 10,marginTop: 10,marginBottom: 10}}>
-                                        <View style={{display: 'flex',flexDirection: 'row'}}>
-                                            <View>
-                                                <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#ddd',}}/>
-                                            </View>
-                                            <View style={{display: 'flex',flexDirection: 'column',marginLeft: 10,width: '100%',marginBottom:10}}>
-                                                <View style={{marginBottom: 5,display: 'flex',justifyContent: 'center'}}>
-                                                    <Text style={{textAlignVertical: 'center',fontSize: 16,fontWeight: '500',color: '#018FF5'}}>{comment.name}</Text>
+                            
+                            {
+                                clickedWorkout.comments.map(comment => {
+                                    return(
+                                        <View key={comment.id} style={{display: 'flex',flexDirection: 'row',width: '100%',alignItems: 'center',position: 'relative',backgroundColor: '#fff',borderWidth: 1.5,borderColor: '#DDD',padding: 10,borderRadius: 10,marginTop: 10,marginBottom: 10}}>
+                                            <View style={{display: 'flex',flexDirection: 'row'}}>
+                                                <View style={{display: 'flex'}}>
+                                                    <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#ddd',}}/>
                                                 </View>
-                                                <View style={{width: '65%'}}>
-                                                    <Text style={{textAlignVertical: 'center',fontSize: 13,color: '#000'}}>{comment.comment}</Text>
+                                                <View style={{display: 'flex',flexDirection: 'column',marginLeft: 10,width: '100%',marginBottom:0}}>
+                                                    <View style={{marginBottom: 5,display: 'flex',justifyContent: 'center'}}>
+                                                        <Text style={{textAlignVertical: 'center',fontSize: 16,fontWeight: '500',color: '#018FF5'}}>{comment.name}</Text>
+                                                    </View>
+                                                    <View style={{width: '65%'}}>
+                                                        <Text style={{textAlignVertical: 'center',fontSize: 14,color: '#000',fontWeight: '400'}}>{comment.comment}</Text>
+                                                    </View>
+                                                    <View style={{display: 'flex',flexDirection: 'row',alignItems:'center',marginTop: 15}}>
+                                                        {
+                                                            comment.likes.some(e => e.uid == `${userID}`)
+                                                            ?
+                                                            <Pressable onPress={()=>{
+                                                                unlikeComment(comment)
+                                                            }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center'}}>
+                                                                <Image source={likeBlue} style={{height: 14,width: 14}}/>
+                                                            </Pressable>
+                                                            :
+                                                            <Pressable onPress={()=>{
+                                                                likeComment(comment)
+                                                            }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center'}}>
+                                                                <Image source={likeBlack} style={{height: 14,width: 14}}/>
+                                                            </Pressable>
+                                                        }
+                                                        <Pressable style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginLeft: 5}}>
+                                                            <Text style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center'}}>{comment.likes.length}</Text>
+                                                        </Pressable>
+                                                        <Text style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center',marginLeft: 10,fontSize: 12,color:'#8A8A8A',fontWeight: '600'}}>Reply</Text>
+                                                    </View>
                                                 </View>
                                             </View>
-                                        </View>
-                                        <View style={{position: 'absolute',bottom: 5,right: 10}}>
+                                            <View style={{position: 'absolute',bottom: 5,right: 10}}>
+                                                {
+                                                    new Date(comment.timeStamp * 1000).toTimeString().slice(0,2)<12
+                                                    ?
+                                                    <Text style={{color: '#000',fontSize: 12,fontWeight: '500'}}>{new Date(comment.timeStamp * 1000).toTimeString().slice(0,5)} AM</Text>
+                                                    :
+                                                    <Text style={{color: '#000',fontSize: 12,fontWeight: '500'}}> {new Date(comment.timeStamp * 1000).toTimeString().slice(0,5)} PM</Text>
+                                                }     
+                                            </View>
                                             {
-                                                new Date(comment.timeStamp * 1000).toTimeString().slice(0,2)<12
+                                                comment.uid==userID
                                                 ?
-                                                <Text style={{color: '#000',fontSize: 12,fontWeight: '500'}}>{new Date(comment.timeStamp * 1000).toTimeString().slice(0,5)} AM</Text>
+                                                <Pressable onPress={()=>{
+                                                    deleteComment(clickedWorkout,comment)
+                                                }} style={{position: 'absolute',top: 10,right: 10}}>
+                                                    <Image source={deleteIconBlack} style={{height: 20,width: 20}}/>
+                                                </Pressable>
                                                 :
-                                                <Text style={{color: '#000',fontSize: 12,fontWeight: '500'}}> {new Date(comment.timeStamp * 1000).toTimeString().slice(0,5)} PM</Text>
-                                            }     
+                                                null
+                                            }
                                         </View>
-                                        {
-                                            comment.uid==userID
-                                            ?
-                                            <Pressable onPress={()=>{
-                                                deleteComment(clickedWorkout,comment)
-                                            }} style={{position: 'absolute',top: 10,right: 10}}>
-                                                <Image source={deleteIconBlack} style={{height: 20,width: 20}}/>
-                                            </Pressable>
-                                            :
-                                            null
-                                        }
-                                    </View>
-                                )
-                            })
+                                    )
+                                })
+                            }
+                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',marginTop: 10}}>
+                                <TextInput value={commentInput} onChangeText={(text)=>{
+                                    setCommentInput(text);
+                                }} placeholder='Add a comment' style={{maxWidth: 250,width: '100%',minHeight:30,backgroundColor: 'white',padding: 10,borderRadius: 15,paddingTop: 5,paddingBottom: 5}}/>
+                                <Pressable style={{marginRight: 10,justifyContent: 'center',alignItems: 'center',marginLeft: 10}} onPress={()=>{
+                                    addComments(clickedWorkout)
+                                }}>
+                                    <Image source={addComment} style={styles.commentIcon}/>
+                                </Pressable>
+                            </View>
+                        </ScrollView>
                         }
-                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',marginTop: 10}}>
-                            <TextInput value={commentInput} onChangeText={(text)=>{
-                                setCommentInput(text);
-                            }} placeholder='Add a comment' style={{maxWidth: 250,width: '100%',minHeight:30,backgroundColor: 'white',padding: 10,borderRadius: 15,paddingTop: 5,paddingBottom: 5}}/>
-                            <Pressable style={{marginRight: 10,justifyContent: 'center',alignItems: 'center',marginLeft: 10}} onPress={()=>{
-                                addComments(clickedWorkout)
-                            }}>
-                                <Image source={addComment} style={styles.commentIcon}/>
-                            </Pressable>
-                        </View>
-                    </ScrollView>
                 </ScrollView>
                 :
-                <ScrollView  contentContainerStyle={{borderWidth:2,borderColor: '#f5f4f4',backgroundColor:'#f5f4f4',width: '100%',display: 'flex',marginTop: 40,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
+                <ScrollView  contentContainerStyle={{borderWidth:1,borderColor: '#DDD',backgroundColor:'#f5f4f4',width: '100%',display: 'flex',marginTop: 40,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
                     <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative',marginBottom: 20}}>
                         <View style={{position: 'absolute',left: 0}}>
                             <Pressable onPress={()=>{
@@ -938,7 +1051,7 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 15,
         padding: 10,
-
+        
     },
     workoutTime: {
         fontWeight: '600',

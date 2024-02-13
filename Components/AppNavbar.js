@@ -129,7 +129,7 @@ export default AppNavbar
 const styles = StyleSheet.create({
     navbar: {
         position: 'absolute',
-        bottom: 20,
+        bottom: 15,
         width: '60%',
         backgroundColor: '#fff',
         borderWidth: 2,

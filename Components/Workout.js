@@ -334,11 +334,6 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         }))
     }
 
-    const showLikes = async (likes) => {
-        setShowLikesBool(true);
-        setLikesUsers(likes);
-    }
-
     const updateWorkouts = async () => {
         setIsLoading(true);
         const docRef = doc(FIREBASE_DB, "Users", `${auth.currentUser.uid}`);
@@ -362,24 +357,40 @@ const Workout = ({showNavbar,searchParams,uid}) => {
 
                 var newArray = followingUserArray;
 
-                const querySnapshot = getDocs(q)
-                .then((snap) => {
-                    snap.forEach((doc) => {
-                        newArray = newArray.map(user => {
-                            if(clickedWorkoutID == doc.data().id){
-                                return{
-                                    ...user,
-                                    workout: doc.data(),
-                                    likes: doc.data().likes,
-                                    comments: doc.data().comments
-                                }
-                            }
-                            else{
-                                return user;
-                            }
-                        });
+                let docID = "";
+                let docUid = "";
 
+                const querySnapshot = getDocs(q)
+                .then(async (snap) => {
+                    snap.forEach((doc) => {
+                        if(clickedWorkoutID == doc.data().id){
+                            docID = doc.id;
+                            docUid = following;
+                        }
                     });
+
+                    if(docID!="" && docUid!=""){
+                        const getClickedDoc = doc(FIREBASE_DB, `${docUid}`, `${docID}`);
+                        const getClickedDocSnap = await getDoc(getClickedDoc);
+
+                        if (getClickedDocSnap.exists()) {
+                            newArray = newArray.map(user => {
+                                if(user.workout.id == getClickedDocSnap.data().id){
+                                    return{
+                                        ...user,
+                                        workout: getClickedDocSnap.data(),
+                                        likes: getClickedDocSnap.data().likes,
+                                        comments: getClickedDocSnap.data().comments
+                                    }
+                                }
+                                else{
+                                    return user;
+                                }
+                            });
+        
+                        }
+                    }
+
                     setFollowingUserArray(newArray)
                     setIsLoading(false);
                 })
@@ -387,6 +398,10 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         }
     }
 
+    const showLikes = async (likes) => {
+        setShowLikesBool(true);
+        setLikesUsers(likes);
+    }
 
     useEffect(()=>{
         getFollowing();    
@@ -397,7 +412,6 @@ const Workout = ({showNavbar,searchParams,uid}) => {
             updateWorkouts();
         }
     },[showWorkoutBox])
-
 
   return (
     <View style={{display: 'flex',justifyContent: 'center',marginTop: 'auto',marginBottom: 'auto',marginTop: 0}}>
@@ -827,11 +841,11 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                         
                     </View>
                     :
-                    <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid} goToCommentBox={goToCommentBox}/>
+                    <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid} goToCommentBox={goToCommentBox} setGoToCommentBox={setGoToCommentBox}/>
                 }
             </ScrollView>
             :
-            <ScrollView contentContainerStyle={{borderWidth:2,borderColor: '#f5f4f4',backgroundColor: '#FDFDFD',width: '100%',display: 'flex',marginTop: 40,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
+            <ScrollView contentContainerStyle={{borderWidth:1,borderColor: '#DDD',backgroundColor: '#f5f4f4',width: '100%',display: 'flex',marginTop: 40,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
                 <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative',marginBottom: 20}}>
                     <View style={{position: 'absolute',left: 0}}>
                         <Pressable onPress={()=>{
@@ -888,7 +902,7 @@ const styles = StyleSheet.create({
         width: '100%',
         overflow: 'scroll',
         marginTop: 10,
-        marginBottom: 50,
+        // marginBottom: 50,
         
     },
     emptyWorkoutBox: {
