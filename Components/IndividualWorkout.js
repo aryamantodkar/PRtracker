@@ -26,7 +26,7 @@ const commentBlack = require("../assets/comment-icon-black.png");
 const addComment = require("../assets/add-comment.png");
 
 
-const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox,setGoToCommentBox}) => {
+const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
     const [editWorkout,setEditWorkout] = useState(false);
     const [clickedWorkout,setClickedWorkout] = useState({});
     const [originalClickedWorkout,setOriginalClickedWorkout] = useState({});
@@ -182,9 +182,13 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox,setG
         let docID = "";
         let commentArray = [];
 
+        if(uid==null){
+            uid = userID;
+        }
+
         const querySnapshot = await getDocs(collection(FIREBASE_DB, `${uid}`));
         querySnapshot.forEach((doc) => {
-            if(userProfile.id==doc.data().id){
+            if(clickedWorkout.id==doc.data().id){
                 docID = doc.id;
                 commentArray = doc.data().comments;
             }
@@ -236,9 +240,13 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox,setG
         let docID = "";
         let commentArray = [];
 
+        if(uid==null){
+            uid = userID;
+        }
+
         const querySnapshot = await getDocs(collection(FIREBASE_DB, `${uid}`));
         querySnapshot.forEach((doc) => {
-            if(userProfile.id==doc.data().id){
+            if(clickedWorkout.id==doc.data().id){
                 docID = doc.id;
                 commentArray = doc.data().comments;
             }
@@ -265,6 +273,10 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox,setG
     const likeComment = async (userProfile) => {
         let docID = "";
         var commentArray = [];
+
+        if(uid==null){
+            uid = userID;
+        }
 
         const querySnapshot = await getDocs(collection(FIREBASE_DB, `${uid}`));
         querySnapshot.forEach((doc) => {
@@ -314,6 +326,10 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox,setG
         let docID = "";
         var commentArray = [];
 
+        if(uid==null){
+            uid = userID;
+        }
+ 
         const querySnapshot = await getDocs(collection(FIREBASE_DB, `${uid}`));
         querySnapshot.forEach((doc) => {
             if(clickedWorkout.id==doc.data().id){
@@ -684,7 +700,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox,setG
                                 <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
                                     <Pressable onPress={() => {
                                         showWorkoutBox(false);
-                                        setGoToCommentBox(false);
+                
                                         if(route.name!='IndividualUser'){
                                             showNavbar(true);
                                         }
@@ -881,6 +897,12 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox,setG
                             
                             {
                                 clickedWorkout.comments.map(comment => {
+                                    let time = new Date(comment.timeStamp * 1000).toTimeString().slice(0,5);
+
+                                    if(comment.timeStamp.seconds==undefined && comment.timeStamp.nanoseconds==undefined){
+                                        time = new Date(comment.timeStamp).toTimeString().slice(0,5);
+                                    }
+
                                     return(
                                         <View key={comment.id} style={{display: 'flex',flexDirection: 'row',width: '100%',alignItems: 'center',position: 'relative',backgroundColor: '#fff',borderWidth: 1.5,borderColor: '#DDD',padding: 10,borderRadius: 10,marginTop: 10,marginBottom: 10}}>
                                             <View style={{display: 'flex',flexDirection: 'row'}}>
@@ -919,11 +941,11 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,goToCommentBox,setG
                                             </View>
                                             <View style={{position: 'absolute',bottom: 5,right: 10}}>
                                                 {
-                                                    new Date(comment.timeStamp * 1000).toTimeString().slice(0,2)<12
+                                                    time.slice(0,2)<12
                                                     ?
-                                                    <Text style={{color: '#000',fontSize: 12,fontWeight: '500'}}>{new Date(comment.timeStamp * 1000).toTimeString().slice(0,5)} AM</Text>
+                                                    <Text style={{color: '#000',fontSize: 12,fontWeight: '500'}}>{time} AM</Text>
                                                     :
-                                                    <Text style={{color: '#000',fontSize: 12,fontWeight: '500'}}> {new Date(comment.timeStamp * 1000).toTimeString().slice(0,5)} PM</Text>
+                                                    <Text style={{color: '#000',fontSize: 12,fontWeight: '500'}}> {time} PM</Text>
                                                 }     
                                             </View>
                                             {

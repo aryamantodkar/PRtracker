@@ -110,7 +110,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
             })
     }, []);
 
-    const openWorkoutBox = (workout,tempUid = null,commentBox = false) => {
+    const openWorkoutBox = (workout,tempUid = null) => {
         if(uid==null){
             showNavbar(false);
         }
@@ -122,7 +122,6 @@ const Workout = ({showNavbar,searchParams,uid}) => {
 
         setClickedWorkoutID(workout.id);
         setShowWorkoutBox(true);
-        setGoToCommentBox(commentBox);
     }
 
     const groupByDate = (workout) => {
@@ -521,25 +520,6 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                 })
                                                             }
                                                         </View>
-                                                        {/* <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
-                                                            <View>
-                                                                <Pressable style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>and 7 others like this</Text>
-                                                                </Pressable>
-                                                            </View>
-                                                            <View >
-                                                                {
-                                                                    workout.timeStamp.toDate().toTimeString().slice(0,2)<12
-                                                                    ?
-                                                                    <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
-                                                                    :
-                                                                    <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
-                                                                }       
-                                                            </View>
-                                                        </View>                                       */}
 
                                                         {/* display likes for my workouts */}
                                                         <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
@@ -624,7 +604,9 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                         }}>
                                                             <Image source={like} style={styles.likeIcon}/>
                                                         </Pressable>
-                                                        <Pressable>
+                                                        <Pressable onPress={()=>{
+                                                            openWorkoutBox(workout);
+                                                        }}>
                                                             <Image source={comment} style={styles.commentIcon}/>
                                                         </Pressable>
                                                     </View>
@@ -807,7 +789,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                                 </Pressable>
                                                                             }
                                                                             <Pressable onPress={()=>{
-                                                                                openWorkoutBox(userProfile.workout,userProfile.uid,true);
+                                                                                openWorkoutBox(userProfile.workout,userProfile.uid);
                                                                             }}>
                                                                                 <Image source={comment} style={styles.commentIcon}/>
                                                                             </Pressable>
@@ -841,7 +823,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                         
                     </View>
                     :
-                    <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid} goToCommentBox={goToCommentBox} setGoToCommentBox={setGoToCommentBox}/>
+                    <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid}/>
                 }
             </ScrollView>
             :
