@@ -7,6 +7,7 @@ import { getAuth } from "firebase/auth";
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { collection, getDocs } from "firebase/firestore";
+import { getStorage, ref,uploadBytes,getDownloadURL } from "firebase/storage";
 
 const backIconBlack = require("../assets/back-arrow-icon.png");
 const pfp = require("../assets/pfp.jpg");
@@ -15,6 +16,9 @@ const searchIcon = require("../assets/search-icon-grey.png");
 export const FindUsers = () => {
     const [userList,setUserList] = useState([]);
     const [searchText,setSearchText] = useState("");
+    const [profilePic,setProfilePic] = useState("");
+
+    const storage = getStorage();
 
     const navigation = useNavigation();
     const route = useRoute();
@@ -35,6 +39,17 @@ export const FindUsers = () => {
         }
     }
   
+    const getProfileImage = async () => {
+        getDownloadURL(ref(storage, `${user.uid}`))
+        .then((url) => {
+          setProfilePic(url);
+        })
+        .catch((error) => {
+          // Handle any errors
+          console.log("error")
+        });
+    }
+
     const getAllUsersList = async () => {
       const querySnapshot = await getDocs(collection(FIREBASE_DB, "Users"));
   
@@ -51,6 +66,7 @@ export const FindUsers = () => {
   
     useEffect(()=>{
       getAllUsersList();
+      getProfileImage();
     },[])
   return (
     <View style={{height: '100%',width: '100%'}}>
@@ -72,7 +88,13 @@ export const FindUsers = () => {
                     <Pressable onPress={() => {
                         navigation.navigate('UserPage')
                     }}>
-                        <Image source={pfp} style={{height: 35,width: 35,borderRadius: 50}}/>
+                        {
+                            profilePic==""
+                            ?
+                            <Image source={pfp} style={{height: 35,width: 35,borderRadius: 50}}/>
+                            :
+                            <Image src={profilePic} style={{height: 35,width: 35,borderRadius: 50}}/>
+                        }
                     </Pressable>
                 </View>
             </View>
@@ -91,7 +113,13 @@ export const FindUsers = () => {
                                             name: user.name,
                                         })
                                     }} key={user.uid} style={{width: '100%',height: 80,display: 'flex',flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',paddingLeft: 20,backgroundColor: '#f5f4f4',borderColor: '#DDD',borderWidth: 1,borderRadius: 10,marginTop: 10,marginBottom: 10}}>
-                                        <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,borderColor: '#DDD',borderWidth: 2}}/>
+                                        {
+                                            user.profileUrl==""
+                                            ?
+                                            <Image source={pfp} style={{height: 45,width: 45,padding: 10,borderRadius: 50}}/>
+                                            :
+                                            <Image src={user.profileUrl} style={{height: 45,width: 45,padding: 10,borderRadius: 50}}/>
+                                        }
                                         <View style={{marginLeft: 20,display: 'flex',flexDirection: 'column'}}>
                                             <Text style={{color: '#007FF4',fontSize: 16,marginBottom: 5,fontWeight: '500'}}>{user.name}</Text>
                                             <Text style={{color: '#000',fontSize: 12.5,marginBottom: 5,fontWeight: '400'}}>Pune, Maharashtra</Text>

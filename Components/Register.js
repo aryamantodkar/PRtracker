@@ -37,7 +37,8 @@ export default function Register({navigation}) {
           followers: [],
           following: [],
           likes: [],
-          comments: []
+          comments: [],
+          profileUrl: "",
         });
       })
       console.log(resposne);

@@ -6,6 +6,7 @@ import { FIREBASE_DB } from '../FirebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import IndividualWorkout from './IndividualWorkout';
+import { getStorage, ref,uploadBytes,getDownloadURL } from "firebase/storage";
 
 const dumbell = require("../assets/dumbell.png");
 const like = require("../assets/like-icon-outline.png");
@@ -32,6 +33,8 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     const [showLikesBool,setShowLikesBool] = useState(false);
     const [likedUsers,setLikesUsers] = useState([]);
     const [goToCommentBox,setGoToCommentBox] = useState(false);
+
+    const storage = getStorage();
 
     const months = new Map;
     const dateSuffix = new Map;
@@ -158,7 +161,13 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                     name: workout.name,
                 })
             }} style={{marginTop: 15,display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 10,borderRadius: 10,backgroundColor: '#018FF5',borderWidth: 1,borderColor: '#DDD'}}>
-                <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: 'white'}}/>
+                {
+                    workout.profileUrl=="" || workout.profileUrl==undefined
+                    ?
+                    <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: 'white'}}/>
+                    :
+                    <Image src={workout.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: 'white'}}/>
+                }
                 <Text style={{color: 'white',fontSize: 16,marginLeft: 10,fontWeight: '500',borderBottomColor: 'white',borderBottomWidth: 2,paddingBottom: 5}}>{workout.name}</Text>
             </Pressable>
         )
@@ -222,6 +231,15 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                     name = nameSnap.data().name;
                 }
 
+                let profileUrl = "";
+
+                const profilePicRef = doc(FIREBASE_DB, "Users", `${following}`);
+                const profilePicSnap = await getDoc(profilePicRef);
+
+                if(profilePicSnap.exists()){
+                    profileUrl = profilePicSnap.data().profileUrl;
+                }
+
                 const querySnapshot = getDocs(q)
                 .then((snap) => {
                     snap.forEach((doc) => {
@@ -231,7 +249,8 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                             uid: following,
                             name: name,
                             likes: doc.data().likes,
-                            comments: doc.data().comments
+                            comments: doc.data().comments,
+                            profileUrl: profileUrl
                         })
                     });
                     
@@ -397,6 +416,15 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         }
     }
 
+    const returnProfilePic = (url,margin) => {
+        if(url=="" || url==undefined){
+            return <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: margin}}/>
+        }
+        else{
+            return <Image src={url} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: margin}}/>
+        }
+    }
+
     const showLikes = async (likes) => {
         setShowLikesBool(true);
         setLikesUsers(likes);
@@ -528,11 +556,20 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                 ?
                                                                 <View>
                                                                     <Pressable onPress={()=>{
-                                                                        showLikes(workout.likes);
+                                                                        showLikes({
+                                                                            likes: workout.likes,
+                                                                            profileUrl: workout.profileUrl
+                                                                        });
                                                                     }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                        {
+                                                                            returnProfilePic(workout.profileUrl,0)
+                                                                        }
+                                                                        {
+                                                                            returnProfilePic(workout.profileUrl,-10)
+                                                                        }
+                                                                        {
+                                                                            returnProfilePic(workout.profileUrl,-10)
+                                                                        }
                                                                         {
                                                                             workout.likes.some(e => e.uid == `${userID}`)
                                                                             ?
@@ -551,8 +588,12 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                         <Pressable onPress={()=>{
                                                                             showLikes(workout.likes);
                                                                         }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                            {
+                                                                                returnProfilePic(workout.profileUrl,0)
+                                                                            }
+                                                                            {
+                                                                                returnProfilePic(workout.profileUrl,-10)
+                                                                            }
                                                                             {
                                                                                 workout.likes.some(e => e.uid == `${userID}`)
                                                                                 ?
@@ -571,7 +612,9 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                                 <Pressable onPress={()=>{
                                                                                     showLikes(workout.likes);
                                                                                 }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                                    {
+                                                                                        returnProfilePic(workout.profileUrl,0)
+                                                                                    }
                                                                                     {
                                                                                         workout.likes[0].uid==userID
                                                                                         ?
@@ -706,9 +749,15 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                                         <Pressable onPress={()=>{
                                                                                             showLikes(userProfile.likes);
                                                                                         }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                                                            <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                                            {
+                                                                                                returnProfilePic(userProfile.profileUrl,0)
+                                                                                            }
+                                                                                            {
+                                                                                                returnProfilePic(userProfile.profileUrl,-10)
+                                                                                            }
+                                                                                            {
+                                                                                                returnProfilePic(userProfile.profileUrl,-10)
+                                                                                            }
                                                                                             {
                                                                                                 userProfile.likes.some(e => e.uid == `${userID}`)
                                                                                                 ?
@@ -727,8 +776,12 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                                             <Pressable onPress={()=>{
                                                                                                 showLikes(userProfile.likes);
                                                                                             }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                                                <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                                                                <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                                                                {
+                                                                                                    returnProfilePic(userProfile.profileUrl,0)
+                                                                                                }
+                                                                                                {
+                                                                                                    returnProfilePic(userProfile.profileUrl,-10)
+                                                                                                }
                                                                                                 {
                                                                                                     userProfile.likes.some(e => e.uid == `${userID}`)
                                                                                                     ?
@@ -747,7 +800,9 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                                                                     <Pressable onPress={()=>{
                                                                                                         showLikes(userProfile.likes);
                                                                                                     }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                                                        {
+                                                                                                            returnProfilePic(userProfile.profileUrl,0)
+                                                                                                        }
                                                                                                         {
                                                                                                             userProfile.likes[0].uid==userID
                                                                                                             ?
@@ -844,6 +899,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                     likedUsers.length>0
                     ?
                     likedUsers.map(user => {
+                        
                         return(
                             <View key={user.uid} style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',width: '100%',marginTop: 10,marginBottom: 10,backgroundColor: '#000',padding: 10,paddingLeft: 15,paddingRight: 15,borderRadius: 10}}>
                                 <View style={{display:'flex',flexDirection: 'row',justifyContent:'center',alignItems: 'center'}}>
