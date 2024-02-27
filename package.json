@@ -22,7 +22,7 @@
     "firebase": "^10.7.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.72.6",
+    "react-native": "0.72.10",
     "react-native-asset": "^2.1.1",
     "react-native-config": "^1.5.1",
     "react-native-get-random-values": "~1.9.0",

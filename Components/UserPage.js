@@ -7,10 +7,14 @@ import AppNavbar from './AppNavbar';
 import { collection, getDocs,doc,updateDoc, getDoc } from "firebase/firestore";
 import { useNavigation } from '@react-navigation/native';
 import { getAuth } from "firebase/auth";
-import { getStorage, ref,uploadBytes,getDownloadURL } from "firebase/storage";
+import { getStorage, ref,uploadBytes,getDownloadURL,deleteObject  } from "firebase/storage";
 
 const settingsIcon = require("../assets/settings-icon.png");
 const pfp = require("../assets/pfp.jpg");
+const addPfp = require("../assets/add-image.png");
+const crossIcon = require("../assets/cross-icon-black.png");
+const addPfpBlack = require("../assets/add-image-black.png");
+const deleteIcon = require("../assets/delete-icon.png");
 
 const UserPage = () => {
     const [showNavbar,setShowNavbar] = useState(true);
@@ -20,6 +24,8 @@ const UserPage = () => {
     const [image,setImage] = useState(null);
     const [uploading,setUploading] = useState(false);
     const [profilePic,setProfilePic] = useState("");
+    const [enlargePfp,setEnlargePfp] = useState(false);
+    const [deletePfp,setDeletePfp] = useState(false);
 
     const storage = getStorage();
     const storageRef = ref(storage);
@@ -71,12 +77,22 @@ const UserPage = () => {
         // await ref.put(blob);
         setUploading(false);
         alert('Successful upload');
+        setProfilePic(image);
         setImage(null);
       }
       catch(error){
-        console.error(error);
+        console.log(error);
         setUploading(false);
       }
+    }
+
+    const deleteMedia = async () => {
+      const imageRef = ref(storage, `${user.uid}`);
+      deleteObject(imageRef).then(() => {
+        alert('Successful upload');
+      }).catch((error) => {
+        console.log(error);
+      });
     }
 
     const getUserPfp = async (uid) => {
@@ -114,6 +130,10 @@ const UserPage = () => {
       }
     }
 
+    const showPfp = () => {
+      setEnlargePfp(true);
+    }
+
     useEffect(() => {
       getFollowStats();
       getProfileImage();
@@ -121,55 +141,161 @@ const UserPage = () => {
 
   return (
     <View style={styles.home}>
-      <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between'}}>
-        <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
+      {
+        enlargePfp
+        ?
+        <View style={{height: '100%',width: '100%'}}>
+          <Pressable onPress={()=>{
+            setEnlargePfp(false);
+          }}>
+            <Image source={crossIcon} style={{position: 'absolute',right: 0,height: 30,width: 30,borderRadius: 250}}/>
+          </Pressable>
+          <View style={{position: 'absolute',left: 0,right: 0,top: 0,bottom: 0,margin:'auto',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
             {
                 profilePic==""
                 ?
-                <Image source={pfp} style={{height: 60,width: 60,borderRadius: 50}}/>
+                <View>
+                  {
+                    image!=null
+                    ?
+                    <Image src={image} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: 300,width: 300,borderRadius: 250}}/>
+                    :
+                    <Image source={pfp} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: 300,width: 300,borderRadius: 250}}/>
+                  }
+                  <View style={{display: 'flex',flexDirection: 'row',marginTop: 40,justifyContent: 'center'}}>
+                    <Pressable onPress={()=>{
+                      pickImage()
+                    }} style={{backgroundColor: '#000',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
+                      <Image source={addPfp} style={{height: 30,width: 30}}/>
+                    </Pressable>
+                    {
+                      image!=null || deletePfp
+                      ?
+                      <Pressable onPress={()=>{
+                        if(deletePfp){
+                          deleteMedia()
+                        }
+                        else{
+                          uploadMedia()
+                        }
+                      }} style={{backgroundColor: '#000',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
+                        <Text style={{color: 'white',textAlign: 'center',fontWeight: '500',marginLeft: 5,marginRight: 5}}>Upload Image</Text>
+                      </Pressable>
+                      :
+                      <Pressable style={{backgroundColor: '#DDD',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
+                        <Text style={{color: 'white',textAlign: 'center',fontWeight: '500',marginLeft: 5,marginRight: 5}}>Upload Image</Text>
+                      </Pressable>
+                    }
+                  </View>
+                </View>
                 :
-                <Image src={profilePic} style={{height: 60,width: 60,borderRadius: 50}}/>
+                <View>
+                  {
+                    image!=null
+                    ?
+                    <Image src={image} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: 300,width: 300,borderRadius: 250}}/>
+                    :
+                    <Image src={profilePic} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: 300,width: 300,borderRadius: 250}}/>
+                  }
+                  <View style={{display: 'flex',flexDirection: 'row',marginTop: 40,justifyContent: 'center'}}>
+                    <Pressable onPress={()=>{
+                      pickImage()
+                    }} style={{backgroundColor: '#000',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
+                      <Image source={addPfp} style={{height: 30,width: 30}}/>
+                    </Pressable>
+                    <Pressable onPress={()=>{
+                      setImage(null);
+                      setProfilePic("");
+                      setDeletePfp(true);
+                    }} style={{backgroundColor: '#000',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
+                      <Image source={deleteIcon} style={{height: 25,width: 25}}/>
+                    </Pressable>
+                    {
+                      image!=null || deletePfp
+                      ?
+                      <Pressable onPress={()=>{
+                        if(deletePfp){
+                          deleteMedia()
+                        }
+                        else{
+                          uploadMedia()
+                        }
+                      }} style={{backgroundColor: '#000',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
+                        <Text style={{color: 'white',textAlign: 'center',fontWeight: '500',marginLeft: 5,marginRight: 5}}>Upload Image</Text>
+                      </Pressable>
+                      :
+                      <Pressable onPress={()=>{
+                      }} style={{backgroundColor: '#DDD',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
+                        <Text style={{color: 'white',textAlign: 'center',fontWeight: '500',marginLeft: 5,marginRight: 5}}>Upload Image</Text>
+                      </Pressable>
+                    }
+                  </View>
+                </View>
             }
-            <View style={{display: 'flex',flexDirection: 'column',marginLeft: 15}}>
-                <Text style={{fontSize: 18,fontWeight: '600',color: '#404040'}}>{user.displayName}</Text>
-                <Text style={{fontSize: 12,fontWeight: '400',color: '#696969'}}>Pune, Maharashtra</Text>
-            </View>
+          </View>
+
         </View>
-        <Pressable style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-            <Image source={settingsIcon} style={{height: 35,width: 35}}/>
-        </Pressable>
-      </View>
-      <View style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
-          <Text style={{fontSize: 14.5,fontWeight: '400',color: '#696969',display: 'flex',flexDirection: 'row'}}>
-            <Pressable onPress={()=>{
-              navigation.navigate('ViewFollowers',{
-                followersTab: true
-              });
-            }} style={{display: 'flex',flexDirection: 'row'}}> 
-              <Text style={{fontWeight: '600',color:'black'}}>{followersArray.length} </Text>
-              <Text>Followers | </Text>
+        :
+        <View style={{height: '100%',width: '100%'}}>
+          <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between'}}>
+            <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
+                {
+                    profilePic==""
+                    ?
+                    <Pressable onPress={()=>{
+                      showPfp();
+                    }} style={{position: 'relative'}}>
+                      <Image source={pfp} style={{height: 60,width: 60,borderRadius: 50}}/>
+                    </Pressable>
+                    :
+                    <Pressable onPress={()=>{
+                      showPfp();
+                    }} style={{position: 'relative'}}>
+                      <Image src={profilePic} style={{height: 60,width: 60,borderRadius: 50}}/>
+                    </Pressable>
+                }
+                <View style={{display: 'flex',flexDirection: 'column',marginLeft: 15}}>
+                    <Text style={{fontSize: 18,fontWeight: '600',color: '#404040'}}>{user.displayName}</Text>
+                    <Text style={{fontSize: 12,fontWeight: '400',color: '#696969'}}>Pune, Maharashtra</Text>
+                </View>
+            </View>
+            <Pressable style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                <Image source={settingsIcon} style={{height: 35,width: 35}}/>
             </Pressable>
-            <Pressable onPress={()=>{
-              navigation.navigate('ViewFollowers',{
-                followersTab: false,
-              });
-            }} style={{display: 'flex',flexDirection: 'row'}}>
-              <Text style={{fontWeight: '600',color:'black'}}>{followingArray.length} </Text>
-              <Text>Following</Text>
-            </Pressable>
-          </Text>
-      </View>
-      <View style={{width: '100%',borderBottomWidth: 1,borderBottomColor: '#EBEAEA',marginTop: 15}}></View>
-      <Pressable onPress={()=>{
-        pickImage()
-      }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginTop: 100,borderColor: '#DDD',borderWidth: 2,alignSelf: 'center',padding: 10,borderRadius: 10}}>
-        <Text>Select Image</Text>
-      </Pressable>
-      <Pressable onPress={()=>{
-        uploadMedia()
-      }}  style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginTop: 100,borderColor: '#404040',borderWidth: 2,alignSelf: 'center',padding: 10,borderRadius: 10}}>
-        <Text>Upload Image</Text>
-      </Pressable>
+          </View>
+          <View style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
+              <Text style={{fontSize: 14.5,fontWeight: '400',color: '#696969',display: 'flex',flexDirection: 'row'}}>
+                <Pressable onPress={()=>{
+                  navigation.navigate('ViewFollowers',{
+                    followersTab: true
+                  });
+                }} style={{display: 'flex',flexDirection: 'row'}}> 
+                  <Text style={{fontWeight: '600',color:'black'}}>{followersArray.length} </Text>
+                  <Text>Followers | </Text>
+                </Pressable>
+                <Pressable onPress={()=>{
+                  navigation.navigate('ViewFollowers',{
+                    followersTab: false,
+                  });
+                }} style={{display: 'flex',flexDirection: 'row'}}>
+                  <Text style={{fontWeight: '600',color:'black'}}>{followingArray.length} </Text>
+                  <Text>Following</Text>
+                </Pressable>
+              </Text>
+          </View>
+          <View style={{width: '100%',borderBottomWidth: 1,borderBottomColor: '#EBEAEA',marginTop: 15}}></View>
+          {/* <Pressable onPress={()=>{
+            pickImage()
+          }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginTop: 100,borderColor: '#DDD',borderWidth: 2,alignSelf: 'center',padding: 10,borderRadius: 10}}>
+            <Text>Select Image</Text>
+          </Pressable> */}
+          {/* <Pressable onPress={()=>{
+            uploadMedia()
+          }}  style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginTop: 100,borderColor: '#404040',borderWidth: 2,alignSelf: 'center',padding: 10,borderRadius: 10}}>
+            <Text>Upload Image</Text>
+          </Pressable> */}
+        </View>
+      }
       <View style={{position: 'absolute',bottom: 0,left: 0,right: 0}}>
         <AppNavbar showNavbar={showNavbar}/>
       </View>
