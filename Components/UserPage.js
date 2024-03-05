@@ -88,8 +88,13 @@ const UserPage = () => {
 
     const deleteMedia = async () => {
       const imageRef = ref(storage, `${user.uid}`);
-      deleteObject(imageRef).then(() => {
+      deleteObject(imageRef).then(async () => {
         alert('Successful upload');
+
+        const updateUser = doc(FIREBASE_DB, "Users", `${user.uid}`);
+        await updateDoc(updateUser, {
+            profileUrl: ""
+        });
       }).catch((error) => {
         console.log(error);
       });
@@ -284,16 +289,20 @@ const UserPage = () => {
               </Text>
           </View>
           <View style={{width: '100%',borderBottomWidth: 1,borderBottomColor: '#EBEAEA',marginTop: 15}}></View>
-          {/* <Pressable onPress={()=>{
-            pickImage()
-          }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginTop: 100,borderColor: '#DDD',borderWidth: 2,alignSelf: 'center',padding: 10,borderRadius: 10}}>
-            <Text>Select Image</Text>
-          </Pressable> */}
-          {/* <Pressable onPress={()=>{
-            uploadMedia()
-          }}  style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginTop: 100,borderColor: '#404040',borderWidth: 2,alignSelf: 'center',padding: 10,borderRadius: 10}}>
-            <Text>Upload Image</Text>
-          </Pressable> */}
+          <View style={{marginTop: 40,display: 'flex',flexDirection: 'column'}}>
+              <View style={{display: 'flex',justifyContent: 'center',alignItems: 'left',borderWidth: 1,borderColor: '#DDD',padding: 10,marginBottom: 20,borderRadius: 10}}>
+                <Text style={{fontSize: 15,fontWeight: '400',textAlignVertical: 'center',color: '#404040'}}>Change Username</Text>
+              </View>
+              <View style={{display: 'flex',justifyContent: 'center',alignItems: 'left',borderWidth: 1,borderColor: '#DDD',padding: 10,marginBottom: 20,borderRadius: 10}}>
+                <Text style={{fontSize: 15,fontWeight: '400',textAlignVertical: 'center',color: '#404040'}}>Change Password</Text>
+              </View>
+              <View style={{display: 'flex',justifyContent: 'center',alignItems: 'left',borderWidth: 1,borderColor: '#DDD',padding: 10,marginBottom: 20,borderRadius: 10}}>
+                <Text style={{fontSize: 15,fontWeight: '400',textAlignVertical: 'center',color: '#404040'}}>Change Email</Text>
+              </View>
+              <View style={{display: 'flex',justifyContent: 'center',alignItems: 'left',borderWidth: 1,borderColor: '#DDD',padding: 10,marginBottom: 20,borderRadius: 10}}>
+                <Text style={{fontSize: 15,fontWeight: '400',textAlignVertical: 'center',color: '#404040'}}>Delete Account</Text>
+              </View>
+          </View>
         </View>
       }
       <View style={{position: 'absolute',bottom: 0,left: 0,right: 0}}>
