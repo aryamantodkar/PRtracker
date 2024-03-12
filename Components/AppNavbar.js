@@ -131,9 +131,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 15,
         width: '60%',
-        backgroundColor: '#fff',
-        borderWidth: 2,
-        borderColor: '#f5f4f4',
+        backgroundColor: '#353F4E',
         height: 50,
         display: 'flex',
         flexDirection: 'row',
@@ -149,12 +147,10 @@ const styles = StyleSheet.create({
         // padding: 20
       },
       navBtnActivated: {
-        backgroundColor: 'black',
+        backgroundColor: '#3d75f9',
         borderRadius: 50,
         marginBottom: 45,
         padding: 15,
-        borderWidth: 2,
-        borderColor: '#f5f4f4'
       },
       navAdd: {
         // backgroundColor: 'red',

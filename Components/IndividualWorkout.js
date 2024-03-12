@@ -689,7 +689,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
             </View>
         </ScrollView>
         :
-        <ScrollView style={{marginBottom: 0,paddingBottom: 0}}>
+        <ScrollView style={{marginBottom: 0,paddingBottom: 0,width: '100%'}}>
             {
                 !showLikesBool
                 ?
@@ -787,9 +787,9 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                                                 <Pressable onPress={()=>{
                                                     showLikes(clickedWorkout.likes);
                                                 }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
-                                                    <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                    <Image src={clickedWorkout.likes[0].profileUrl} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                    <Image src={clickedWorkout.likes[1].profileUrl} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                    <Image src={clickedWorkout.likes[2].profileUrl} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
                                                     {
                                                         clickedWorkout.likes.some(e => e.uid == `${userID}`)
                                                         ?
@@ -808,8 +808,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                                                     <Pressable onPress={()=>{
                                                         showLikes(clickedWorkout.likes);
                                                     }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
-                                                        <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
+                                                        <Image src={clickedWorkout.likes[0].profileUrl} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                        <Image src={clickedWorkout.likes[1].profileUrl} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white',marginLeft: -10}}/>
                                                         {
                                                             clickedWorkout.likes.some(e => e.uid == `${userID}`)
                                                             ?
@@ -828,7 +828,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                                                             <Pressable onPress={()=>{
                                                                 showLikes(clickedWorkout.likes);
                                                             }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row'}}>
-                                                                <Image source={pfp} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
+                                                                <Image src={clickedWorkout.likes[0].profileUrl} style={{height: 25,width: 25,borderRadius: 50,borderWidth: 1.5,borderColor: 'white'}}/>
                                                                 {
                                                                     clickedWorkout.likes[0].uid==userID
                                                                     ?
@@ -977,7 +977,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                         }
                 </ScrollView>
                 :
-                <ScrollView  contentContainerStyle={{borderWidth:1,borderColor: '#DDD',backgroundColor:'#f5f4f4',width: '100%',display: 'flex',marginTop: 40,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
+                <ScrollView  contentContainerStyle={{width: '100%',display: 'flex',marginTop: 20,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
                     <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative',marginBottom: 20}}>
                         <View style={{position: 'absolute',left: 0}}>
                             <Pressable onPress={()=>{
@@ -995,19 +995,27 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                         ?
                         likedUsers.map(user => {
                             return(
-                                <View key={user.uid} style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',width: '100%',marginTop: 10,marginBottom: 10,backgroundColor: '#000',padding: 10,paddingLeft: 15,paddingRight: 15,borderRadius: 10}}>
-                                    <View style={{display:'flex',flexDirection: 'row',justifyContent:'center',alignItems: 'center'}}>
-                                        <Pressable onPress={() => {
-                                            navigation.navigate('UserPage')
-                                        }}>
-                                            <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: 'white'}}/>
-                                        </Pressable>
-                                        <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 15,color: 'white',fontWeight: '500',borderBottomColor: 'white',borderBottomWidth: 2,paddingBottom: 5}}>{user.name}</Text>
-                                    </View>
-                                    <View style={{marginRight: 10}}>
-                                        <Pressable>
-                                            <Image source={likeBlue} style={{height: 20,width: 20}}/>
-                                        </Pressable>
+                                <View key={user.uid} style={{marginTop: 15,borderRadius:25,backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD'}}>
+                                    <View  style={{display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 7.5,backgroundColor: 'white',margin: 7.5,borderRadius: 20,elevation: 5,paddingLeft: 10,paddingRight: 10,alignItems: 'center',justifyContent: 'space-between'}}>
+                                        <View style={{display:'flex',flexDirection: 'row',justifyContent:'center',alignItems: 'center'}}>
+                                            <Pressable onPress={() => {
+                                                navigation.navigate('UserPage')
+                                            }}>
+                                                {
+                                                    user.profileUrl=="" || user.profileUrl==undefined
+                                                    ?
+                                                    <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
+                                                    :
+                                                    <Image src={user.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
+                                                }
+                                            </Pressable>
+                                            <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 15,color: '#444444',fontWeight: '500'}}>{user.name}</Text>
+                                        </View>
+                                        <View style={{marginRight: 10}}>
+                                            <Pressable>
+                                                <Image source={likeBlue} style={{height: 20,width: 20}}/>
+                                            </Pressable>
+                                        </View>
                                     </View>
                                 </View>
                             )
@@ -1025,7 +1033,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
 
 const styles = StyleSheet.create({
     individualWorkout: {
-        backgroundColor: 'black',
+        backgroundColor: '#202020',
         borderRadius: 15,
         display: 'flex',
         width: '100%',
@@ -1065,7 +1073,7 @@ const styles = StyleSheet.create({
         width: 24,
     },
     interactComponent: {
-        backgroundColor: '#000',
+        backgroundColor: '#202020',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-around',

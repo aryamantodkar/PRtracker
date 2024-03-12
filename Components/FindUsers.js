@@ -11,7 +11,7 @@ import { getStorage, ref,uploadBytes,getDownloadURL } from "firebase/storage";
 
 const backIconBlack = require("../assets/back-arrow-icon.png");
 const pfp = require("../assets/pfp.jpg");
-const searchIcon = require("../assets/search-icon-grey.png");
+const searchIcon = require("../assets/search-icon.png");
 
 export const FindUsers = () => {
     const [userList,setUserList] = useState([]);
@@ -78,11 +78,11 @@ export const FindUsers = () => {
                     }}>
                         <Image source={backIconBlack} style={{height: 35,width: 35}}/>
                     </Pressable>
-                    <Image source={searchIcon} style={{height: 25,width: 25,position: 'absolute',left: 50}}/>
+                    <Image source={searchIcon} style={{height: 25,width: 25,position: 'absolute',left: 55}}/>
                     <TextInput onChangeText={(text)=>{
                         setSearchText(text);
                         searchUsers(text)
-                    }} placeholder='Find Your Friends' style={{height: 40,marginLeft: 10,borderWidth: 2,borderColor: '#DDD',width: '75%',padding: 10,borderRadius: 10,paddingLeft: 35}}/>
+                    }} placeholder='Find Your Friends' style={{height: 40,marginLeft: 10,borderWidth: 2,borderColor: '#DDD',width: '75%',padding: 10,borderRadius: 10,paddingLeft: 40}}/>
                 </View>
                 <View style={{paddingRight: 5}}>
                     <Pressable onPress={() => {
@@ -112,18 +112,18 @@ export const FindUsers = () => {
                                             uid: user.uid,
                                             name: user.name,
                                         })
-                                    }} key={user.uid} style={{width: '100%',height: 80,display: 'flex',flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',paddingLeft: 20,backgroundColor: '#f5f4f4',borderColor: '#DDD',borderWidth: 1,borderRadius: 10,marginTop: 10,marginBottom: 10}}>
-                                        {
-                                            user.profileUrl==""
-                                            ?
-                                            <Image source={pfp} style={{height: 45,width: 45,padding: 10,borderRadius: 50}}/>
-                                            :
-                                            <Image src={user.profileUrl} style={{height: 45,width: 45,padding: 10,borderRadius: 50}}/>
-                                        }
-                                        <View style={{marginLeft: 20,display: 'flex',flexDirection: 'column'}}>
-                                            <Text style={{color: '#007FF4',fontSize: 16,marginBottom: 5,fontWeight: '500'}}>{user.name}</Text>
-                                            <Text style={{color: '#000',fontSize: 12.5,marginBottom: 5,fontWeight: '400'}}>Pune, Maharashtra</Text>
-
+                                    }} key={user.uid} style={{backgroundColor: '#f5f4f4',borderColor: '#DDD',borderWidth: 1,borderRadius: 20,marginTop: 10,marginBottom: 10}}>
+                                        <View style={{padding: 7.5,margin: 7.5,display: 'flex',flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',backgroundColor:'#fff',margin: 7.5,borderRadius: 20,elevation: 5,paddingLeft: 10,paddingRight: 10,}}>
+                                            {
+                                                user.profileUrl=="" || user.profileUrl==undefined
+                                                ?
+                                                <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
+                                                :
+                                                <Image src={user.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
+                                            }
+                                            <View >
+                                                <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 15,color: '#444444',fontWeight: '500'}}>{user.name}</Text>
+                                            </View>
                                         </View>
                                     </Pressable>
                                 )

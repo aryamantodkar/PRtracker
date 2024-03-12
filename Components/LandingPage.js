@@ -8,6 +8,7 @@ export default function LandingPage({navigation}) {
   const [fontsLoaded, fontError] = useFonts({
     'JosefinSans': require('../assets/fonts/JosefinSans-Regular.ttf'),
     'JosefinSans-Bold': require('../assets/fonts/JosefinSans-Bold.ttf'),
+    'SignikaNegative': require('../assets/fonts/SignikaNegative-Medium.ttf'),
   });
 
   const onLayoutRootView = useCallback(async () => {
