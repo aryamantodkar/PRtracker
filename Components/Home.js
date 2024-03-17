@@ -15,6 +15,7 @@ import { useFonts } from 'expo-font';
 const logout = require("../assets/logout.png");
 const bellIcon = require("../assets/bell-icon.png");
 const searchIcon = require("../assets/search-icon.png");
+const searchIconBlack = require("../assets/search-icon-black.png");
 const crossIcon = require("../assets/cross-icon-white.png");
 const usersIcon = require("../assets/findUsers.png");
 const pfp = require("../assets/pfp.jpg");
@@ -53,100 +54,77 @@ export default function Home() {
   },[])
 
   return (
-    <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}}  colors={['#364760', '#1B1F24']} style={{height: '100%',width: '100%',flex: 1,paddingTop: 20}}>
+    <View style={{height: '100%',width: '100%',flex: 1,paddingTop: 20}}>
         <ScrollView style={styles.home}>
-            <ScrollView contentContainerStyle ={[styles.home,{padding: 30,paddingLeft: 15,paddingRight: 15}]}>
-                {/* {
+            <ScrollView contentContainerStyle ={[styles.home,{padding: 30,paddingLeft: 15,paddingRight: 15,display:'flex',justifyContent: 'center',alignItems: 'center'}]}>
+                {
                   !searchBar
                   ?
-                  <View style={styles.header}>
+                  <View style={{display:'flex',flexDirection: 'row',marginTop: 10,justifyContent: 'space-between',width: '100%'}}>
+                    <View style={{display:'flex',flexDirection: 'row'}}>
+                      <View style={{borderColor: '#db9c27',borderWidth: 2,borderRadius: 50}}>
+                        {
+                          profilePic==""
+                          ?
+                          <Pressable onPress={()=>{
+
+                          }}>
+                            <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,borderColor: '#000',borderWidth: 3}}/>
+                          </Pressable>
+                          :
+                          <Pressable onPress={()=>{
+
+                          }}>
+                            <Image src={profilePic} style={{height: 50,width: 50,borderRadius: 50,borderColor: '#000',borderWidth: 3}}/>
+                          </Pressable>
+                        }
+                      </View>
+                      <View style={{marginLeft:10,display: 'flex',flexDirection: 'row',justifyContent: 'center'}}>
+                        <View style={{display: 'flex',justifyContent: 'center'}}>
+                          <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#869AAF',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>Hi, </Text>
+                        </View>
+                        <View style={{display: 'flex',justifyContent: 'center'}}>
+                          <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#000',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>{user.displayName.split(" ")[0]} {user.displayName.split(" ")[1][0]}.</Text>
+                        </View>
+                      </View>
+                    </View>
                     <View style={{display: 'flex',flexDirection: 'row'}}>
                       <Pressable onPress={()=>{
                         setSearchBar(true);
                       }} style={styles.headingTitleContainer}>
-                        <Image source={searchIcon} style={{height: 35,width: 35,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        <Image source={searchIconBlack} style={{height: 25,width: 25,marginRight: 15,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
                       </Pressable>
-                      <Pressable onPress={()=>{
-                        navigation.navigate('FindUsers');
-                      }} style={styles.headingTitleContainer}>
-                        <Image source={usersIcon} style={{height: 55,width: 55,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
-                      </Pressable>
-                    </View>
-                    <View>
-                      <Pressable onPress={handleLogout} style={styles.logoutBtn}>
-                        <Image source={logout} style={styles.logoutIcon}/>
-                      </Pressable>
+                      <View style={{justifyContent: 'center', borderRadius: 50,backgroundColor: '#353F4E',alignSelf: 'center',padding: 7.5}}>
+                        <Image source={bellIcon} style={{height: 22,width: 22}}/>
+                      </View>
                     </View>
                   </View>
                   :
-                  <View style={{borderBottomColor: '#000',borderBottomWidth: 2,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center'}}>
-                      <TextInput ref={inputRef} value={searchText} placeholder='Search Workouts' onChangeText={(text)=>{
-                          setSearchText(text);
-                          setSearchParams(text);
-                          inputRef.current.focus();
-                      }} style={{height: 50,fontSize: 15}}/>
+                  <View style={{borderColor: '#455366',borderWidth: 1,display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',backgroundColor: '#1e1e1e',padding: 5,paddingLeft: 10,paddingRight: 15,borderRadius: 15,elevation: 5,width: '100%'}}>
+                      <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
+                        <Image source={searchIcon} style={{height: 25,width: 25,display: 'flex',alignItems: 'center',marginRight: 5}}/>
+                        <TextInput ref={inputRef} value={searchText} placeholderTextColor='#ddd' placeholder='Search Workouts' onChangeText={(text)=>{
+                            setSearchText(text);
+                            setSearchParams(text);
+                            inputRef.current.focus();
+                        }} style={{height: 40,fontSize: 14,color: '#fff',fontWeight: '500',textAlignVertical: 'center',width: '80%'}}/>
+                      </View>
                       <Pressable onPress={()=>{
                         setSearchBar(false);
                         setSearchParams("");
                         setSearchText("");
                       }}>
-                        <Image source={crossIcon} style={{height: 18,width: 18,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        <Image source={crossIcon} style={{height: 15,width: 15,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
                       </Pressable>
-                  </View>
-                } */}
-                <View style={{display:'flex',flexDirection: 'row',marginTop: 10,justifyContent: 'space-between',width: '100%'}}>
-                  <View style={{display:'flex',flexDirection: 'row'}}>
-                    <View style={{borderColor: '#db9c27',borderWidth: 2,borderRadius: 50}}>
-                      {
-                        profilePic==""
-                        ?
-                        <Pressable onPress={()=>{
-
-                        }}>
-                          <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,borderColor: '#000',borderWidth: 3}}/>
-                        </Pressable>
-                        :
-                        <Pressable onPress={()=>{
-
-                        }}>
-                          <Image src={profilePic} style={{height: 50,width: 50,borderRadius: 50,borderColor: '#000',borderWidth: 3}}/>
-                        </Pressable>
-                      }
-                    </View>
-                    <View style={{marginLeft:10,display: 'flex',flexDirection: 'row',justifyContent: 'center'}}>
-                      <View style={{display: 'flex',justifyContent: 'center'}}>
-                        <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#869AAF',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>Hi, </Text>
-                      </View>
-                      <View style={{display: 'flex',justifyContent: 'center'}}>
-                        <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#fff',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>{user.displayName.split(" ")[0]} {user.displayName.split(" ")[1][0]}.</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <View style={{justifyContent: 'center', borderRadius: 50,backgroundColor: '#353F4E',alignSelf: 'center',padding: 7.5}}>
-                    <Image source={bellIcon} style={{height: 22,width: 22}}/>
-                  </View>
-                </View>
-                <View style={{borderColor: '#455366',borderWidth: 1,display: 'flex',flexDirection: 'row',alignItems: 'center',backgroundColor: '#353F4E',marginTop: 40,padding: 7.5,paddingLeft: 10,paddingRight: 10,borderRadius: 15,elevation: 5}}>
-                    <Image source={searchIcon} style={{height: 25,width: 25,display: 'flex',alignItems: 'center',marginRight: 5}}/>
-                    <TextInput ref={inputRef} value={searchText} placeholderTextColor='#fff' placeholder='Search Workouts' onChangeText={(text)=>{
-                        setSearchText(text);
-                        setSearchParams(text);
-                        inputRef.current.focus();
-                    }} style={{height: 40,fontSize: 15,color: '#fff',fontWeight: '500',textAlignVertical: 'center'}}/>
-                    <Pressable onPress={()=>{
-                      setSearchBar(false);
-                      setSearchParams("");
-                      setSearchText("");
-                    }}>
-                      {/* <Image source={crossIcon} style={{height: 15,width: 15,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/> */}
-                    </Pressable>
-                </View>
+                  </View> 
+                }
+                
                 <Workout searchParams={searchParams} showNavbar={setShowNavbar} uid={null}/>
             </ScrollView>
             
         </ScrollView>
         <AppNavbar showNavbar={showNavbar}/>
-    </LinearGradient>
+    </View>
   )
 }
 
@@ -157,7 +135,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     width: '100%',
-    // backgroundColor: '#000',
+    backgroundColor: '#fff',
     paddingTop: 20,
     paddingBottom: 100,
     fontFamily: 'SignikaNegative'

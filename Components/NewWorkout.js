@@ -8,7 +8,8 @@ import { FIREBASE_APP, FIREBASE_DB, firebaseConfig,  } from '../FirebaseConfig';
 import { getAuth } from "firebase/auth";
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import AppNavbar from './AppNavbar';
+import { useFonts } from 'expo-font';
+import { useCallback } from 'react';
 
 const plusWhite = require("../assets/plus-icon-white.png");
 const deleteIcon = require("../assets/delete-icon.png");
@@ -59,6 +60,16 @@ const NewWorkout = () => {
     const [editedWorkoutName,setEditedWorkoutName] = useState("");
 
     const [editTickIconBool,setEditTickIconBool] = useState(false);
+
+    const [fontsLoaded, fontError] = useFonts({
+        'JosefinSans': require('../assets/fonts/JosefinSans-Regular.ttf'),
+        'JosefinSans-Bold': require('../assets/fonts/JosefinSans-Bold.ttf'),
+        'SignikaNegative': require('../assets/fonts/SignikaNegative-Medium.ttf'),
+        'LeagueSpartan': require('../assets/fonts/LeagueSpartan-Regular.ttf'),
+        'LeagueSpartan-Medium': require('../assets/fonts/LeagueSpartan-Medium.ttf'),
+        'Inter': require('../assets/fonts/Inter-Regular.ttf'),
+        'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
+    });
 
     //track input
     useEffect(() => {
@@ -129,9 +140,6 @@ const NewWorkout = () => {
             setShowAddedExercises(true);
             setShowExerciseContainer(false);
         }
-        console.log("all workouts",allWorkouts)
-
-        
     },[allWorkouts])
 
     useEffect(() => {
@@ -222,13 +230,10 @@ const NewWorkout = () => {
 
     return (  
         <KeyboardAvoidingView style={styles.home} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={-25}>
-            <ScrollView ref={scrollViewRef} style={{flex: 1,height: '100%',width: '100%'}} keyboardShouldPersistTaps="always">
+            <ScrollView ref={scrollViewRef} style={{flex: 1,height: '100%',width: '100%'}} keyboardShouldPersistTaps="handled">
                     <View>
-                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',marginBottom: 20}}>
-                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                                <Text style={styles.headingTitle}>New Workout</Text>
-                            </View>
-                            
+                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',marginBottom: 20,borderRadius: 5,backgroundColor: '#1e1e1e',padding: 10,paddingLeft: 15,paddingRight: 15,alignSelf: 'flex-start'}}>
+                            <Text style={styles.headingTitle}>New Workout</Text>  
                         </View>
                         <View style={styles.workoutCard}>
                             <TextInput style={styles.inputBox} placeholder='Enter Workout Name' value={workoutName} onChangeText={text =>{
@@ -277,18 +282,18 @@ const NewWorkout = () => {
                                                         workout.allSets.map(set => {
                                                             return(
                                                                 <View style={styles.prevWorkoutSet} key={set.id}>
-                                                                    <View style={[styles.setBox,{padding: 10,paddingTop:5,paddingBottom: 5,borderColor: '#fff',borderWidth: 2}]}>
-                                                                        <Text style={{color: '#fff',fontSize: 15,fontWeight: '600'}}>Set {set.id}</Text>
+                                                                    <View style={[styles.setBox,{padding: 12,paddingTop:5,paddingBottom: 5,backgroundColor: '#434343'}]}>
+                                                                        <Text style={{color: '#fff',fontSize: 17,fontWeight: '600',fontFamily: 'LeagueSpartan'}}>Set {set.id}</Text>
                                                                     </View>
                                                                     <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
                                                                         <View style={{padding: 10,width: 90,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                            <Text style={{color: '#fff',fontSize: 16,fontWeight: '600',borderBottomWidth: 2,borderBottomColor: 'white',alignSelf: 'center',paddingBottom: 5}}>{set.weight} Kg</Text>
+                                                                            <Text style={{color: '#fff',fontSize: 17,fontWeight: '600',alignSelf: 'center',padding: 10,paddingTop:5,paddingBottom: 5,fontFamily: 'LeagueSpartan'}}>{set.weight} Kg</Text>
                                                                         </View>
                                                                         <View>
-                                                                            <Text style={{fontWeight: '500',fontSize: 20,color: '#fff'}}> x </Text>
+                                                                            <Text style={{fontWeight: '500',fontSize: 20,color: '#fff',fontFamily: 'LeagueSpartan'}}> x </Text>
                                                                         </View>
                                                                         <View style={{padding: 10,width: 80,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                            <Text style={{color: '#fff',fontSize: 15,fontWeight: '600',borderWidth: 2,borderBottomColor: 'white',alignSelf: 'center',paddingBottom: 5}}>{set.reps}</Text>
+                                                                            <Text style={{color: '#fff',fontSize: 17,fontWeight: '600',alignSelf: 'center',padding: 10,paddingTop:5,paddingBottom: 5,fontFamily: 'LeagueSpartan'}}>{set.reps}</Text>
                                                                         </View>
                                                                     </View>
                                                                 </View>
@@ -300,8 +305,8 @@ const NewWorkout = () => {
                                         }
                                         else{
                                             return(
-                                                    <View style={[styles.exerciseContainer,{borderWidth: 2,borderColor: '#DDD',width: '85%',marginTop: 20,borderRadius: 10,}]} key={workout.id}>
-                                                        <TextInput style={[styles.inputBox,{paddingLeft: 0}]} placeholder='Enter Exercise Name' value={editedWorkoutName} onChangeText={text =>{
+                                                    <View style={[styles.exerciseContainer,{borderWidth: 1,borderColor: '#DDD',backgroundColor: '#f6f6f7',width: '85%',marginTop: 20,borderRadius: 5,}]} key={workout.id}>
+                                                        <TextInput style={[styles.inputBox,{paddingLeft: 10,backgroundColor: '#fff',borderWidth: 1,borderColor: '#f5f4f4'}]} placeholder='Enter Exercise Name' value={editedWorkoutName} onChangeText={text =>{
                                                             setEditedWorkoutName(text)
                                                             setEditTickIconBool(true)
                                                         }}/>
@@ -311,11 +316,11 @@ const NewWorkout = () => {
                                                                     <View style={styles.setContainer} key={set.id}>
                                                                         <View style={[styles.setBox,{padding: 15}]}>
                                                                             <View>
-                                                                                <Text style={{color: '#fff', fontWeight: '600', fontSize: 15}}>Set {set.id}</Text>
+                                                                                <Text style={{color: '#fff', fontWeight: '600', fontSize: 17,fontFamily: 'LeagueSpartan'}}>Set {set.id}</Text>
                                                                             </View>
                                                                         </View>
-                                                                        <View style={[styles.setInput,{minWidth: 60}]}>
-                                                                            <TextInput ref={weightRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={set.weight} onChangeText={text => {
+                                                                        <View style={[styles.setInput,{minWidth: 60,backgroundColor: '#fff'}]}>
+                                                                            <TextInput ref={weightRef} style={{textAlign: 'center', fontWeight: '500',fontSize: 16,fontFamily: 'LeagueSpartan'}} placeholder='0' value={set.weight} onChangeText={text => {
                                                                                 setEditTickIconBool(true);
                                                                                 setAllWorkouts(allWorkouts.map(w => {
                                                                                     if(w!=undefined){
@@ -348,11 +353,11 @@ const NewWorkout = () => {
                                                                             <Pressable onPress={()=>{
                                                                                 weightRef.current.focus()
                                                                             }}>
-                                                                                <Text style={{color: '#373737',fontWeight: '500'}}>Kg</Text>
+                                                                                <Text style={{color: '#373737',fontWeight: '500',fontFamily: 'LeagueSpartan',fontSize: 16}}>Kg</Text>
                                                                             </Pressable>
                                                                         </View>
-                                                                        <View style={[styles.setInput,{minWidth: 60}]}>
-                                                                            <TextInput ref={repsRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={set.reps} onChangeText={text => {
+                                                                        <View style={[styles.setInput,{minWidth: 60,backgroundColor: '#fff'}]}>
+                                                                            <TextInput ref={repsRef} style={{textAlign: 'center', fontWeight: '500',fontSize: 16,fontFamily: 'LeagueSpartan'}} placeholder='0' value={set.reps} onChangeText={text => {
                                                                                 setEditTickIconBool(true);
                                                                                 setAllWorkouts(allWorkouts.map(w => {
                                                                                     if(w!=undefined){
@@ -385,7 +390,7 @@ const NewWorkout = () => {
                                                                             <Pressable onPress={()=>{
                                                                                 repsRef.current.focus()
                                                                             }}>
-                                                                                <Text style={{color: '#373737',fontWeight: '500'}}>Reps</Text>
+                                                                                <Text style={{color: '#373737',fontWeight: '500',fontSize: 16,fontFamily: 'LeagueSpartan'}}>Reps</Text>
                                                                             </Pressable>
                                                                         </View>
                                                                         <View>
@@ -426,28 +431,28 @@ const NewWorkout = () => {
                                                             <View style={[styles.setBox,{padding: 15}]}>
                                                                 <View>
                                                                     <View>
-                                                                        <Text style={{color: '#fff', fontWeight: '600', fontSize: 15}}>Set {workout.allSets.length+1}</Text>
+                                                                        <Text style={{color: '#fff', fontWeight: '600',fontSize: 17,fontFamily: 'LeagueSpartan'}}>Set {workout.allSets.length+1}</Text>
                                                                     </View>
                                                                 </View>
                                                             </View>
                                                             <View style={[styles.setInput,{minWidth: 60}]}>
-                                                                <TextInput ref={weightRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={weight} onChangeText={text => {
+                                                                <TextInput ref={weightRef} style={{textAlign: 'center', fontWeight: '500',fontSize: 16,fontFamily: 'LeagueSpartan'}} placeholder='0' value={weight} onChangeText={text => {
                                                                     setWeight(text)
                                                                 }}></TextInput>
                                                                 <Pressable onPress={()=>{
                                                                     weightRef.current.focus()
                                                                 }}>
-                                                                    <Text style={{color: '#373737',fontWeight: '500'}}>Kg</Text>
+                                                                    <Text style={{color: '#373737',fontWeight: '500',fontSize: 16,fontFamily: 'LeagueSpartan'}}>Kg</Text>
                                                                 </Pressable>
                                                             </View>
                                                             <View style={[styles.setInput,{minWidth: 60}]}>
-                                                                <TextInput ref={repsRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={reps} onChangeText={text => {
+                                                                <TextInput ref={repsRef} style={{textAlign: 'center', fontWeight: '500',fontSize: 16,fontFamily: 'LeagueSpartan'}} placeholder='0' value={reps} onChangeText={text => {
                                                                     setReps(text)
                                                                 }}></TextInput>
                                                                 <Pressable onPress={()=>{
                                                                     repsRef.current.focus()
                                                                 }}>
-                                                                    <Text style={{color: '#373737',fontWeight: '500'}}>Reps</Text>
+                                                                    <Text style={{color: '#373737',fontWeight: '500',fontSize: 16,fontFamily: 'LeagueSpartan'}}>Reps</Text>
                                                                 </Pressable>
                                                             </View>
                                                             <View>
@@ -541,15 +546,13 @@ const NewWorkout = () => {
                                         allSets.map(set =>{return (
                                             <View style={styles.setContainer} key={set.id}>
                                                 <View style={[styles.setBox,{padding: 15}]}>
-                                                    <View>
-                                                        <Text style={{color: '#fff', fontWeight: '600', fontSize: 15}}>Set {set.id}</Text>
-                                                    </View>
+                                                    <Text style={{color: '#fff',fontSize: 18,fontFamily: 'LeagueSpartan'}}>Set {set.id}</Text>
                                                 </View>
-                                                <View style={{minWidth: 60,borderRadius: 10,backgroundColor: 'black',display: 'flex',justifyContent: 'center'}}>
-                                                    <Text style={{textAlign: 'center',color: 'white',fontWeight: '600',textAlignVertical: 'center'}}>{set.weight}</Text>
+                                                <View style={{minWidth: 60,borderRadius: 5,backgroundColor: 'black',display: 'flex',justifyContent: 'center'}}>
+                                                    <Text style={{textAlign: 'center',color: 'white',fontWeight: '600',textAlignVertical: 'center',fontFamily: 'LeagueSpartan',fontSize: 17}}>{set.weight}</Text>
                                                 </View>
-                                                <View style={{minWidth: 60,borderRadius: 10,backgroundColor: 'black',display: 'flex',justifyContent: 'center'}}>
-                                                    <Text style={{textAlign: 'center',color: 'white',fontWeight: '600',textAlignVertical: 'center'}}>{set.reps}</Text>
+                                                <View style={{minWidth: 60,borderRadius: 5,backgroundColor: 'black',display: 'flex',justifyContent: 'center'}}>
+                                                    <Text style={{textAlign: 'center',color: 'white',fontWeight: '600',textAlignVertical: 'center',fontFamily: 'LeagueSpartan',fontSize: 17}}>{set.reps}</Text>
                                                 </View>
                                                 <View>
                                                     <Pressable onPress={()=>{
@@ -567,28 +570,28 @@ const NewWorkout = () => {
                                         <View style={[styles.setBox,{padding: 15}]}>
                                             <View>
                                                 <View>
-                                                    <Text style={{color: '#fff', fontWeight: '600', fontSize: 15}}>Set {totalSets+1}</Text>
+                                                    <Text style={{color: '#fff', fontWeight: '600', fontSize: 18,fontFamily: 'LeagueSpartan'}}>Set {totalSets+1}</Text>
                                                 </View>
                                             </View>
                                         </View>
                                         <View style={[styles.setInput,{minWidth: 60}]}>
-                                            <TextInput ref={weightRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={weight} onChangeText={text => {
+                                            <TextInput ref={weightRef} style={{textAlign: 'center', fontWeight: '500',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan',fontSize: 16}} placeholder='0' value={weight} onChangeText={text => {
                                                 setWeight(text)
                                             }}></TextInput>
                                             <Pressable onPress={()=>{
                                                 weightRef.current.focus()
                                             }}>
-                                                <Text style={{color: '#373737',fontWeight: '500'}}>Kg</Text>
+                                                <Text style={{color: '#373737',fontWeight: '500',fontFamily: 'LeagueSpartan',fontSize: 16,textAlignVertical: 'center'}}>Kg</Text>
                                             </Pressable>
                                         </View>
                                         <View style={[styles.setInput,{minWidth: 60}]}>
-                                            <TextInput ref={repsRef} style={{textAlign: 'center', fontWeight: '500'}} placeholder='0' value={reps} onChangeText={text => {
+                                            <TextInput ref={repsRef} style={{textAlign: 'center', fontWeight: '500',fontFamily: 'LeagueSpartan',fontSize: 16}} placeholder='0' value={reps} onChangeText={text => {
                                                 setReps(text)
                                             }}></TextInput>
                                             <Pressable onPress={()=>{
                                                 repsRef.current.focus()
                                             }}>
-                                                <Text style={{color: '#373737',fontWeight: '500'}}>Reps</Text>
+                                                <Text style={{color: '#373737',fontWeight: '500',fontFamily: 'LeagueSpartan',fontSize: 16,textAlignVertical: 'center'}}>Reps</Text>
                                             </Pressable>
                                         </View>
                                         <View>
@@ -674,24 +677,12 @@ const styles = StyleSheet.create({
     headingTitle: {
         fontSize: 20,
         color: '#fff',
-        fontWeight: '700',
-        backgroundColor: 'black',
-        alignSelf: "flex-start",
-        padding: 5,
-        paddingLeft: 15,
-        paddingRight: 15,
-        borderRadius: 10,
-
-        display: 'flex',
-        textAlign: 'center',
-        textAlignVertical: 'center',
-        justifyContent: 'center',
-        alignItems: 'center'
+        fontFamily: 'LeagueSpartan'
+        // fontWeight: '500',
     },
     inputBox: {
         width: '85%',
         marginTop: 20,
-        height: 40,
 
         padding: 10,
         fontSize: 20,
@@ -699,25 +690,22 @@ const styles = StyleSheet.create({
 
         textAlignVertical: 'center',
         fontSize: 17,
-
-        borderBottomColor: '#000',
-        borderBottomWidth: 2,
-        paddingLeft: 5,
-        fontWeight: '500'
+        paddingLeft: 15,
+        paddingRight: 15,
+        backgroundColor: '#f6f6f7',
+        fontFamily: 'LeagueSpartan',
+        borderRadius: 10
     },
     selectBox: {
         marginTop: 20,
         width: '80%'
     },
     setBox: {
-        backgroundColor: 'black',
-        color: '#fff',
-        fontWeight: '500',
-        padding: 20,
-        paddingTop: 10,
-        paddingBottom: 10,
-        borderRadius: 10,
-        fontSize: 15,
+        backgroundColor: '#1e1e1e',
+        // padding: 20,
+        // paddingTop: 10,
+        // paddingBottom: 10,
+        borderRadius: 5,
         display: 'flex',
         justifyContent: 'center',
         textAlign: 'center',
@@ -734,22 +722,22 @@ const styles = StyleSheet.create({
         textAlignVertical: 'center'
     },
     setInput: {
-        backgroundColor: 'white',
+        backgroundColor: '#f6f6f7',
         display: 'flex',
         justifyContent: 'center',
         textAlign: 'center',
         textAlignVertical: 'center',
         padding: 5,
-        borderRadius: 10,
+        borderRadius: 5,
 
-        borderWidth: 2,
-        borderColor: '#C1C1C1',
+        borderWidth: 1,
+        borderColor: '#ddd',
         color: 'black',
         flexDirection: 'row',
         alignItems: 'center',
     },
     plusIconContainer: {
-        backgroundColor: 'black',
+        backgroundColor: '#1e1e1e',
         display: 'flex',
         justifyContent:'center',
         // paddingLeft: 10,
@@ -764,10 +752,10 @@ const styles = StyleSheet.create({
     },
     addExerciseContainer: {
         marginTop: 20,
-        backgroundColor: 'black',
+        backgroundColor: '#1e1e1e',
         width: '85%',
         padding: 10,
-        borderRadius: 10,
+        borderRadius: 5,
         display: 'flex',
         flexDirection: 'row',
         textAlign: 'center',
@@ -779,8 +767,8 @@ const styles = StyleSheet.create({
     },
     addExerciseTitle: {
         color: '#fff',
-        fontWeight: '600',
-        fontSize: 17,
+        fontSize: 19,
+        fontFamily: 'LeagueSpartan',
         textAlign: 'center',
     },
     exerciseContainer: {
@@ -791,15 +779,15 @@ const styles = StyleSheet.create({
         width: '100%'
     },
     addExerciseBtnEnabled: {
-        backgroundColor: 'black',
-        borderRadius: 15,
+        backgroundColor: '#1e1e1e',
+        borderRadius: 5,
         padding: 10,
         paddingLeft: 20,
         paddingRight: 20,
     },
     addExerciseBtnDisabled: {
         backgroundColor: '#DDDDDD',
-        borderRadius: 15,
+        borderRadius: 5,
         padding: 10,
         paddingLeft: 20,
         paddingRight: 20,
@@ -807,7 +795,7 @@ const styles = StyleSheet.create({
     prevWorkoutContainer: {
         marginTop: 20,
         padding: 20,
-        backgroundColor: '#000',
+        backgroundColor: '#1e1e1e',
         width: '85%',
         borderRadius: 10,
         display: 'flex',
@@ -815,12 +803,14 @@ const styles = StyleSheet.create({
     },
     prevWorkoutName: {
         fontWeight: '500',
-        fontSize: 18.5,
+        fontSize: 20,
         borderBottomWidth: 2,
+        borderColor: '#3E86F3',
         alignSelf: 'flex-start',
         paddingBottom: 5,
-        color: 'white',
-        borderBottomColor: 'white'
+        color: '#fff',
+        borderBottomColor: 'white',
+        fontFamily: 'LeagueSpartan'
     },
     prevWorkoutSet: {
         display: 'flex',

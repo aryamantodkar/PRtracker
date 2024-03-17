@@ -1,15 +1,19 @@
 import React, { useContext } from 'react';
-import { StyleSheet, Text, View, TextInput,KeyboardAvoidingView,Pressable,SafeAreaView, Platform } from 'react-native';
+import { StyleSheet, Text, View, TextInput,KeyboardAvoidingView,Pressable,SafeAreaView, Platform,Image,ScrollView } from 'react-native';
 import {useState} from 'react'
 import { FIREBASE_AUTH, provider } from '../FirebaseConfig';
 import {signInWithEmailAndPassword} from 'firebase/auth';
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+
+const eyeIcon = require("../assets/eye-icon.png");
+const hideEyeIcon = require("../assets/hide-eye-icon.png");
 
 export default function Login({navigation}) {  
   const [email,setEmail] = useState("");
   const [password,setPassword] = useState("");
   const [error,setError] = useState("");
   const [loading,setLoading] = useState(false);
+  const [showPassword,setShowPassword] = useState(false);
 
   const auth = FIREBASE_AUTH;
 
@@ -51,43 +55,65 @@ export default function Login({navigation}) {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.login}>
-        <View style={styles.logincontent}>
-          <View style={styles.headingContainer}>
-            <Text style={styles.heading}>Welcome Back.</Text>
-            <Text style={styles.subHeading}>Hope you're killing your workout :)</Text>
-          </View>
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputHeading}>Email</Text>
-              <View>
-                <TextInput style={styles.input} value={email} onChangeText={text => {
-                  setError('')
-                  setEmail(text);
-                }} multiline placeholder='Enter Email ID' />
-              </View>
+    <ScrollView style={{height: '100%',backgroundColor: '#fff',display: 'flex'}} keyboardShouldPersistTaps='handled' contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.login}>
+          <View style={styles.logincontent}>
+            <View style={styles.headingContainer}>
+              <Text style={styles.heading}>Welcome Back.</Text>
+              <Text style={styles.subHeading}>Hope you're killing your workout :)</Text>
             </View>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputHeading}>Password</Text>
-              <View>
-                <TextInput style={styles.input} value={password} onChangeText={text => {
-                  setError('')
-                  setPassword(text);
-                }} multiline placeholder='Enter Password' secureTextEntry/>
+            <View style={styles.form}>
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputHeading}>Email</Text>
+                <View>
+                  <TextInput style={styles.input} value={email} onChangeText={text => {
+                    setError('')
+                    setEmail(text);
+                  }} placeholder='Enter Email ID' />
+                </View>
               </View>
-            </View>
-            {error ? <Text>{error}</Text> : null}
-            <View style={[styles.btnContainer, styles.inputContainer]}>
-              <Pressable style={styles.btn} onPress={handleLogin}>
-                <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign In</Text>
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputHeading}>Password</Text>
+                <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginTop: 10,position: 'relative'}}>
+                  {
+                    showPassword
+                    ?
+                    <TextInput style={styles.input} value={password} onChangeText={text => {
+                      setError('')
+                      setPassword(text);
+                    }} placeholder='Enter Password'/>
+                    :
+                    <TextInput secureTextEntry={true} password={true} style={styles.input} value={password} onChangeText={text => {
+                      setError('')
+                      setPassword(text);
+                    }} placeholder='Enter Password'/>
+                  }
+                  <Pressable onPress={()=>{
+                    setShowPassword(!showPassword);
+                  }} style={{display: 'flex',justifyContent: 'center',position: 'absolute',margin: 'auto',right: 10,top: 0,bottom: 0}}>
+                    {
+                      showPassword
+                      ?
+                      <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                      :
+                      <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                    }
+                  </Pressable>
+                </View>
+              </View>
+              {error ? <Text>{error}</Text> : null}
+              <View style={[styles.btnContainer, styles.inputContainer]}>
+                <Pressable style={styles.btn} onPress={handleLogin}>
+                  <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign In</Text>
+                </Pressable>
+              </View>
+              <Pressable style={styles.registerContainer} onPress={goToRegister}>
+                <Text >New User?</Text>
               </Pressable>
             </View>
-            <Pressable style={styles.registerContainer} onPress={goToRegister}>
-              <Text >New User?</Text>
-            </Pressable>
           </View>
-        </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
 
@@ -132,12 +158,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 'auto',
-    marginTop: 10,
+    
     padding: 10,
     borderRadius: 10,
-    paddingTop: 10,
     fontFamily: 'JosefinSans',
     color: '#A4A4A4',
+    paddingTop: 12.5,
+    paddingBottom: 12.5
   },
   inputHeading:{
     fontFamily: 'JosefinSans',

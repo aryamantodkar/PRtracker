@@ -9,6 +9,8 @@ export default function LandingPage({navigation}) {
     'JosefinSans': require('../assets/fonts/JosefinSans-Regular.ttf'),
     'JosefinSans-Bold': require('../assets/fonts/JosefinSans-Bold.ttf'),
     'SignikaNegative': require('../assets/fonts/SignikaNegative-Medium.ttf'),
+    'LeagueSpartan': require('../assets/fonts/LeagueSpartan-Regular.ttf'),
+    'LeagueSpartan-Medium': require('../assets/fonts/LeagueSpartan-Medium.ttf'),
   });
 
   const onLayoutRootView = useCallback(async () => {

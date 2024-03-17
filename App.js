@@ -9,11 +9,19 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './FirebaseConfig';
 import InsideLayout from './Components/InsideLayout';
 import AppNavbar from './Components/AppNavbar';
+import { LogBox } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  // Ignore log notification by message
+  LogBox.ignoreLogs(['Warning: ...']);
+
+  //Ignore all log notifications
+  LogBox.ignoreAllLogs();
+
   const [user,setUser] = useState(null);
+  console.disableYellowBox = true;
 
   useEffect(()=>{
     onAuthStateChanged(FIREBASE_AUTH,(user)=>{
