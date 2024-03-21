@@ -62,7 +62,7 @@ export default function Home() {
                   ?
                   <View style={{display:'flex',flexDirection: 'row',marginTop: 10,justifyContent: 'space-between',width: '100%'}}>
                     <View style={{display:'flex',flexDirection: 'row'}}>
-                      <View style={{borderColor: '#db9c27',borderWidth: 2,borderRadius: 50}}>
+                      <View style={{borderColor: '#ddd',borderWidth: 2,borderRadius: 50}}>
                         {
                           profilePic==""
                           ?

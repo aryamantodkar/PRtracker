@@ -7,6 +7,7 @@ import { FIREBASE_DB } from '../FirebaseConfig';
 import { useRoute } from '@react-navigation/native';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
+import { useFonts } from 'expo-font';
 
 
 const backIconWhite = require("../assets/back-arrow-icon-white.png");
@@ -24,6 +25,8 @@ const likeBlue = require("../assets/like-icon-blue.png");
 const comment = require("../assets/comment-icon.png");
 const commentBlack = require("../assets/comment-icon-black.png");
 const addComment = require("../assets/add-comment.png");
+const downArrow = require("../assets/down-arrow-icon-white.png");
+const upArrow = require("../assets/up-arrow-icon-white.png");
 
 
 const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
@@ -37,6 +40,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
     const [showLikesBool,setShowLikesBool] = useState(false);
     const [likedUsers,setLikesUsers] = useState([]);
     const [commentInput,setCommentInput] = useState("");
+    const [dropdownArray,setDropdownArray] = useState([]);
 
     const scrollViewRef = useRef();
 
@@ -44,6 +48,18 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
     const auth = getAuth();
     var userID = auth.currentUser.uid;
     const route = useRoute();
+
+    const [fontsLoaded, fontError] = useFonts({
+        'JosefinSans': require('../assets/fonts/JosefinSans-Regular.ttf'),
+        'JosefinSans-Bold': require('../assets/fonts/JosefinSans-Bold.ttf'),
+        'SignikaNegative': require('../assets/fonts/SignikaNegative-Medium.ttf'),
+        'LeagueSpartan': require('../assets/fonts/LeagueSpartan-Regular.ttf'),
+        'LeagueSpartan-Medium': require('../assets/fonts/LeagueSpartan-Medium.ttf'),
+        'Inter': require('../assets/fonts/Inter-Regular.ttf'),
+        'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
+        'Futura-Condensed': require('../assets/fonts/Futura Condensed Extra Bold.otf'),
+    });
+
 
     const deleteWorkout = async () => {
         const q = query(collection(FIREBASE_DB, `${userID}`));
@@ -212,7 +228,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
             name: name,
             id: randomID,
             timeStamp: date,
-            likes: []
+            likes: [],
+            profileUrl: nameSnap.data().profileUrl,
         });
         
         const commentRef = doc(FIREBASE_DB, `${uid}`, `${docID}`);
@@ -697,7 +714,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                     <ScrollView contentContainerStyle={styles.individualWorkout} style={{width: '100%'}}>
                         <View style={styles.individualWorkoutHeader}>
                             <View style={{display: 'flex',flexDirection: 'column'}}>
-                                <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+                                <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'center',marginTop: 10}}>
                                     <Pressable onPress={() => {
                                         showWorkoutBox(false);
                 
@@ -707,7 +724,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                                     }}>
                                         <Image source={backIconWhite} style={{display: 'flex',height: 35,width: 35,alignItems: 'center',justifyContent: 'center'}}></Image>
                                     </Pressable>
-                                    <Text style={{display: 'flex',color: '#fff',fontSize: 22,alignItems: 'center',justifyContent: 'center',textAlignVertical: 'center',borderBottomColor: 'white',borderBottomWidth: 2,paddingBottom: 5}}>{clickedWorkout.workoutName}</Text>
+                                    <Text style={{display: 'flex',color: '#fff',fontSize: 25,alignItems: 'center',justifyContent: 'center',textAlignVertical: 'center',fontFamily: 'Futura-Condensed'}}>{clickedWorkout.workoutName}</Text>
                                 </View>
                                 
                             </View>
@@ -748,38 +765,58 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                                     {
                                         clickedWorkout.allWorkouts.map(exercises => {
                                             return(
-                                                <View key={exercises.id}>
+                                                <View style={{marginTop: 10,marginBottom: 10,padding: 15}} key={exercises.id}>
                                                     <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
-                                                        <Text style={{color: '#fff',fontSize: 15,marginRight: 15,borderColor: '#fff',borderWidth: 2,borderRadius: 50,padding: 5,paddingLeft: 10,paddingRight: 10,display: 'flex',alignItems: 'center',textAlign: 'center',fontWeight: '600'}}>{exercises.id+1}</Text>
-                                                        <Text style={{color: '#fff',fontSize: 20,display: 'flex',alignItems: 'center',textAlign: 'center',justifyContent: 'center',borderBottomColor: 'white',borderBottomWidth: 2,paddingBottom: 5}}>{exercises.exerciseName}</Text>
-                                                    </View>
-                                                    <View style={{marginBottom: 20,marginTop: 20}}>
                                                         {
-                                                            exercises.allSets.map(sets => {
-                                                                return(
-                                                                    <View style={{display: 'flex',flexDirection: 'row', justifyContent: 'space-around',marginTop: 10,marginBottom: 10}} key={sets.id}>
-                                                                        <View style={{borderWidth: 2,borderColor: '#fff',padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 10,width: 70}}>
-                                                                            <Text style={{color: '#fff',fontSize: 17.5,display: 'flex',alignItems: 'center',textAlign: 'center',justifyContent: 'center'}}>Set {sets.id}</Text>
-                                                                        </View>
-                                                                        <View style={{borderWidth: 2,borderColor: '#fff',padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 10,width: 90}}>
-                                                                            <Text style={{color: '#fff',fontSize: 17.5,display: 'flex',alignItems: 'center',textAlign: 'center',justifyContent: 'center'}}>{sets.weight} kg</Text>
-                                                                        </View>
-                                                                        <View style={{padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 10}}>
-                                                                            <Text style={{color: '#fff',fontSize: 17.5,display: 'flex',alignItems: 'center',textAlign: 'center',justifyContent: 'center'}}>x</Text>
-                                                                        </View>
-                                                                        <View style={{borderWidth: 2,borderColor: '#fff',padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 10,width: 60}}>
-                                                                            <Text style={{color: '#fff',fontSize: 17.5,display: 'flex',alignItems: 'center',textAlign: 'center',justifyContent: 'center',verticalAlign:'middle',textAlignVertical: 'center'}}>{sets.reps}</Text>
-                                                                        </View>
-                                                                    </View>
-                                                                )
-                                                            })
+                                                            dropdownArray.includes(exercises.id)
+                                                            ?
+                                                            <Pressable onPress={()=>{
+                                                                setDropdownArray(dropdownArray.filter(arr => arr != exercises.id))
+                                                            }}>
+                                                                <Image source={upArrow} style={{display: 'flex',height: 30,width: 30,alignItems: 'center',justifyContent: 'center',marginRight: 5}}></Image>
+                                                            </Pressable>
+                                                            :
+                                                            <Pressable onPress={()=>{
+                                                                setDropdownArray([...dropdownArray,exercises.id])
+                                                            }}>
+                                                                <Image source={downArrow} style={{display: 'flex',height: 30,width: 30,alignItems: 'center',justifyContent: 'center',marginRight: 5}}></Image>
+                                                            </Pressable>
                                                         }
+                                                        <Text style={{color: '#fff',fontSize: 22,display: 'flex',alignItems: 'center',textAlign: 'center',justifyContent: 'center',fontFamily: 'LeagueSpartan',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,paddingBottom: 5}}>{exercises.exerciseName}</Text>
                                                     </View>
+                                                    {
+                                                        dropdownArray.includes(exercises.id)
+                                                        ?
+                                                        <View style={{marginBottom: 20,marginTop: 20}}>
+                                                            {
+                                                                exercises.allSets.map(sets => {
+                                                                    return(
+                                                                        <View style={{display: 'flex',flexDirection: 'row', justifyContent: 'space-around',marginTop: 10,marginBottom: 10}} key={sets.id}>
+                                                                            <View style={{backgroundColor: '#404040',padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 5,width: 70,display: 'flex',justifyContent: 'center'}}>
+                                                                                <Text style={{color: '#fff',fontSize: 19,display: 'flex',alignItems: 'center',fontFamily: 'LeagueSpartan',textAlign: 'center',justifyContent: 'center'}}>Set {sets.id}</Text>
+                                                                            </View>
+                                                                            <View style={{paddingLeft: 10,paddingRight: 10,width: 90,display: 'flex',justifyContent: 'center'}}>
+                                                                                <Text style={{color: '#fff',fontSize: 19,display: 'flex',alignItems: 'center',fontFamily: 'LeagueSpartan',textAlign: 'center',justifyContent: 'center'}}>{sets.weight} kg</Text>
+                                                                            </View>
+                                                                            <View style={{padding: 5,paddingLeft: 10,paddingRight: 10,display: 'flex',justifyContent: 'center'}}>
+                                                                                <Text style={{color: '#fff',fontSize: 19,display: 'flex',alignItems: 'center',fontFamily: 'LeagueSpartan',textAlign: 'center',justifyContent: 'center'}}>x</Text>
+                                                                            </View>
+                                                                            <View style={{paddingLeft: 10,paddingRight: 10,width: 60,display: 'flex',justifyContent: 'center'}}>
+                                                                                <Text style={{color: '#fff',fontSize: 19,display: 'flex',alignItems: 'center',fontFamily: 'LeagueSpartan',textAlign: 'center',justifyContent: 'center',verticalAlign:'middle',textAlignVertical: 'center'}}>{sets.reps}</Text>
+                                                                            </View>
+                                                                        </View>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </View>
+                                                        :
+                                                        null
+                                                    }
                                                 </View>
                                             )
                                         })
                                     }
-                                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10}}>
+                                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',padding: 10,marginTop: 15}}>
                                         {
                                             clickedWorkout.likes.length>2
                                             ?
@@ -887,12 +924,14 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                             <ActivityIndicator size="large" color="#000"/>
                         </View>
                         :
-                        <ScrollView  style={{backgroundColor: '#f5f4f4',borderColor: '#DDD',borderWidth: 1,marginTop: 30,borderRadius: 15,padding: 20,position: 'relative'}}>
-                            <View style={{display: 'flex',flexDirection: 'row',alignItems: 'flex-start',justifyContent: 'flex-start',marginBottom: 10}}>
-                                <Pressable style={{marginRight: 10,justifyContent: 'center',alignItems: 'center'}}>
-                                    <Image source={commentBlack} style={styles.commentIcon}/>
-                                </Pressable>
-                                <Text style={{fontSize: 17,color: 'black',textAlignVertical: 'center',textAlign: 'center',fontWeight: '500'}}>{clickedWorkout.comments.length} Comments</Text>
+                        <ScrollView  style={{backgroundColor: '#1e1e1e',borderColor: '#DDD',borderWidth: 1,marginTop: 30,borderRadius: 15,padding: 20,position: 'relative'}}>
+                            <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start',marginBottom: 10}}>
+                                <View style={{marginRight: 10,justifyContent: 'center',alignItems: 'center'}}>
+                                    <Image source={comment} style={styles.commentIcon}/>
+                                </View>
+                                <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                    <Text style={{fontSize: 18,color: '#fff',textAlignVertical: 'center',textAlign: 'center',fontWeight: '500',fontFamily: 'LeagueSpartan'}}>{clickedWorkout.comments.length} Comments</Text>
+                                </View>
                             </View>
                             
                             {
@@ -904,17 +943,26 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                                     }
 
                                     return(
-                                        <View key={comment.id} style={{display: 'flex',flexDirection: 'row',width: '100%',alignItems: 'center',position: 'relative',backgroundColor: '#fff',borderWidth: 1.5,borderColor: '#DDD',padding: 10,borderRadius: 10,marginTop: 10,marginBottom: 10}}>
-                                            <View style={{display: 'flex',flexDirection: 'row'}}>
-                                                <View style={{display: 'flex'}}>
-                                                    <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#ddd',}}/>
+                                        <View key={comment.id} style={{display: 'flex',flexDirection: 'row',width: '100%',alignItems: 'center',position: 'relative',backgroundColor: '#363636',borderWidth: 1,borderColor: '#404040',padding: 10,borderRadius: 10,marginTop: 10,marginBottom: 10}}>
+                                            <View style={{display: 'flex',flexDirection: 'column',width: '100%'}}>
+                                                <View style={{display: 'flex',flexDirection: 'row'}}>
+                                                    <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginRight: 5}}>
+                                                        {
+                                                            comment.profileUrl=="" || comment.profileUrl==undefined
+                                                            ?
+                                                            <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#ddd',}}/>
+                                                            :
+                                                            <Image src={comment.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#ddd',}}/>
+                                                        }
+                                                    </View>
+                                                    <View style={{marginBottom: 5,display: 'flex',justifyContent: 'center',marginLeft: 5}}>
+                                                        <Text style={{textAlignVertical: 'center',fontSize: 21,fontWeight: '500',color: '#fff',fontFamily: 'LeagueSpartan'}}>{comment.name}</Text>
+                                                    </View>
                                                 </View>
                                                 <View style={{display: 'flex',flexDirection: 'column',marginLeft: 10,width: '100%',marginBottom:0}}>
-                                                    <View style={{marginBottom: 5,display: 'flex',justifyContent: 'center'}}>
-                                                        <Text style={{textAlignVertical: 'center',fontSize: 16,fontWeight: '500',color: '#018FF5'}}>{comment.name}</Text>
-                                                    </View>
-                                                    <View style={{width: '65%'}}>
-                                                        <Text style={{textAlignVertical: 'center',fontSize: 14,color: '#000',fontWeight: '400'}}>{comment.comment}</Text>
+                                                    
+                                                    <View style={{width: '65%',marginTop: 15}}>
+                                                        <Text style={{textAlignVertical: 'center',fontSize: 16,color: '#ddd',fontWeight: '400',fontFamily: 'LeagueSpartan'}}>{comment.comment}</Text>
                                                     </View>
                                                     <View style={{display: 'flex',flexDirection: 'row',alignItems:'center',marginTop: 15}}>
                                                         {
@@ -933,9 +981,9 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                                                             </Pressable>
                                                         }
                                                         <Pressable style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginLeft: 5}}>
-                                                            <Text style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center'}}>{comment.likes.length}</Text>
+                                                            <Text style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center',color: '#fff'}}>{comment.likes.length}</Text>
                                                         </Pressable>
-                                                        <Text style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center',marginLeft: 10,fontSize: 12,color:'#8A8A8A',fontWeight: '600'}}>Reply</Text>
+                                                        <Text style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center',marginLeft: 10,fontSize: 14,color:'#fff',fontWeight: '600',fontFamily: 'LeagueSpartan'}}>Reply</Text>
                                                     </View>
                                                 </View>
                                             </View>
@@ -943,9 +991,9 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                                                 {
                                                     time.slice(0,2)<12
                                                     ?
-                                                    <Text style={{color: '#000',fontSize: 12,fontWeight: '500'}}>{time} AM</Text>
+                                                    <Text style={{color: '#fff',fontSize: 14,fontWeight: '500',fontFamily: 'LeagueSpartan'}}>{time} AM</Text>
                                                     :
-                                                    <Text style={{color: '#000',fontSize: 12,fontWeight: '500'}}> {time} PM</Text>
+                                                    <Text style={{color: '#fff',fontSize: 14,fontWeight: '500',fontFamily: 'LeagueSpartan'}}> {time} PM</Text>
                                                 }     
                                             </View>
                                             {
@@ -953,8 +1001,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                                                 ?
                                                 <Pressable onPress={()=>{
                                                     deleteComment(clickedWorkout,comment)
-                                                }} style={{position: 'absolute',top: 10,right: 10}}>
-                                                    <Image source={deleteIconBlack} style={{height: 20,width: 20}}/>
+                                                }} style={{position: 'absolute',top: 18,right: 10}}>
+                                                    <Image source={deleteIcon} style={{height: 20,width: 20}}/>
                                                 </Pressable>
                                                 :
                                                 null
@@ -963,14 +1011,14 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid}) => {
                                     )
                                 })
                             }
-                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',marginTop: 10}}>
+                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',marginTop: 10,width:'100%'}}>
                                 <TextInput value={commentInput} onChangeText={(text)=>{
                                     setCommentInput(text);
-                                }} placeholder='Add a comment' style={{maxWidth: 250,width: '100%',minHeight:30,backgroundColor: 'white',padding: 10,borderRadius: 15,paddingTop: 5,paddingBottom: 5}}/>
-                                <Pressable style={{marginRight: 10,justifyContent: 'center',alignItems: 'center',marginLeft: 10}} onPress={()=>{
+                                }} placeholder='Add a comment' placeholderTextColor='#fff' style={{width: '85%',fontFamily: 'LeagueSpartan',minHeight:30,fontSize: 17,color: '#fff',backgroundColor: '#363636',padding: 10,paddingLeft: 15,borderRadius: 15,paddingTop: 5,paddingBottom: 5}}/>
+                                <Pressable style={{justifyContent: 'center',alignItems: 'center',marginLeft: 10}} onPress={()=>{
                                     addComments(clickedWorkout)
                                 }}>
-                                    <Image source={addComment} style={styles.commentIcon}/>
+                                    <Image source={addComment} style={{height: 30,width:31}}/>
                                 </Pressable>
                             </View>
                         </ScrollView>
