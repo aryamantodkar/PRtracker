@@ -1,4 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withTiming,
+    Easing,
+    withRepeat,
+  } from 'react-native-reanimated';
 import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView,ActivityIndicator, ViewBase } from 'react-native'
 import { collection, query, where, getDocs,doc,getDoc,updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -10,8 +17,7 @@ import { getStorage, ref,uploadBytes,getDownloadURL } from "firebase/storage";
 import { useFonts } from 'expo-font';
 import { useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-
-
+import { LinearGradient } from 'expo-linear-gradient';
 
 const dumbell = require("../assets/dumbell.png");
 const dumbellWhite = require("../assets/workout-icon-white.png");
@@ -35,7 +41,6 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     
     const [myWorkouts,setMyWorkouts] = useState([]);
     const [followingWorkouts,setFollowingWorkouts] = useState([]);
-    const [dataLoaded, setDataLoaded] = useState(false);
     const [followingUserArray,setFollowingUserArray] = useState([]);
 
     const [newUid,setNewUid] = useState('');
@@ -86,39 +91,10 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     const route = useRoute();
     var userID = auth.currentUser.uid;
 
-    // useEffect(() => {
-    //     if(uid!=null){
-    //         userID = uid;
-    //     }
-    //     const unsubscribe = navigation.addListener('focus', () => {
-    //         setIsLoading(true);
-    //         const q = query(collection(FIREBASE_DB, `${userID}`));
-
-    //         const newArray = [];
-    
-    //         const querySnapshot = getDocs(q)
-    //         .then(snap => {
-    //             snap.forEach((doc) => {
-    //                 newArray.push(doc.data());
-    //             });
-    //             newArray.sort((x,y) => {
-    //                 return y.timeStamp.toMillis() - x.timeStamp.toMillis();
-    //             })
-    
-    //             setWorkoutsArray(newArray);
-    //             setIsLoading(false);
-    //         })
-    //     });
-    
-    //     return () => {
-    //       unsubscribe;
-    //     };
-    // }, [navigation]);
-
     const getMyWorkouts = async () => {
         try {
             const q = query(collection(FIREBASE_DB, `${userID}`));
-            var array = [];
+            const querySnapshot = await getDocs(q);
     
             const userNameRef = doc(FIREBASE_DB, "Users", `${userID}`);
             const userNameRefSnap = await getDoc(userNameRef);
@@ -131,9 +107,9 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                 loggedProfileUrl = userNameRefSnap.data().profileUrl;
             }
     
-            const querySnapshot = await getDocs(q); // Await the result
-            querySnapshot.forEach((doc) => {
-                array.push({
+            const newArray = [];
+            querySnapshot.forEach(doc => {
+                newArray.push({
                     timeStamp: doc.data().timeStamp,
                     workout: doc.data(),
                     uid: userID,
@@ -143,9 +119,11 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                     profileUrl: loggedProfileUrl
                 });
             });
-            setMyWorkouts(array);
+    
+            return newArray;
         } catch (error) {
             console.error("Error fetching my workouts: ", error);
+            return [];
         }
     };
     
@@ -154,11 +132,10 @@ const Workout = ({showNavbar,searchParams,uid}) => {
             const docRef = doc(FIREBASE_DB, "Users", `${auth.currentUser.uid}`);
             const docSnap = await getDoc(docRef);
     
-            var array = [];
             if (docSnap.exists()) {
                 let followingArray = docSnap.data().following;
     
-                await Promise.all(followingArray.map(async (following) => {
+                const followingPromises = followingArray.map(async following => {
                     const q = query(collection(FIREBASE_DB, `${following}`));
                     const nameRef = doc(FIREBASE_DB, "Users", `${following}`);
                     const nameSnap = await getDoc(nameRef);
@@ -176,9 +153,10 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                         profileUrl = profilePicSnap.data().profileUrl;
                     }
     
-                    const querySnapshot = await getDocs(q); // Await the result
-                    querySnapshot.forEach((doc) => {
-                        array.push({
+                    const querySnapshot = await getDocs(q);
+                    const workouts = [];
+                    querySnapshot.forEach(doc => {
+                        workouts.push({
                             timeStamp: doc.data().timeStamp,
                             workout: doc.data(),
                             uid: following,
@@ -188,31 +166,37 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                             profileUrl: profileUrl
                         });
                     });
-                }));
-                setFollowingWorkouts(array);
+                    return workouts;
+                });
+    
+                return Promise.all(followingPromises);
             }
+            return [];
         } catch (error) {
             console.error("Error fetching following workouts: ", error);
+            return [];
         }
     };
     
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
-            await Promise.all([getMyWorkouts(), getFollowingWorkouts()]);
-            setDataLoaded(true);
+            try {
+                const myWorkouts = await getMyWorkouts();
+                const followingWorkouts = await getFollowingWorkouts();
+    
+                const combinedWorkouts = myWorkouts.concat(...followingWorkouts);
+                setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+            } finally {
+                setIsLoading(false);
+            }
         };
-
-        fetchData().then(() => {
-            setIsLoading(false); // Set loading to false after both functions have completed
-        });
+    
+        fetchData();
     }, []);
     
-    useEffect(() => {
-        if (dataLoaded) {
-            setFollowingUserArray([...myWorkouts, ...followingWorkouts].sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
-        }
-    }, [myWorkouts, followingWorkouts, dataLoaded]);
 
     const searchWorkouts = async () => {
         setIsLoading(true);
@@ -315,13 +299,21 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         const fetchData = async () => {
             setIsLoading(true);
             await searchWorkouts();
-            setIsLoading(false);
         };
+
     
-        fetchData();
+        fetchData()
     }, [searchParams]);
     
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (isLoading) {
+                setIsLoading(false);
+            }
+        }, 1000); // Adjust the timeout duration as needed
     
+        return () => clearTimeout(timeout);
+    }, [followingUserArray,searchParams]);
 
     const openWorkoutBox = (workout,tempUid = null) => {
         if(uid==null){
@@ -755,15 +747,11 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     
     useEffect(() => {
         const fetchData = async () => {
-            setIsLoading(true);
             await updateWorkouts();
-            setIsLoading(false);
         };
     
-        fetchData();
+        fetchData()
     }, [showWorkoutBox]);
-
-    // console.log("foll",followingUserArray)
 
     const returnProfilePic = (url,margin) => {
         if(url=="" || url==undefined){
@@ -779,12 +767,71 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         setLikedUsers(likes);
     }
 
-    
+    const duration = 500;
 
+    const defaultAnim = useSharedValue(120);
+    const defaultColumn = useSharedValue(100);
+
+    const animatedDefault = useAnimatedStyle(() => ({
+        transform: [{ translateX: -(defaultAnim.value+10) }],
+    }));
+
+    const animatedColumn = useAnimatedStyle(() => ({
+        transform: [{ translateX: -defaultColumn.value }],
+    }));
+
+    useEffect(() => {
+        defaultAnim.value = withRepeat(
+          withTiming(-defaultAnim.value, {
+            duration,
+          }),
+          -1,
+          false
+        );
+        defaultColumn.value = withRepeat(
+            withTiming(-defaultColumn.value, {
+              duration,
+            }),
+            -1,
+            false
+        );
+    }, []);
+    
     if(isLoading){
         return(
-            <View >
-                <ActivityIndicator size="large" color="#000"/>
+            <View style={{height: '100%',minWidth:'100%',display: 'flex',justifyContent: 'center',alignItems: 'center',minHeight: 500,marginTop: -20}}>
+                <View style={{padding: 20,minWidth:'90%',borderRadius: 10}}>
+                    <View style={{backgroundColor: '#f5f4f4',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
+                        <Animated.View style={[styles.box, animatedDefault,{minWidth:40}]}/>
+                    </View>
+                    <View style={{padding: 10,backgroundColor: '#f5f4f4',borderRadius: 10,height: 200,marginTop: 20,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',}}>
+                        <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+                        </View>
+                            <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+                        </View>
+                        <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+                        </View>
+                    </View>
+                </View>
+                <View style={{padding: 20,minWidth:'90%',borderRadius: 10}}>
+                    <View style={{backgroundColor: '#f5f4f4',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
+                        <Animated.View style={[styles.box, animatedDefault,{minWidth:40}]}/>
+                    </View>
+                    <View style={{padding: 10,backgroundColor: '#f5f4f4',borderRadius: 10,height: 200,marginTop: 20,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',}}>
+                        <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+                        </View>
+                            <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+                        </View>
+                        <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+                        </View>
+                    </View>
+                </View>
             </View>
         )
     }
@@ -802,7 +849,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                 <View style={{marginTop: 20}}>
                                     <View style={{width: '100%',paddingBottom: 20,}}>
                                         {
-                                            followingUserArray.length>0
+                                            followingUserArray.length>0 && !isLoading
                                             ?
                                             <View style={{width: '100%'}}>
                                                 {
@@ -1058,5 +1105,9 @@ const styles = StyleSheet.create({
         padding: 20,
         justifyContent: 'center',
     },
-    
+    box: {
+        height: 40,
+        width: 15,
+        backgroundColor: '#F7F6F6'
+    }
 })

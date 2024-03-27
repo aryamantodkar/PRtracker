@@ -56,11 +56,11 @@ export default function Home() {
   return (
     <View style={{height: '100%',width: '100%',flex: 1,paddingTop: 20}}>
         <ScrollView style={styles.home}>
-            <ScrollView contentContainerStyle ={[styles.home,{padding: 30,paddingLeft: 15,paddingRight: 15,display:'flex',justifyContent: 'center',alignItems: 'center'}]}>
+            <ScrollView contentContainerStyle ={[styles.home,{padding: 30,paddingLeft: 15,paddingRight: 15,display:'flex',justifyContent: 'space-between',alignItems: 'center',height: '100%',flexDirection: 'column'}]}>
                 {
                   !searchBar
                   ?
-                  <View style={{display:'flex',flexDirection: 'row',marginTop: 10,justifyContent: 'space-between',width: '100%'}}>
+                  <View style={{display:'flex',flexDirection: 'row',marginTop: 10,justifyContent: 'space-between',width: '100%',marginBottom: 40}}>
                     <View style={{display:'flex',flexDirection: 'row'}}>
                       <View style={{borderColor: '#ddd',borderWidth: 2,borderRadius: 50}}>
                         {
@@ -100,7 +100,7 @@ export default function Home() {
                     </View>
                   </View>
                   :
-                  <View style={{borderColor: '#455366',borderWidth: 1,display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',backgroundColor: '#1e1e1e',padding: 5,paddingLeft: 10,paddingRight: 15,borderRadius: 15,elevation: 5,width: '100%'}}>
+                  <View style={{borderColor: '#455366',borderWidth: 1,display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',backgroundColor: '#1e1e1e',padding: 5,paddingLeft: 10,paddingRight: 15,borderRadius: 15,elevation: 5,width: '100%',marginBottom: 40}}>
                       <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
                         <Image source={searchIcon} style={{height: 25,width: 25,display: 'flex',alignItems: 'center',marginRight: 5}}/>
                         <TextInput ref={inputRef} value={searchText} placeholderTextColor='#ddd' placeholder='Search Workouts' onChangeText={(text)=>{
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingTop: 20,
     paddingBottom: 100,
-    fontFamily: 'SignikaNegative'
+    fontFamily: 'SignikaNegative',
   },
   header: {
     display: 'flex',
