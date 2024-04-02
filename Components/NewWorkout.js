@@ -224,7 +224,9 @@ const NewWorkout = () => {
     }
 
     const goToHomeScreen = () => {
-        navigation.navigate('Home');
+        navigation.navigate('Home',{
+            isReload: true
+        });
     }
 
 
@@ -394,35 +396,35 @@ const NewWorkout = () => {
                                                                             </Pressable>
                                                                         </View>
                                                                         <View>
-                                                                                <Pressable onPress={()=>{
-                                                                                    const newSets = workout.allSets.filter(arr => arr.id != set.id);
-                                                                                    
-                                                                                    let id = 1;
+                                                                            <Pressable onPress={()=>{
+                                                                                const newSets = workout.allSets.filter(arr => arr.id != set.id);
+                                                                                
+                                                                                let id = 1;
 
-                                                                                    newSets.map(newSet => {
-                                                                                        if(newSet.id != id){
-                                                                                            newSet.id = id
-                                                                                        }
-                                                                                        id++;
-                                                                                    })
-
-                                                                                    const editedSetWorkout = {
-                                                                                        exerciseName: editedWorkoutName,
-                                                                                        allSets: newSets,
-                                                                                        id: workout.id
+                                                                                newSets.map(newSet => {
+                                                                                    if(newSet.id != id){
+                                                                                        newSet.id = id
                                                                                     }
-    
-                                                                                    const tempArray = allWorkouts.filter(arr => arr.id != workout.id);
+                                                                                    id++;
+                                                                                })
 
-                                                                                    const arr = [...tempArray,editedSetWorkout];
+                                                                                const editedSetWorkout = {
+                                                                                    exerciseName: editedWorkoutName,
+                                                                                    allSets: newSets,
+                                                                                    id: workout.id
+                                                                                }
 
-                                                                                    arr.sort((a,b) => a.id-b.id);
-    
-                                                                                    setAllWorkouts(arr);
-    
-                                                                                }} style={styles.plusIconContainer}>
-                                                                                    <Image source={deleteIcon} style={[styles.plusIcon,{height:17,width: 17}]}/>
-                                                                                </Pressable>
+                                                                                const tempArray = allWorkouts.filter(arr => arr.id != workout.id);
+
+                                                                                const arr = [...tempArray,editedSetWorkout];
+
+                                                                                arr.sort((a,b) => a.id-b.id);
+
+                                                                                setAllWorkouts(arr);
+
+                                                                            }} style={styles.plusIconContainer}>
+                                                                                <Image source={deleteIcon} style={[styles.plusIcon,{height:17,width: 17}]}/>
+                                                                            </Pressable>
                                                                         </View>
                                                                     </View>
                                                                 )})

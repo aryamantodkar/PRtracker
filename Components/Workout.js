@@ -15,6 +15,7 @@ import { useRoute } from '@react-navigation/native';
 import IndividualWorkout from './IndividualWorkout';
 import { getStorage, ref,uploadBytes,getDownloadURL } from "firebase/storage";
 import { useFonts } from 'expo-font';
+import CalendarStrip from 'react-native-calendar-strip';
 import { useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -33,7 +34,7 @@ const backIconBlack = require("../assets/back-arrow-icon.png");
 const backIconWhite = require("../assets/back-arrow-icon-white.png");
 
 
-const Workout = ({showNavbar,searchParams,uid}) => {
+const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}) => {
     const [workoutsArray,setWorkoutsArray] = useState([]);
     const [showWorkoutBox,setShowWorkoutBox] = useState(false);
     const [clickedWorkoutID,setClickedWorkoutID] = useState();
@@ -48,6 +49,11 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     const [showLikesBool,setShowLikesBool] = useState(false);
     const [likedUsers,setLikedUsers] = useState([]);
     const [goToCommentBox,setGoToCommentBox] = useState(false);
+
+    const [currentDay,setCurrentDay] = useState((new Date().getDay()));
+    const [currentDate,setCurrentDate] = useState((new Date()).getDate());
+    const [currentMonth,setCurrentMonth] = useState((new Date()).getMonth()+1);
+    const [currentYear,setCurrentYear] = useState((new Date()).getFullYear());
 
     const storage = getStorage();
 
@@ -85,6 +91,8 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     dateSuffix.set('01','st');
     dateSuffix.set('02','nd');
     dateSuffix.set('03','rd');
+
+    const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
     const navigation = useNavigation();
     const auth = getAuth();
@@ -189,14 +197,11 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                 setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
             } catch (error) {
                 console.error("Error fetching data: ", error);
-            } finally {
-                setIsLoading(false);
             }
         };
     
         fetchData();
     }, []);
-    
 
     const searchWorkouts = async () => {
         setIsLoading(true);
@@ -296,8 +301,8 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     };
     
     useEffect(() => {
+        setIsLoading(true);
         const fetchData = async () => {
-            setIsLoading(true);
             await searchWorkouts();
         };
 
@@ -310,10 +315,22 @@ const Workout = ({showNavbar,searchParams,uid}) => {
             if (isLoading) {
                 setIsLoading(false);
             }
-        }, 1000); // Adjust the timeout duration as needed
+        }, 2500); // Adjust the timeout duration as needed
     
         return () => clearTimeout(timeout);
-    }, [followingUserArray,searchParams]);
+    }, [followingUserArray]);
+
+    useEffect(() => {
+        if(searchBar && searchParams!=""){
+            const timeout = setTimeout(() => {
+                if (isLoading) {
+                    setIsLoading(false);
+                }
+            }, 500); // Adjust the timeout duration as needed
+        
+            return () => clearTimeout(timeout);
+        }
+    }, [searchBar]);
 
     const openWorkoutBox = (workout,tempUid = null) => {
         if(uid==null){
@@ -327,19 +344,20 @@ const Workout = ({showNavbar,searchParams,uid}) => {
 
         setClickedWorkoutID(workout.id);
         setShowWorkoutBox(true);
+        hideUserNavbar(true);
     }
 
-    const groupByDate = (workout) => {
-        dateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
-        return(
-            <View style={{marginTop: 15,borderColor: '#E7E7E7',borderWidth: 1,padding: 10,paddingLeft: 15,paddingRight: 15,alignSelf: 'flex-start',borderRadius: 15,backgroundColor: '#f5f4f4'}}>
-                <Text style={{fontSize: 15,color: '#444444',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
-                    {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
-                    {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
-                </Text>
-            </View>
-        )
-    }
+    // const groupByDate = (workout) => {
+    //     dateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
+    //     return(
+    //         <View style={{marginTop: 15,borderColor: '#E7E7E7',borderWidth: 1,padding: 10,paddingLeft: 15,paddingRight: 15,alignSelf: 'flex-start',borderRadius: 15,backgroundColor: '#f5f4f4'}}>
+    //             <Text style={{fontSize: 15,color: '#444444',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
+    //                 {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
+    //                 {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
+    //             </Text>
+    //         </View>
+    //     )
+    // }
 
     const followingGroupByDate = (workout) => {
         followingDateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
@@ -348,7 +366,7 @@ const Workout = ({showNavbar,searchParams,uid}) => {
             <View style={{marginBottom: 20,padding: 10,paddingLeft: 15,paddingRight: 15,alignSelf: 'flex-start',borderRadius: 5,backgroundColor: '#f6f6f7'}}>
                 <Text style={{fontSize: 15,color: '#353F4E',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
                     {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
-                    {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(9,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
+                    {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
                 </Text>
             </View>
         )
@@ -753,12 +771,31 @@ const Workout = ({showNavbar,searchParams,uid}) => {
         fetchData()
     }, [showWorkoutBox]);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                const myWorkouts = await getMyWorkouts();
+                const followingWorkouts = await getFollowingWorkouts();
+    
+                const combinedWorkouts = myWorkouts.concat(...followingWorkouts);
+                setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+            }
+        };
+    
+        if(isReload!==undefined){
+            fetchData()
+        }
+    }, [isReload]);
+
     const returnProfilePic = (url,margin) => {
         if(url=="" || url==undefined){
-            return <Image source={pfp} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: margin}}/>
+            return <Image source={pfp} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
         }
         else{
-            return <Image src={url} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: margin}}/>
+            return <Image src={url} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
         }
     }
 
@@ -795,7 +832,19 @@ const Workout = ({showNavbar,searchParams,uid}) => {
             -1,
             false
         );
+        
+        setCurrentDay((new Date()).getDay());
+        setCurrentDate((new Date()).getDate())
+        setCurrentMonth((new Date()).getMonth()+1)
+        setCurrentYear((new Date()).getFullYear())
     }, []);
+
+    const updateCalendarDate = (date) => {
+        setCurrentDay(date.day());
+        setCurrentDate(date.date())
+        setCurrentMonth(date.month()+1)
+        setCurrentYear(date.year())
+    }
     
     if(isLoading){
         return(
@@ -838,16 +887,37 @@ const Workout = ({showNavbar,searchParams,uid}) => {
     else{
         return (
             <View style={{display: 'flex',justifyContent: 'center',marginTop: 'auto',marginBottom: 'auto',marginTop: 0,flex: 1}}>
+                {/* <CalendarStrip
+                    scrollable
+                    style={{height:170,marginTop: 40,marginBottom: 0}}
+                    calendarColor={'#fff'}
+                    dateNumberStyle={{color: '#898989',fontFamily: 'LeagueSpartan',fontWeight: '600'}}
+                    dateNameStyle={{color: '#898989',fontFamily: 'LeagueSpartan',fontSize: 15,marginBottom: 5,fontWeight: '500',borderBottomColor: '#898989',borderBottomWidth: 2,paddingBottom: 4}}
+                    numDaysInWeek={5}
+                    calendarHeaderContainerStyle={{position: 'absolute',left: 30}}
+                    calendarHeaderStyle={{fontFamily: 'LeagueSpartan',fontSize: 20,color: '#1e1e1e',fontWeight: '600'}}
+                    startingDate={Date.now()}
+                    selectedDate={Date.now()}
+                    dayContainerStyle={{backgroundColor: '#f6f6f7',borderRadius: 10,display: 'flex'}}
+                    highlightDateContainerStyle={{backgroundColor: '#1e1e1e'}}
+                    highlightDateNameStyle={{color: '#fff',fontSize: 15,marginBottom: 7.5,fontWeight: '600',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,paddingBottom: 4}}
+                    highlightDateNumberStyle={{color: '#fff'}}
+                    dayComponentHeight={75}
+                    headerText={`${weekday[currentDay]} ${currentDate} ${months.get(`${currentMonth}`)}, ${currentYear}`}
+                    onDateSelected={(date)=>{
+                        updateCalendarDate(date);
+                    }}
+                /> */}
                 {
                     !showLikesBool
                     ?
-                    <ScrollView contentContainerStyle={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutContainer : styles.emptyWorkoutBox}  showsVerticalScrollIndicator={false}>
+                    <ScrollView contentContainerStyle={styles.workoutContainer}  showsVerticalScrollIndicator={false}>
                         {
                             !showWorkoutBox
                             ?
-                            <View style={workoutsArray!=undefined && workoutsArray.length>0 ? styles.workoutList : styles.emptyWorkoutList}>
-                                <View style={{marginTop: 20}}>
-                                    <View style={{width: '100%',paddingBottom: 20,}}>
+                            <View style={styles.workoutList}>
+                                <View style={{height: '100%',marginTop: 20}}>
+                                    <View style={{width: '100%',height: '100%',paddingBottom: 20,display: 'flex',justifyContent: 'center',alignItems: 'center',margin: 'auto'}}>
                                         {
                                             followingUserArray.length>0 && !isLoading
                                             ?
@@ -881,19 +951,20 @@ const Workout = ({showNavbar,searchParams,uid}) => {
                                                 }
                                             </View>
                                             :
-                                            <View  style={[styles.emptyWorkoutContainer,{width: '80%',backgroundColor: '#f5f4f4',paddingTop: 25,paddingBottom: 25,marginTop: 150}]}>
-                                                <Image source={sadSmiley} style={{height: 40, width: 40,marginLeft: 'auto',marginRight: 'auto',marginBottom: 10}}/>
+                                            <View  style={[styles.emptyWorkoutContainer,{paddingTop: 25,paddingBottom: 25,minHeight: 180,display: 'flex',justifyContent: 'space-around',marginTop: 100}]}>
+                                                <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,paddingBottom: 5,alignSelf: 'center'}}>
+                                                    <Text style={{color: 'white',fontSize:20,fontFamily: 'LeagueSpartan'}}>No Workouts Found</Text>
+                                                </View>
                                                 <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                    <Text style={{color: 'black',marginLeft: 10,fontSize: 15,fontWeight: '400',color: '#000'}}>Please start following people to view their workouts here :)</Text>
+                                                    <Text style={{color: 'black',marginLeft: 10,fontSize: 18,color: '#fff',fontFamily: 'LeagueSpartan'}}>Please start following people to view their workouts here :)</Text>
                                                 </View>
                                             </View>
-                                            
-                                        }
+                                        } 
                                     </View>
                                 </View>
                             </View>
                             :
-                            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid}/>
+                            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid} hideUserNavbar={hideUserNavbar} followingUserArray={followingUserArray} setFollowingUserArray={setFollowingUserArray}/>
                         }
                     </ScrollView>
                     :
@@ -962,7 +1033,6 @@ const styles = StyleSheet.create({
         height: '100%',
         width: '100%',
         overflow: 'scroll',
-        marginTop: 10,
         // marginBottom: 50,
         
     },
@@ -1097,9 +1167,8 @@ const styles = StyleSheet.create({
         borderColor: '#DDD',
         display: 'flex',
         width: '100%',
-        backgroundColor: '#f5f4f4',
-        borderRadius: 20,
-        marginTop: 125,
+        backgroundColor: '#1e1e1e',
+        borderRadius: 10,
         marginLeft: 'auto',
         marginRight: 'auto',
         padding: 20,
