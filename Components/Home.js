@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Workout from './Workout';
 import AppNavbar from './AppNavbar';
 import { getAuth, reload } from "firebase/auth";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation,useIsFocused} from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { collection, getDocs } from "firebase/firestore";
 import { getStorage, ref,uploadBytes,getDownloadURL,deleteObject  } from "firebase/storage";
@@ -23,10 +23,6 @@ const pfp = require("../assets/pfp.jpg");
 const settingsIcon = require("../assets/settings-icon.png");
 
 export default function Home() {
-  const handleLogout = () =>{
-    FIREBASE_AUTH.signOut();
-  }
-
   const [showNavbar,setShowNavbar] = useState(true);
   const [searchBar,setSearchBar] = useState(false);
   const [searchText,setSearchText] = useState("");
@@ -38,6 +34,7 @@ export default function Home() {
   
   const route = useRoute();
   const isReload = route.params ? route.params.isReload : undefined;
+  const isFocused = useIsFocused();
 
   const auth = getAuth();
   const user = auth.currentUser;
@@ -51,13 +48,21 @@ export default function Home() {
     })
     .catch((error) => {
       // Handle any errors
-      console.log("error")
+      console.log("error",error)
+      setProfilePic("");
     });
   }
 
+  
   useEffect(()=>{
     getProfileImage();
   },[])
+
+  useEffect(()=>{
+    if(isFocused){
+      getProfileImage();
+    }
+  },[isFocused])
 
   return (
     <View style={{height: '100%',width: '100%',flex: 1,paddingTop: 20}}>
@@ -79,13 +84,13 @@ export default function Home() {
                               <Pressable onPress={()=>{
 
                               }}>
-                                <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,borderColor: '#000',borderWidth: 3}}/>
+                                <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/>
                               </Pressable>
                               :
                               <Pressable onPress={()=>{
 
                               }}>
-                                <Image src={profilePic} style={{height: 50,width: 50,borderRadius: 50,borderColor: '#000',borderWidth: 3}}/>
+                                <Image src={profilePic} style={{height: 50,width: 50,borderRadius: 50,}}/>
                               </Pressable>
                             }
                           </View>
@@ -94,7 +99,7 @@ export default function Home() {
                               <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#869AAF',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>Hi, </Text>
                             </View>
                             <View style={{display: 'flex',justifyContent: 'center'}}>
-                              <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#000',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>{user.displayName.split(" ")[0]} {user.displayName.split(" ")[1][0]}.</Text>
+                              <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#000',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>{user.displayName.split(" ")[0]} {user.displayName.split(" ").length>1 ? user.displayName.split(" ")[1][0] : null}.</Text>
                             </View>
                           </View>
                         </View>
@@ -133,7 +138,7 @@ export default function Home() {
                   null
                 }
                 
-                <Workout searchParams={searchParams} showNavbar={setShowNavbar} uid={null} hideUserNavbar={setHideUserNavbar} searchBar={searchBar} isReload={isReload}/>
+                <Workout searchParams={searchParams} showNavbar={setShowNavbar} uid={null} hideUserNavbar={setHideUserNavbar} searchBar={searchBar} isReload={isReload} userProfile={false}/>
             </ScrollView>
             
         </ScrollView>

@@ -25,7 +25,9 @@ const AppNavbar = ({showNavbar}) => {
     setAccount(false);
     setPlus(false);
 
-    navigation.navigate('Home');
+    navigation.navigate('Home',{
+      isReload: true
+    });
   }
   
   const addWorkout = () => {
@@ -41,7 +43,9 @@ const AppNavbar = ({showNavbar}) => {
     setAccount(true);
     setPlus(false);
 
-    navigation.navigate('UserPage');  
+    navigation.navigate('UserPage',{
+      isReload: true
+    });  
   }
 
   const [keyboardStatus, setKeyboardStatus] = useState(false);

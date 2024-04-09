@@ -34,7 +34,7 @@ const backIconBlack = require("../assets/back-arrow-icon.png");
 const backIconWhite = require("../assets/back-arrow-icon-white.png");
 
 
-const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}) => {
+const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,userProfile}) => {
     const [workoutsArray,setWorkoutsArray] = useState([]);
     const [showWorkoutBox,setShowWorkoutBox] = useState(false);
     const [clickedWorkoutID,setClickedWorkoutID] = useState();
@@ -191,7 +191,8 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
             setIsLoading(true);
             try {
                 const myWorkouts = await getMyWorkouts();
-                const followingWorkouts = await getFollowingWorkouts();
+                
+                const followingWorkouts = uid==null ? await getFollowingWorkouts() : [];
     
                 const combinedWorkouts = myWorkouts.concat(...followingWorkouts);
                 setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
@@ -334,7 +335,9 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
 
     const openWorkoutBox = (workout,tempUid = null) => {
         if(uid==null){
-            showNavbar(false);
+            if(showNavbar!=null){
+                showNavbar(false);
+            }
         }
 
         if(tempUid!=null){
@@ -344,7 +347,9 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
 
         setClickedWorkoutID(workout.id);
         setShowWorkoutBox(true);
-        hideUserNavbar(true);
+        if(hideUserNavbar!=null){
+            hideUserNavbar(true);
+        }
     }
 
     // const groupByDate = (workout) => {
@@ -364,7 +369,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
         UserGroup.clear();
         return(
             <View style={{marginBottom: 20,padding: 10,paddingLeft: 15,paddingRight: 15,alignSelf: 'flex-start',borderRadius: 5,backgroundColor: '#f6f6f7'}}>
-                <Text style={{fontSize: 15,color: '#353F4E',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
+                <Text style={{fontSize: 18,color: '#1e1e1e',fontFamily: 'LeagueSpartan'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
                     {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
                     {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
                 </Text>
@@ -378,32 +383,34 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
             <Pressable onPress={() => {
                 openWorkoutBox(workout.workout,workout.uid);
             }} style={{display: 'flex',justifyContent: 'space-between',flexDirection: 'column',backgroundColor: '#1e1e1e',padding: 15,paddingLeft: 20,paddingRight: 20,borderRadius: 10,elevation: 5,borderWidth: 1,borderColor: '#A5A5A5'}}>
-                <Pressable onPress={()=>{
-                    navigation.navigate('IndividualUser',{
-                        uid: profileUid,
-                        name: workout.name,
-                        })
-                    }} style={{position: 'relative',display: 'flex',flexDirection: 'row',justifyContent: 'space-between',marginBottom: 15}}>
-                        <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
-                            {
-                                workout.profileUrl=="" || workout.profileUrl==undefined
-                                ?
-                                <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 1.5,borderColor: '#DDD'}}/>
-                                :
-                                <Image src={workout.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 1.5,borderColor: '#DDD'}}/>
-                            }
+                <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',flexDirection: 'row',marginBottom: 15}}>
+                    <Pressable onPress={()=>{
+                        navigation.navigate('IndividualUser',{
+                            uid: profileUid,
+                            name: workout.name,
+                            })
+                        }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
+                            <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
+                                {
+                                    workout.profileUrl=="" || workout.profileUrl==undefined
+                                    ?
+                                    <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 1.5,borderColor: '#DDD'}}/>
+                                    :
+                                    <Image src={workout.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 1.5,borderColor: '#DDD'}}/>
+                                }
+                            </View>
                             <Text style={{color: '#fff',fontSize: 18,marginLeft: 10,fontWeight: '500',fontFamily: 'LeagueSpartan-Medium'}}>{workout.name}</Text>
-                        </View>
-                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                            {
-                                workout.timeStamp.toDate().toTimeString().slice(0,2)<12
-                                ?
-                                <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
-                                :
-                                <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
-                            }       
-                        </View>
-                </Pressable>
+                    </Pressable>
+                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
+                        {
+                            workout.timeStamp.toDate().toTimeString().slice(0,2)<12
+                            ?
+                            <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
+                            :
+                            <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
+                        }       
+                    </View>
+                </View>
                 <Pressable onPress={() => {
                         openWorkoutBox(workout.workout,workout.uid);
                     }} style={{display: 'flex',flexDirection: 'column',justifyContent: 'space-between',alignItems: 'flex-start'}}>
@@ -776,7 +783,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
             setIsLoading(true);
             try {
                 const myWorkouts = await getMyWorkouts();
-                const followingWorkouts = await getFollowingWorkouts();
+                const followingWorkouts = uid==null ? await getFollowingWorkouts() : [];
     
                 const combinedWorkouts = myWorkouts.concat(...followingWorkouts);
                 setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
@@ -848,7 +855,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
     
     if(isLoading){
         return(
-            <View style={{height: '100%',minWidth:'100%',display: 'flex',justifyContent: 'center',alignItems: 'center',minHeight: 500,marginTop: -20}}>
+            <View style={{height: '100%',minWidth:'100%',display: 'flex',justifyContent: 'flex-start',alignItems: 'center',minHeight: 500}}>
                 <View style={{padding: 20,minWidth:'90%',borderRadius: 10}}>
                     <View style={{backgroundColor: '#f5f4f4',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
                         <Animated.View style={[styles.box, animatedDefault,{minWidth:40}]}/>
@@ -886,7 +893,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
     }
     else{
         return (
-            <View style={{display: 'flex',justifyContent: 'center',marginTop: 'auto',marginBottom: 'auto',marginTop: 0,flex: 1}}>
+            <View style={{display: 'flex',marginTop: 0,flex: 1,minWidth: '100%'}}>
                 {/* <CalendarStrip
                     scrollable
                     style={{height:170,marginTop: 40,marginBottom: 0}}
@@ -917,7 +924,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
                             ?
                             <View style={styles.workoutList}>
                                 <View style={{height: '100%',marginTop: 20}}>
-                                    <View style={{width: '100%',height: '100%',paddingBottom: 20,display: 'flex',justifyContent: 'center',alignItems: 'center',margin: 'auto'}}>
+                                    <View style={{width: '100%',height: '100%',paddingBottom: 20,}}>
                                         {
                                             followingUserArray.length>0 && !isLoading
                                             ?
@@ -955,9 +962,17 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
                                                 <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,paddingBottom: 5,alignSelf: 'center'}}>
                                                     <Text style={{color: 'white',fontSize:20,fontFamily: 'LeagueSpartan'}}>No Workouts Found</Text>
                                                 </View>
-                                                <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                    <Text style={{color: 'black',marginLeft: 10,fontSize: 18,color: '#fff',fontFamily: 'LeagueSpartan'}}>Please start following people to view their workouts here :)</Text>
-                                                </View>
+                                                {
+                                                    userProfile
+                                                    ?
+                                                    <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                        <Text style={{color: 'black',marginLeft: 10,fontSize: 18,color: '#fff',fontFamily: 'LeagueSpartan'}}>Please add new workouts to view them here :)</Text>
+                                                    </View>
+                                                    :
+                                                    <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                        <Text style={{color: 'black',marginLeft: 10,fontSize: 18,color: '#fff',fontFamily: 'LeagueSpartan'}}>Please start following people to view their workouts here :)</Text>
+                                                    </View>
+                                                }
                                             </View>
                                         } 
                                     </View>
@@ -968,17 +983,17 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
                         }
                     </ScrollView>
                     :
-                    <ScrollView contentContainerStyle={{width: '100%',display: 'flex',marginTop: 20,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
+                    <ScrollView contentContainerStyle={{width: '100%',backgroundColor: '#1e1e1e',display: 'flex',marginTop: 40,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
                         <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative',marginBottom: 20}}>
                             <View style={{position: 'absolute',left: 0}}>
                                 <Pressable onPress={()=>{
                                     setShowLikesBool(false);
                                 }} >
-                                    <Image source={backIconBlack} style={{height: 30,width: 30,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                                    <Image source={backIconWhite} style={{height: 30,width: 30,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
                                 </Pressable>
                             </View>
                             <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
-                                <Text style={{display: 'flex',textAlign: 'center',fontSize: 20,fontWeight: '500',borderBottomColor: 'black',borderBottomWidth: 2,color: 'black'}}>Likes</Text>
+                                <Text style={{display: 'flex',textAlign: 'center',fontSize: 22,fontWeight: '500',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,color: '#fff',fontFamily:'LeagueSpartan'}}>Likes</Text>
                             </View>
                         </View>
                         {
@@ -986,8 +1001,8 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
                             ?
                             likedUsers.map(user => {
                                 return(
-                                    <View key={user.uid} style={{marginTop: 15,borderRadius:25,backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD',width: '100%'}}>
-                                        <View  style={{display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 7.5,backgroundColor: 'white',margin: 7.5,borderRadius: 20,elevation: 5,paddingLeft: 10,paddingRight: 10,alignItems: 'center',justifyContent: 'space-between'}}>
+                                    <View key={user.uid} style={{marginTop: 15,width: '100%'}}>
+                                        <View  style={{display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 10,backgroundColor: '#3e3e3e',margin: 7.5,borderRadius: 10,paddingLeft: 15,paddingRight: 15,alignItems: 'center',justifyContent: 'space-between'}}>
                                             <View style={{display:'flex',flexDirection: 'row',justifyContent:'center',alignItems: 'center'}}>
                                                 <Pressable onPress={() => {
                                                     navigation.navigate('UserPage')
@@ -1000,7 +1015,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload}
                                                         <Image src={user.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
                                                     }
                                                 </Pressable>
-                                                <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 15,color: '#444444',fontWeight: '500'}}>{user.name}</Text>
+                                                <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 17,color: '#fff',fontWeight: '500',fontFamily:'LeagueSpartan'}}>{user.name}</Text>
                                             </View>
                                             <View style={{marginRight: 10}}>
                                                 <Pressable>

@@ -465,7 +465,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
 
     if(isLoading){
         return(
-            <View style={{height: '100%',minWidth:'100%',display: 'flex',justifyContent: 'center',alignItems: 'center',minHeight: 500,marginTop: 50}}>
+            <View style={{height: '100%',minWidth:'100%',display: 'flex',justifyContent: 'flex-start',alignItems: 'center',minHeight: 500}}>
                 <View style={{padding: 20,minWidth:'90%',borderRadius: 10}}>
                     <View style={{backgroundColor: '#f5f4f4',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
                         <Animated.View style={[styles.box, animatedDefault,{minWidth:40}]}/>
@@ -841,7 +841,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                     </View>
                 </ScrollView>
                 :
-                <ScrollView style={{marginBottom: 0,paddingBottom: 0,width: '100%'}}>
+                <ScrollView style={{marginBottom: 0,paddingBottom: 0,width: '100%',marginTop: 15}}>
                     {
                         !showLikesBool
                         ?
@@ -852,9 +852,13 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                         <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'center',marginTop: 10}}>
                                             <Pressable onPress={() => {
                                                 showWorkoutBox(false);
-                                                hideUserNavbar(false);
+                                                if(hideUserNavbar!=null){
+                                                    hideUserNavbar(false);
+                                                }
                                                 if(route.name!='IndividualUser'){
-                                                    showNavbar(true);
+                                                    if(showNavbar!=null){
+                                                        showNavbar(true);
+                                                    }
                                                 }
                                             }}>
                                                 <Image source={backIconWhite} style={{display: 'flex',height: 35,width: 35,alignItems: 'center',justifyContent: 'center'}}></Image>
@@ -886,9 +890,13 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                             </Pressable>
                                             <Pressable onPress={()=>{
                                                 deleteWorkout();
-                                                showNavbar(true);
+                                                if(showNavbar!=null){
+                                                    showNavbar(true);
+                                                }
                                                 showWorkoutBox(false);
-                                                hideUserNavbar(false);
+                                                if(hideUserNavbar!=null){
+                                                    hideUserNavbar(false);
+                                                }
                                             }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
                                                 <Image source={deleteIcon} style={{height: 20,width: 20,marginRight: 10}}/>
                                             </Pressable>
