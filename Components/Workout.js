@@ -32,6 +32,7 @@ const pfp = require("../assets/pfp.jpg");
 const crossIcon = require("../assets/cross-icon-black.png");
 const backIconBlack = require("../assets/back-arrow-icon.png");
 const backIconWhite = require("../assets/back-arrow-icon-white.png");
+const followIcon = require("../assets/follow-icon.png");
 
 
 const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,userProfile}) => {
@@ -43,6 +44,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
     const [myWorkouts,setMyWorkouts] = useState([]);
     const [followingWorkouts,setFollowingWorkouts] = useState([]);
     const [followingUserArray,setFollowingUserArray] = useState([]);
+    const [allUsers,setAllUsers] = useState([]);
 
     const [newUid,setNewUid] = useState('');
     const [newUidBool,setNewUidBool] = useState(false);
@@ -278,6 +280,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
             allWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis());
     
             let updatedArray = allWorkouts;
+            let allUsersArray = await getAllUsers();
     
             if (searchParams !== "") {
                 const filterBySearch = allWorkouts.filter((item) => {
@@ -287,19 +290,61 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                             search = true;
                         }
                     });
-                    if (item.workout.workoutName.toLowerCase().includes(searchParams.toLowerCase()) || search) {
+                    if (item.workout.workoutName.toLowerCase().includes(searchParams.toLowerCase()) || item.name.toLowerCase().includes(searchParams.toLowerCase()) || search) {
+                        return item;
+                    }
+                });
+
+                const filterUsersBySearch = allUsersArray.filter((item) => {
+                    if (item.name.toLowerCase().includes(searchParams.toLowerCase())) {
                         return item;
                     }
                 });
     
                 updatedArray = filterBySearch;
+                allUsersArray = filterUsersBySearch;
             }
     
             setFollowingUserArray(updatedArray);
+            setAllUsers(allUsersArray);
         }
     
         
     };
+
+    const getAllUsers = async () => {
+        try{
+            const q = query(collection(FIREBASE_DB, `Users`));
+            const querySnapshot = await getDocs(q);
+
+            const following = doc(FIREBASE_DB, "Users", `${userID}`);
+            const followingSnapshot = await getDoc(following);
+
+            var followingArr = []
+            if (followingSnapshot.exists()) {
+                followingArr = followingSnapshot.data().following
+            }
+
+            const newArray = [];
+            
+            querySnapshot.forEach(doc => {
+                if(doc.data().uid!=auth.currentUser.uid){
+                    newArray.push({
+                        uid: doc.data().uid,
+                        name: doc.data().name,
+                        profileUrl: doc.data().profileUrl,
+                        following: followingArr.includes(doc.data().uid) ? true : false
+                    })
+                }
+            });
+
+            return newArray;
+        }
+        catch(error){
+            console.error("Error fetching users: ", error);
+            return [];
+        }
+    }
     
     useEffect(() => {
         setIsLoading(true);
@@ -316,22 +361,22 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
             if (isLoading) {
                 setIsLoading(false);
             }
-        }, 2500); // Adjust the timeout duration as needed
+        }, 1000); // Adjust the timeout duration as needed
     
         return () => clearTimeout(timeout);
     }, [followingUserArray]);
 
-    useEffect(() => {
-        if(searchBar && searchParams!=""){
-            const timeout = setTimeout(() => {
-                if (isLoading) {
-                    setIsLoading(false);
-                }
-            }, 500); // Adjust the timeout duration as needed
+    // useEffect(() => {
+    //     if(searchBar && searchParams!=""){
+    //         const timeout = setTimeout(() => {
+    //             if (isLoading) {
+    //                 setIsLoading(false);
+    //             }
+    //         }, 500); // Adjust the timeout duration as needed
         
-            return () => clearTimeout(timeout);
-        }
-    }, [searchBar]);
+    //         return () => clearTimeout(timeout);
+    //     }
+    // }, [searchBar]);
 
     const openWorkoutBox = (workout,tempUid = null) => {
         if(uid==null){
@@ -769,6 +814,72 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
             }
         }));
     };
+
+    const followBackUser = async (uid) => {
+        const followingRef = doc(FIREBASE_DB, "Users", `${auth.currentUser.uid}`);
+        const followingSnap = await getDoc(followingRef);
+        
+        let followingArr = [...followingSnap.data().following,uid];
+
+        const followerRef = doc(FIREBASE_DB, "Users", `${uid}`);
+        const followerSnap = await getDoc(followerRef);
+
+        let followerArr = [...followerSnap.data().followers,auth.currentUser.uid];
+
+        await updateDoc(followingRef, {
+            following: followingArr
+        });
+
+        await updateDoc(followerRef, {
+            followers: followerArr
+        });
+
+        setAllUsers(allUsers.map(user => {
+            if(user.uid==uid){
+                return{
+                    ...user,
+                    following: true
+                }
+            }
+            else{
+                return user;
+            }
+        }))
+    }
+
+    const unfollowUser = async (uid) => {
+        const followingRef = doc(FIREBASE_DB, "Users", `${auth.currentUser.uid}`);
+        const followingSnap = await getDoc(followingRef);
+        
+        let followingArr = followingSnap.data().following;
+        followingArr = followingArr.filter(arr => arr != uid);
+
+        const followerRef = doc(FIREBASE_DB, "Users", `${uid}`);
+        const followerSnap = await getDoc(followerRef);
+
+        let followerArr = followerSnap.data().followers;
+        followerArr = followerArr.filter(arr => arr != auth.currentUser.uid);
+
+        await updateDoc(followingRef, {
+            following: followingArr
+        });
+
+        await updateDoc(followerRef, {
+            followers: followerArr
+        });
+
+        setAllUsers(allUsers.map(user => {
+            if(user.uid==uid){
+                return{
+                    ...user,
+                    following: false
+                }
+            }
+            else{
+                return user;
+            }
+        }))
+    }
     
     useEffect(() => {
         const fetchData = async () => {
@@ -784,9 +895,11 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
             try {
                 const myWorkouts = await getMyWorkouts();
                 const followingWorkouts = uid==null ? await getFollowingWorkouts() : [];
-    
                 const combinedWorkouts = myWorkouts.concat(...followingWorkouts);
+                
+                const getUsers = await getAllUsers();
                 setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
+                setAllUsers(getUsers);
             } catch (error) {
                 console.error("Error fetching data: ", error);
             }
@@ -796,6 +909,22 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
             fetchData()
         }
     }, [isReload]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const myWorkouts = await getMyWorkouts();
+                const followingWorkouts = uid==null ? await getFollowingWorkouts() : [];
+                const combinedWorkouts = myWorkouts.concat(...followingWorkouts);
+                
+                setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+            }
+        };
+    
+        fetchData()
+    }, [allUsers]);
 
     const returnProfilePic = (url,margin) => {
         if(url=="" || url==undefined){
@@ -924,7 +1053,59 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                             ?
                             <View style={styles.workoutList}>
                                 <View style={{height: '100%',marginTop: 20}}>
+                                    {
+                                        searchBar && allUsers.length>0
+                                        ?
+                                        <View>
+                                            <View>
+                                                <Text style={{fontFamily: 'LeagueSpartan-Medium',marginLeft: 5,fontSize: 23,alignSelf: 'flex-start'}}>Users</Text>
+                                            </View>
+                                            <View style={{width: '100%',height: 220,marginBottom: 20}}>
+                                                
+                                                <ScrollView horizontal={true} style={{width: '100%',height: '100%',padding: 10,paddingLeft: 0,paddingRight: 0,display: 'flex',flexDirection: 'row',overflow: 'scroll'}}>
+                                                    {allUsers.map(user => {
+                                                        return(
+                                                            <View key={user.uid} style={{height: '100%',width: 170,backgroundColor: '#1e1e1e',borderRadius: 10,marginRight: 10,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',padding: 10,paddingLeft: 0,paddingRight: 0}}>
+                                                                {
+                                                                    user.profileUrl==""
+                                                                    ?
+                                                                    <Image source={pfp} style={{height: 60,width: 60,borderRadius: 50,borderWidth: 2,borderColor: '#fff'}}/>
+                                                                    :
+                                                                    <Image src={user.profileUrl} style={{height: 60,width: 60,borderRadius: 50,borderWidth: 2,borderColor: '#fff'}}/>
+                                                                }
+                                                                <Text style={{fontFamily: 'LeagueSpartan',fontSize: 18,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>{user.name}</Text>
+                                                                {
+                                                                    user.following
+                                                                    ?
+                                                                    <Pressable onPress={()=>{
+                                                                        unfollowUser(user.uid)
+                                                                    }} style={{width: '60%',backgroundColor: '#303030',borderRadius: 5,padding: 5,borderWidth: 2,borderColor: '#404040'}}>
+                                                                        <Text style={{fontFamily: 'LeagueSpartan',fontSize: 16,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>Unfollow</Text>
+                                                                    </Pressable>
+                                                                    :
+                                                                    <Pressable onPress={()=>{
+                                                                        followBackUser(user.uid)
+                                                                    }} style={{width: '60%',backgroundColor: '#2B8CFF',borderRadius: 5,padding: 5}}>
+                                                                        <Text style={{fontFamily: 'LeagueSpartan',fontSize: 16,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>Follow</Text>
+                                                                    </Pressable>
+                                                                }
+                                                            </View>
+                                                        )
+                                                    })}
+                                                </ScrollView>
+                                            </View>
+                                        </View>
+                                        :
+                                        null
+                                    }
                                     <View style={{width: '100%',height: '100%',paddingBottom: 20,}}>
+                                        {
+                                            searchBar
+                                            ?
+                                            <Text style={{fontFamily: 'LeagueSpartan-Medium',marginLeft: 5,fontSize: 23,marginBottom: 20,alignSelf: 'flex-start'}}>Workouts</Text>
+                                            :
+                                            null
+                                        }
                                         {
                                             followingUserArray.length>0 && !isLoading
                                             ?

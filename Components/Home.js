@@ -118,11 +118,11 @@ export default function Home() {
                       <View style={{borderColor: '#455366',borderWidth: 1,display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',backgroundColor: '#1e1e1e',padding: 5,paddingLeft: 10,paddingRight: 15,borderRadius: 15,elevation: 5,width: '100%',marginBottom: 0}}>
                           <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
                             <Image source={searchIcon} style={{height: 25,width: 25,display: 'flex',alignItems: 'center',marginRight: 5}}/>
-                            <TextInput ref={inputRef} value={searchText} placeholderTextColor='#ddd' placeholder='Search Workouts' onChangeText={(text)=>{
+                            <TextInput ref={inputRef} value={searchText} placeholderTextColor='#ddd' placeholder='Search Workouts or Users' onChangeText={(text)=>{
                                 setSearchText(text);
                                 setSearchParams(text);
                                 inputRef.current.focus();
-                            }} style={{height: 40,fontSize: 14,color: '#fff',fontWeight: '500',textAlignVertical: 'center',width: '80%'}}/>
+                            }} style={{height: 40,fontSize: 16,color: '#fff',fontWeight: '500',textAlignVertical: 'center',width: '80%',fontFamily: 'LeagueSpartan'}}/>
                           </View>
                           <Pressable onPress={()=>{
                             setSearchBar(false);
