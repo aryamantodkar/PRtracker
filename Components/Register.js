@@ -1,13 +1,12 @@
 import React, { useContext } from 'react';
+import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { StyleSheet, Text, View, TextInput,KeyboardAvoidingView,Pressable,SafeAreaView, Platform,Image, ScrollView } from 'react-native';
 import {useState} from 'react'
 import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
 import { createUserWithEmailAndPassword,updateProfile } from 'firebase/auth';
 import { doc, setDoc,collection, addDoc } from 'firebase/firestore';
 import { getAuth } from "firebase/auth";
-
-const eyeIcon = require("../assets/eye-icon.png");
-const hideEyeIcon = require("../assets/hide-eye-icon.png");
 
 export default function Register({navigation}) { 
   const [name,setName] = useState("");
@@ -106,9 +105,11 @@ export default function Register({navigation}) {
                       {
                         showPassword
                         ?
-                        <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        // <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5}}/>
                         :
-                        <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5}}/>
+                        // <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
                       }
                     </Pressable>
                   </View>
@@ -135,9 +136,11 @@ export default function Register({navigation}) {
                       {
                         showConfirmPassword
                         ?
-                        <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        // <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5}}/>
                         :
-                        <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5}}/>
+                        // <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
                       }
                     </Pressable>
                   </View>

@@ -1,26 +1,12 @@
-import { Button, Pressable, StyleSheet, Text, View,KeyboardAvoidingView, ScrollView, Image, TextInput } from 'react-native'
-import React, { useContext, useEffect, useState,useRef } from 'react'
-import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Pressable, StyleSheet, Text, View,KeyboardAvoidingView, ScrollView, Image, TextInput } from 'react-native'
+import React, {useEffect, useState,useRef } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import Workout from './Workout';
 import AppNavbar from './AppNavbar';
-import { getAuth, reload } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { useNavigation,useIsFocused} from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
-import { collection, getDocs } from "firebase/firestore";
-import { getStorage, ref,uploadBytes,getDownloadURL,deleteObject  } from "firebase/storage";
-import {LinearGradient} from 'expo-linear-gradient';
-import { useCallback } from 'react';
-import { useFonts } from 'expo-font';
-
-const logout = require("../assets/logout.png");
-const bellIcon = require("../assets/bell-icon.png");
-const searchIcon = require("../assets/search-icon.png");
-const searchIconBlack = require("../assets/search-icon-black.png");
-const crossIcon = require("../assets/cross-icon-white.png");
-const usersIcon = require("../assets/findUsers.png");
-const pfp = require("../assets/pfp.jpg");
-const settingsIcon = require("../assets/settings-icon.png");
+import { getStorage, ref,getDownloadURL  } from "firebase/storage";
 
 export default function Home() {
   const [showNavbar,setShowNavbar] = useState(true);
@@ -52,7 +38,6 @@ export default function Home() {
       setProfilePic("");
     });
   }
-
   
   useEffect(()=>{
     getProfileImage();
@@ -63,6 +48,7 @@ export default function Home() {
       getProfileImage();
     }
   },[isFocused])
+
 
   return (
     <View style={{height: '100%',width: '100%',flex: 1,paddingTop: 20}}>
@@ -83,8 +69,9 @@ export default function Home() {
                               ?
                               <Pressable onPress={()=>{
 
-                              }}>
-                                <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/>
+                              }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                                <FontAwesomeIcon icon="fa-solid fa-user" size={25} style={{color: '#fff'}}/>
                               </Pressable>
                               :
                               <Pressable onPress={()=>{
@@ -107,17 +94,20 @@ export default function Home() {
                           <Pressable onPress={()=>{
                             setSearchBar(true);
                           }} style={styles.headingTitleContainer}>
-                            <Image source={searchIconBlack} style={{height: 25,width: 25,marginRight: 15,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                            {/* <Image source={searchIconBlack} style={{height: 25,width: 25,marginRight: 15,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/> */}
+                            <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={20} style={{marginRight: 15}}/>
                           </Pressable>
-                          <View style={{justifyContent: 'center', borderRadius: 50,backgroundColor: '#353F4E',alignSelf: 'center',padding: 7.5}}>
-                            <Image source={bellIcon} style={{height: 22,width: 22}}/>
-                          </View>
+                          <Pressable style={{justifyContent: 'center', borderRadius: 50,backgroundColor: '#353F4E',alignSelf: 'center',padding: 7.5}}>
+                            {/* <Image source={bellIcon} style={{height: 22,width: 22}}/> */}
+                            <FontAwesomeIcon icon="fa-solid fa-bell" size={20} style={{color: '#fff'}}/>
+                          </Pressable>
                         </View>
                       </View>
                       :
                       <View style={{borderColor: '#455366',borderWidth: 1,display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',backgroundColor: '#1e1e1e',padding: 5,paddingLeft: 10,paddingRight: 15,borderRadius: 15,elevation: 5,width: '100%',marginBottom: 0}}>
                           <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
-                            <Image source={searchIcon} style={{height: 25,width: 25,display: 'flex',alignItems: 'center',marginRight: 5}}/>
+                            {/* <Image source={searchIcon} style={{height: 25,width: 25,display: 'flex',alignItems: 'center',marginRight: 5}}/> */}
+                            <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={18} style={{marginRight: 10,color: '#fff',}}/>
                             <TextInput ref={inputRef} value={searchText} placeholderTextColor='#ddd' placeholder='Search Workouts or Users' onChangeText={(text)=>{
                                 setSearchText(text);
                                 setSearchParams(text);
@@ -129,7 +119,8 @@ export default function Home() {
                             setSearchParams("");
                             setSearchText("");
                           }}>
-                            <Image source={crossIcon} style={{height: 15,width: 15,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                            {/* <Image source={crossIcon} style={{height: 15,width: 15,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/> */}
+                            <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#fff'}}/>
                           </Pressable>
                       </View> 
                     }
@@ -140,7 +131,6 @@ export default function Home() {
                 
                 <Workout searchParams={searchParams} showNavbar={setShowNavbar} uid={null} hideUserNavbar={setHideUserNavbar} searchBar={searchBar} isReload={isReload} userProfile={false}/>
             </ScrollView>
-            
         </ScrollView>
         <AppNavbar showNavbar={showNavbar}/>
     </View>

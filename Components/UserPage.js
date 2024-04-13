@@ -1,29 +1,16 @@
-import { Button, Pressable, StyleSheet, Text, View,KeyboardAvoidingView, ScrollView, Image,TouchableOpacity,SafeAreaView,Alert, TextInput } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
+import { Pressable, StyleSheet, Text, View, Image,Alert, TextInput } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from 'expo-file-system';
-import { FIREBASE_AUTH, FIREBASE_DB, firebaseConfig } from '../FirebaseConfig';
+import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
 import AppNavbar from './AppNavbar';
-import { collection, getDocs,doc,updateDoc, getDoc } from "firebase/firestore";
-import { getAuth, updateEmail,updateProfile,updatePassword,reauthenticateWithCredential,EmailAuthProvider,sendEmailVerification,deleteUser} from "firebase/auth";
+import { doc,updateDoc, getDoc } from "firebase/firestore";
+import { getAuth,updateProfile,updatePassword,reauthenticateWithCredential,EmailAuthProvider} from "firebase/auth";
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { getStorage, ref,uploadBytes,getDownloadURL,deleteObject  } from "firebase/storage";
 import Workout from './Workout';
-
-const logoutIcon = require("../assets/logout.png");
-const pfp = require("../assets/pfp.jpg");
-const addPfp = require("../assets/add-image.png");
-const crossIcon = require("../assets/cross-icon-black.png");
-const addPfpBlack = require("../assets/add-image-black.png");
-const deleteIcon = require("../assets/delete-icon.png");
-const settingsIcon = require("../assets/settings-icon.png");
-const accountIcon = require("../assets/account-icon-white.png");
-const lockIcon = require("../assets/lock-icon.png");
-const emailIcon = require("../assets/email-icon.png");
-const backIcon = require("../assets/back-arrow-icon.png");
-const eyeIcon = require("../assets/eye-icon.png");
-const hideEyeIcon = require("../assets/hide-eye-icon.png");
 
 const UserPage = () => {
     const [showNavbar,setShowNavbar] = useState(true);
@@ -189,7 +176,8 @@ const UserPage = () => {
           <Pressable onPress={()=>{
             setEnlargePfp(false);
           }}>
-            <Image source={crossIcon} style={{position: 'absolute',right: 0,height: 30,width: 30,borderRadius: 250}}/>
+            {/* <Image source={crossIcon} style={{position: 'absolute',right: 0,height: 30,width: 30,borderRadius: 250}}/> */}
+            <FontAwesomeIcon icon="fa-solid fa-xmark" size={30} style={{position: 'absolute',right: 0,top: 20,color: '#000'}}/>
           </Pressable>
           <View style={{position: 'absolute',left: 0,right: 0,top: 0,bottom: 0,margin:'auto',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
             {
@@ -201,13 +189,20 @@ const UserPage = () => {
                     ?
                     <Image src={image} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: 300,width: 300,borderRadius: 250}}/>
                     :
-                    <Image source={pfp} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: 300,width: 300,borderRadius: 250}}/>
+                    // <Image source={pfp} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: 300,width: 300,borderRadius: 250}}/>
+                    <Pressable onPress={()=>{
+
+                    }} style={{padding: 40,borderRadius: 500,backgroundColor: '#ddd'}}>
+                      {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                      <FontAwesomeIcon icon="fa-solid fa-user" size={200} style={{color: '#fff'}}/>
+                    </Pressable>
                   }
                   <View style={{display: 'flex',flexDirection: 'row',marginTop: 40,justifyContent: 'center'}}>
                     <Pressable onPress={()=>{
                       pickImage()
                     }} style={{backgroundColor: '#1e1e1e',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
-                      <Image source={addPfp} style={{height: 30,width: 30}}/>
+                      {/* <Image source={addPfp} style={{height: 30,width: 30}}/> */}
+                      <FontAwesomeIcon icon="fa-solid fa-image" size={25} style={{color: '#fff'}}/>
                     </Pressable>
                     {
                       image!=null
@@ -237,7 +232,8 @@ const UserPage = () => {
                     <Pressable onPress={()=>{
                       pickImage()
                     }} style={{backgroundColor: '#1e1e1e',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
-                      <Image source={addPfp} style={{height: 30,width: 30}}/>
+                      {/* <Image source={addPfp} style={{height: 30,width: 30}}/> */}
+                      <FontAwesomeIcon icon="fa-solid fa-image" size={25} style={{color: '#fff'}}/>
                     </Pressable>
                     <Pressable onPress={()=>{
                       deleteMedia()
@@ -245,7 +241,8 @@ const UserPage = () => {
                       setProfilePic("");
                       setDeletePfp(true);
                     }} style={{backgroundColor: '#000',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
-                      <Image source={deleteIcon} style={{height: 25,width: 25}}/>
+                      {/* <Image source={deleteIcon} style={{height: 25,width: 25}}/> */}
+                      <FontAwesomeIcon icon="fa-solid fa-trash" size={18} style={{color: '#fff'}}/>
                     </Pressable>
                     {
                       image!=null
@@ -284,14 +281,16 @@ const UserPage = () => {
                       <Pressable onPress={()=>{
                         setShowSettings(false);
                       }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                        <Image source={crossIcon} style={{height: 20,width: 20}}/>
+                        {/* <Image source={crossIcon} style={{height: 20,width: 20}}/> */}
+                        <FontAwesomeIcon icon="fa-solid fa-xmark" size={30} style={{color: '#000'}}/>
                       </Pressable>
                     </View>
                     <Pressable onPress={()=>{
                       setChangeDetails("Username")
                     }} style={{display: 'flex',marginTop: 20,flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'left',backgroundColor: '#1e1e1e',padding: 15,marginBottom: 20,borderRadius: 10}}>
                       <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                        <Image source={accountIcon} style={{height: 20,width: 20,marginRight: 10}}/>
+                        {/* <Image source={accountIcon} style={{height: 20,width: 20,marginRight: 10}}/> */}
+                        <FontAwesomeIcon size={20} icon="fa-solid fa-user" style={{height: 20,width: 20,marginRight: 10,color: '#fff'}}/>
                       </View>
                       <Text style={{fontSize: 17,textAlignVertical: 'center',color: '#fff',fontFamily: 'LeagueSpartan',textAlign: 'center'}}>Change Username</Text>
                     </Pressable>
@@ -299,7 +298,8 @@ const UserPage = () => {
                       setChangeDetails("Password")
                     }} style={{display: 'flex',flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'left',backgroundColor: '#1e1e1e',padding: 15,marginBottom: 20,borderRadius: 10}}>
                       <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                        <Image source={lockIcon} style={{height: 20,width: 20,marginRight: 10}}/>
+                        {/* <Image source={lockIcon} style={{height: 20,width: 20,marginRight: 10}}/> */}
+                        <FontAwesomeIcon icon="fa-solid fa-lock" size={20} style={{color: '#fff',marginRight: 10}}/>
                       </View>
                       <Text style={{fontSize: 17,textAlignVertical: 'center',color: '#fff',fontFamily: 'LeagueSpartan'}}>Change Password</Text>
                     </Pressable>
@@ -314,7 +314,8 @@ const UserPage = () => {
                             <Pressable onPress={()=>{
                               setChangeDetails("");
                             }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                <Image source={backIcon} style={{height: 40,width: 40}}/>
+                                {/* <Image source={backIcon} style={{height: 40,width: 40}}/> */}
+                                <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{marginRight: 10}}/>
                             </Pressable>
                             <View style={{borderBottomWidth:2,borderBottomColor: '#1e1e1e',paddingBottom: 5,alignSelf: 'flex-start'}}>
                               <Text style={{color:'#000',fontSize: 20,fontFamily: 'LeagueSpartan-Medium',textAlign: 'center',textAlignVertical: 'center'}}>Change Name</Text>
@@ -365,7 +366,8 @@ const UserPage = () => {
                                 <Pressable onPress={()=>{
                                   setChangeDetails("");
                                 }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                    <Image source={backIcon} style={{height: 40,width: 40}}/>
+                                    {/* <Image source={backIcon} style={{height: 40,width: 40}}/> */}
+                                    <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{marginRight: 10}}/>
                                 </Pressable>
                                 <View style={{borderBottomWidth:2,borderBottomColor: '#1e1e1e',paddingBottom: 5,alignSelf: 'flex-start'}}>
                                   <Text style={{color:'#000',fontSize: 20,fontFamily: 'LeagueSpartan-Medium',textAlign: 'center',textAlignVertical: 'center'}}>Change Password</Text>
@@ -382,9 +384,11 @@ const UserPage = () => {
                                   {
                                     showOldPassword
                                     ?
-                                    <Image source={hideEyeIcon} style={{height: 20,width: 20}}/>
+                                    // <Image source={hideEyeIcon} style={{height: 20,width: 20}}/>
+                                    <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{}}/>
                                     :
-                                    <Image source={eyeIcon} style={{height: 20,width: 20}}/>
+                                    // <Image source={eyeIcon} style={{height: 20,width: 20}}/>
+                                    <FontAwesomeIcon icon="fa-regular fa-eye" size={20} />
                                   }
                                 </Pressable>
                               </View>
@@ -398,9 +402,11 @@ const UserPage = () => {
                                   {
                                     showPassword
                                     ?
-                                    <Image source={hideEyeIcon} style={{height: 20,width: 20}}/>
+                                    // <Image source={hideEyeIcon} style={{height: 20,width: 20}}/>
+                                    <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{}}/>
                                     :
-                                    <Image source={eyeIcon} style={{height: 20,width: 20}}/>
+                                    // <Image source={eyeIcon} style={{height: 20,width: 20}}/>
+                                    <FontAwesomeIcon icon="fa-regular fa-eye" size={20} />
                                   }
                                 </Pressable>
                               </View>
@@ -414,9 +420,11 @@ const UserPage = () => {
                                   {
                                     showRePassword
                                     ?
-                                    <Image source={hideEyeIcon} style={{height: 20,width: 20}}/>
+                                    // <Image source={hideEyeIcon} style={{height: 20,width: 20}}/>
+                                    <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{}}/>
                                     :
-                                    <Image source={eyeIcon} style={{height: 20,width: 20}}/>
+                                    // <Image source={eyeIcon} style={{height: 20,width: 20}}/>
+                                    <FontAwesomeIcon icon="fa-regular fa-eye" size={20} />
                                   }
                                 </Pressable>
                               </View>
@@ -487,9 +495,10 @@ const UserPage = () => {
                         profilePic==""
                         ?
                         <Pressable onPress={()=>{
-                          showPfp();
-                        }} style={{position: 'relative'}}>
-                          <Image source={pfp} style={{height: 60,width: 60,borderRadius: 50,borderWidth: 2,borderColor: '#ddd'}}/>
+                          showPfp()
+                        }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                          {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                          <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
                         </Pressable>
                         :
                         <Pressable onPress={()=>{
@@ -508,16 +517,18 @@ const UserPage = () => {
                     ?
                     <Pressable onPress={()=>{
                       setShowSettings(true);
-                    }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginRight:5}}>
-                      <Image source={settingsIcon} style={{height: 30,width: 30}}/>
+                    }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginRight:7.5}}>
+                      {/* <Image source={settingsIcon} style={{height: 30,width: 30}}/> */}
+                      <FontAwesomeIcon icon="fa-solid fa-gear" size={25}/>
                     </Pressable>
                     :
                     null
                   }
                   <Pressable onPress={()=>{
                     handleLogout();
-                  }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginLeft:5}}>
-                      <Image source={logoutIcon} style={{height: 25,width: 25}}/>
+                  }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginLeft:7.5}}>
+                      {/* <Image source={logoutIcon} style={{height: 25,width: 25}}/> */}
+                      <FontAwesomeIcon icon="fa-solid fa-arrow-right-from-bracket" size={25}/>
                   </Pressable>
                 </View>
               </View>

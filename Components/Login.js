@@ -1,14 +1,13 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { StyleSheet, Text, View, TextInput,KeyboardAvoidingView,Pressable,SafeAreaView, Platform,Image,ScrollView } from 'react-native';
 import {useState} from 'react'
 import { FIREBASE_AUTH, provider } from '../FirebaseConfig';
 import {signInWithEmailAndPassword} from 'firebase/auth';
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-
-const eyeIcon = require("../assets/eye-icon.png");
-const hideEyeIcon = require("../assets/hide-eye-icon.png");
+import { getAuth } from "firebase/auth";
 
 export default function Login({navigation}) {  
+
   const [email,setEmail] = useState("");
   const [password,setPassword] = useState("");
   const [error,setError] = useState("");
@@ -24,8 +23,8 @@ export default function Login({navigation}) {
   const handleLogin = async () => {
     setLoading(true);
     try{
-      const resposne = await signInWithEmailAndPassword(auth,email,password);
-      console.log(resposne);
+      const response = await signInWithEmailAndPassword(auth,email,password);
+      console.log(response);
     }
     catch(err){
       console.log("handleLogin",err);
@@ -36,23 +35,6 @@ export default function Login({navigation}) {
     }
   }
 
-  const googleSignIn = () => {
-    const googleAuth = getAuth();
-
-    signInWithPopup(googleAuth, provider)
-      .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        const user = result.user;
-      }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        const email = error.customData.email;
-        const credential = GoogleAuthProvider.credentialFromError(error);
-
-        console.log("google error",error);
-      });
-  }
 
   return (
     <ScrollView style={{height: '100%',backgroundColor: '#fff',display: 'flex'}} keyboardShouldPersistTaps='handled' contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
@@ -94,9 +76,11 @@ export default function Login({navigation}) {
                     {
                       showPassword
                       ?
-                      <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                      // <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                      <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5}}/>
                       :
-                      <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                      // <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                      <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5}}/>
                     }
                   </Pressable>
                 </View>

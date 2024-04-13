@@ -1,17 +1,12 @@
 import { Button, Pressable, StyleSheet, Text, View,KeyboardAvoidingView, ScrollView, Image, TextInput } from 'react-native'
 import React, { useContext, useEffect, useState,useRef } from 'react'
-import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import AppNavbar from './AppNavbar';
+import {FIREBASE_DB } from '../FirebaseConfig';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { getAuth } from "firebase/auth";
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { collection, getDocs } from "firebase/firestore";
-import { getStorage, ref,uploadBytes,getDownloadURL } from "firebase/storage";
-
-const backIconBlack = require("../assets/back-arrow-icon.png");
-const pfp = require("../assets/pfp.jpg");
-const searchIcon = require("../assets/search-icon.png");
+import { getStorage, ref,getDownloadURL } from "firebase/storage";
 
 export const FindUsers = () => {
     const [userList,setUserList] = useState([]);
@@ -46,7 +41,7 @@ export const FindUsers = () => {
         })
         .catch((error) => {
           // Handle any errors
-          console.log("error")
+          console.log(error)
         });
     }
 
@@ -76,9 +71,11 @@ export const FindUsers = () => {
                     <Pressable onPress={()=>{
                         navigation.navigate('Home');
                     }}>
-                        <Image source={backIconBlack} style={{height: 35,width: 35}}/>
+                        {/* <Image source={backIconBlack} style={{height: 35,width: 35}}/> */}
+                        <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{marginRight: 10}}/>
                     </Pressable>
-                    <Image source={searchIcon} style={{height: 25,width: 25,position: 'absolute',left: 55}}/>
+                    {/* <Image source={searchIcon} style={{height: 25,width: 25,position: 'absolute',left: 55}}/> */}
+                    <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={25} style={{position: 'absolute',left: 55}}/>
                     <TextInput onChangeText={(text)=>{
                         setSearchText(text);
                         searchUsers(text)
@@ -91,7 +88,12 @@ export const FindUsers = () => {
                         {
                             profilePic==""
                             ?
-                            <Image source={pfp} style={{height: 35,width: 35,borderRadius: 50}}/>
+                            <Pressable onPress={()=>{
+
+                            }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                              {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                              <FontAwesomeIcon icon="fa-solid fa-user" size={30} style={{color: '#fff'}}/>
+                            </Pressable>
                             :
                             <Image src={profilePic} style={{height: 35,width: 35,borderRadius: 50}}/>
                         }
@@ -117,7 +119,12 @@ export const FindUsers = () => {
                                             {
                                                 user.profileUrl=="" || user.profileUrl==undefined
                                                 ?
-                                                <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
+                                                <Pressable onPress={()=>{
+
+                                                }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                  {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                                                  <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
+                                                </Pressable>
                                                 :
                                                 <Image src={user.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
                                             }

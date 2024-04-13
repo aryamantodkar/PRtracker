@@ -1,6 +1,7 @@
 import { Button, Pressable, StyleSheet, Text, View,KeyboardAvoidingView, ScrollView, Image, TextInput,ActivityIndicator } from 'react-native'
 import React, { useContext, useEffect, useState,useRef } from 'react'
 import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppNavbar from './AppNavbar';
 import { getAuth } from "firebase/auth";
@@ -8,12 +9,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { collection, getDocs,doc,updateDoc, getDoc } from "firebase/firestore";
 import Workout from './Workout';
-
-const pfp = require("../assets/pfp.jpg");
-const settingsIcon = require("../assets/settings-icon.png");
-const upArrowIcon = require("../assets/up-arrow-icon.png");
-const downArrowIconWhite = require("../assets/down-arrow-icon-white.png");
-const backIconBlack = require("../assets/back-arrow-icon.png");
 
 
 export const IndividualUser = () => {
@@ -118,14 +113,20 @@ export const IndividualUser = () => {
                 ?
                 <ScrollView style={styles.home}>
                     <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',position: 'relative'}}>
-                        <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',marginLeft: -10}}>
+                        <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',}}>
                             <Pressable onPress={()=>{
                                 navigation.goBack();
                             }} style={{margin: 0,padding: 0}}>
-                                <Image source={backIconBlack} style={{height: 35,width: 35}}/>
+                                {/* <Image source={backIconBlack} style={{height: 35,width: 35}}/> */}
+                                <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{marginRight: 10}}/>
                             </Pressable>
                             <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
-                                <Image source={pfp} style={{height: 55,width: 55,borderRadius: 50}}/>
+                                <Pressable onPress={()=>{
+
+                                }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                                <FontAwesomeIcon icon="fa-solid fa-user" size={25} style={{color: '#fff'}}/>
+                                </Pressable>
                                 <View style={{display: 'flex',flexDirection: 'column',marginLeft: 10}}>
                                     <Text style={{fontSize: 18,fontWeight: '600',color: '#404040'}}>{name}</Text>
                                     <Text style={{fontSize: 12,fontWeight: '400',color: '#696969'}}>Pune, Maharashtra</Text>
@@ -143,7 +144,8 @@ export const IndividualUser = () => {
                                         setTooltip(true);
                                     }} style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',alignItems: 'center',backgroundColor: 'black',height: 30,width: 90,paddingLeft:5,paddingRight: 5,borderRadius: 5}}>
                                         <Text style={{color: 'white',fontSize: 13,fontWeight: '600',textAlign:'center'}}>Following</Text>
-                                        <Image source={downArrowIconWhite} style={{height: 18,width: 18,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                                        {/* <Image source={downArrowIconWhite} style={{height: 18,width: 18,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/> */}
+                                        <FontAwesomeIcon icon="fa-solid fa-angle-down" size={18} style={{color: '#fff'}}/>
                                     </Pressable>
                                     :
                                     <View style={{display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',height: 75,width: 90}}>
@@ -151,7 +153,8 @@ export const IndividualUser = () => {
                                             setTooltip(false);
                                         }} style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',alignItems: 'center',borderWidth: 1.5,borderColor: '#DDD',padding: 5,borderRadius: 5,width: 90}}>
                                             <Text style={{color: 'black',fontSize: 13,fontWeight: '600',textAlign:'center'}}>Following</Text>
-                                            <Image source={upArrowIcon} style={{height: 18,width: 18,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                                            <FontAwesomeIcon icon="fa-solid fa-angle-up" size={18}/>
+                                            {/* <Image source={upArrowIcon} style={{height: 18,width: 18,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/> */}
                                         </Pressable>
                                         <Pressable onPress={()=>{
                                             removeFollower();

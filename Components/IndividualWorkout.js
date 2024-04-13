@@ -6,6 +6,8 @@ import Animated, {
     Easing,
     withRepeat,
   } from 'react-native-reanimated';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faHeart } from '@fortawesome/free-regular-svg-icons'
 import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView, TextInput,ActivityIndicator } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import { collection, query, where, getDocs,doc,deleteDoc,updateDoc,getDoc,serverTimestamp,Timestamp } from "firebase/firestore";
@@ -15,25 +17,6 @@ import { useRoute } from '@react-navigation/native';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { useFonts } from 'expo-font';
-
-
-const backIconWhite = require("../assets/back-arrow-icon-white.png");
-const backIconBlack = require("../assets/back-arrow-icon.png");
-const editIcon = require("../assets/edit-icon.png");
-const deleteIcon = require("../assets/delete-icon.png");
-const crossIcon = require("../assets/cross-icon-white.png");
-const plusIconWhite = require("../assets/plus-icon-white.png");
-const tickIcon = require("../assets/tick-icon.png");
-const deleteIconBlack = require("../assets/delete-icon-black.png");
-const pfp = require("../assets/pfp.jpg");
-const like = require("../assets/like-icon-outline.png");
-const likeBlack = require("../assets/like-icon-outline-black.png");
-const likeBlue = require("../assets/like-icon-blue.png");
-const comment = require("../assets/comment-icon.png");
-const commentBlack = require("../assets/comment-icon-black.png");
-const addComment = require("../assets/add-comment.png");
-const downArrow = require("../assets/down-arrow-icon-white.png");
-const upArrow = require("../assets/up-arrow-icon-white.png");
 
 
 const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,followingUserArray,setFollowingUserArray}) => {
@@ -107,6 +90,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
             setUserPfp(nameSnap.data().profileUrl)
         }
     }
+    
     useEffect(()=>{
         if(uid!=null){
             userID = uid;
@@ -165,14 +149,17 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
         const nameSnap = await getDoc(nameRef);
         
         let name = "";
+        let profileUrl = "";
 
         if(nameSnap.exists()){
             name = nameSnap.data().name;
+            profileUrl = nameSnap.data().profileUrl;
         }
 
         likeArray.push({
             uid: userID,
-            name: name
+            name: name,
+            profileUrl: profileUrl
         });
         
         const likeRef = doc(FIREBASE_DB, `${uid}`, `${docID}`);
@@ -221,10 +208,6 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
         let docID = "";
         let commentArray = [];
 
-        if(uid==null){
-            uid = userID;
-        }
-
         const querySnapshot = await getDocs(collection(FIREBASE_DB, `${uid}`));
         querySnapshot.forEach((doc) => {
             if(clickedWorkout.id==doc.data().id){
@@ -265,6 +248,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
             ...clickedWorkout,
             comments: commentArray
         })
+
         setCommentInput("");
         setIsLoading(false);
     }
@@ -415,7 +399,12 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                 {
                     userPfp==""
                     ?
-                    <Image source={pfp} style={{height: 45,width: 45,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
+                    <Pressable onPress={()=>{
+
+                    }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                      {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                      <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
+                    </Pressable>
                     :
                     <Image src={userPfp} style={{height: 45,width: 45,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',}}/>
                 }
@@ -525,7 +514,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
 
                                 setClickedWorkout(originalClickedWorkout);
                             }}>
-                                <Image source={crossIcon} style={{height: 18,width: 18,marginRight: 10}}/>
+                                {/* <Image source={crossIcon} style={{height: 18,width: 18,marginRight: 10}}/> */}
+                                <FontAwesomeIcon icon="fa-solid fa-xmark" size={25} style={{color: '#fff'}}/>
                             </Pressable>
                             <Pressable onPress={async ()=>{
                                 setEditWorkout(false);
@@ -534,7 +524,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                 const nameRef = doc(FIREBASE_DB, `${userID}`, `${docID}`);
                                 await updateDoc(nameRef, clickedWorkout);
                             }}>
-                                <Image source={tickIcon} style={{height: 20,width: 20,marginRight: 10,marginLeft: 10}}></Image>
+                                {/* <Image source={tickIcon} style={{height: 20,width: 20,marginRight: 10,marginLeft: 10}}></Image> */}
+                                <FontAwesomeIcon icon="fa-solid fa-check" size={22} style={{color: '#fff',marginLeft: 10,marginRight: 10}}/>
                             </Pressable>
                         </View>
                     </View>
@@ -565,7 +556,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
 
                         }} style={{backgroundColor: '#3e3e3e',width: '100%',display: 'flex',justifyContent: 'space-between',alignItems: 'center',marginLeft: 'auto',marginRight: 'auto',padding: 10,paddingLeft: 15,paddingRight: 15,borderRadius: 5,flexDirection: 'row',marginBottom: 20}}>
                             <Text style={{color: '#fff',fontSize: 18,fontFamily: 'LeagueSpartan'}}>Add Exercise</Text>
-                            <Image source={plusIconWhite} style={{height: 15,width: 15}}/>
+                            {/* <Image source={plusIconWhite} style={{height: 15,width: 15}}/> */}
+                            <FontAwesomeIcon icon="fa-solid fa-plus" size={20} style={{color: '#fff'}}/>
                         </Pressable>
                         {
                             clickedWorkout.allWorkouts!=undefined
@@ -583,13 +575,15 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                         <Pressable onPress={()=>{
                                                             setEditedDropdownArray(editedDropdownArray.filter(arr => arr != exercises.id))
                                                         }}>
-                                                            <Image source={upArrow} style={{display: 'flex',height: 30,width: 30,alignItems: 'center',justifyContent: 'center',marginRight: 5}}></Image>
+                                                            {/* <Image source={upArrow} style={{display: 'flex',height: 30,width: 30,alignItems: 'center',justifyContent: 'center',marginRight: 5}}></Image> */}
+                                                            <FontAwesomeIcon icon="fa-solid fa-angle-up" size={20} style={{color: '#fff',marginRight: 10}}/>
                                                         </Pressable>
                                                         :
                                                         <Pressable onPress={()=>{
                                                             setEditedDropdownArray([...editedDropdownArray,exercises.id])
                                                         }}>
-                                                            <Image source={downArrow} style={{display: 'flex',height: 30,width: 30,alignItems: 'center',justifyContent: 'center',marginRight: 5}}></Image>
+                                                            {/* <Image source={downArrow} style={{display: 'flex',height: 30,width: 30,alignItems: 'center',justifyContent: 'center',marginRight: 5}}></Image> */}
+                                                            <FontAwesomeIcon icon="fa-solid fa-angle-down" size={20} style={{color: '#fff',marginRight: 5}} />
                                                         </Pressable>
                                                     }
                                                     <TextInput value={exercises.exerciseName} onChangeText={async (text) => {
@@ -645,7 +639,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                         setEditedDropdownArray([...editedDropdownArray,exercises.id])
                                                         }} style={{backgroundColor: '#3e3e3e',padding: 10,borderRadius: 50,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',paddingLeft: 10,paddingRight: 10,marginLeft: 10}}>
                                                         
-                                                        <Image source={plusIconWhite} style={{height: 15,width: 15}}/>
+                                                        {/* <Image source={plusIconWhite} style={{height: 15,width: 15}}/> */}
+                                                        <FontAwesomeIcon icon="fa-solid fa-plus" size={20} style={{color: '#fff'}}/>
                                                     </Pressable>
                                                     <Pressable onPress={()=>{
                                                         const replaceArray = clickedWorkout.allWorkouts.filter(arr => arr.id!=exercises.id);
@@ -669,7 +664,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                         });
 
                                                     }} style={{backgroundColor: '#3e3e3e',padding: 10,borderRadius: 50,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',paddingLeft: 10,paddingRight: 10,marginLeft: 10}}>
-                                                        <Image source={deleteIcon} style={{height: 15,width: 15}}/>
+                                                        {/* <Image source={deleteIcon} style={{height: 15,width: 15}}/> */}
+                                                        <FontAwesomeIcon icon="fa-solid fa-trash" size={18} style={{color: '#fff'}}/>
                                                     </Pressable>
                                                 </View>
                                             </View>
@@ -788,7 +784,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                                         });
 
                                                                     }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                        <Image source={deleteIcon} style={{height: 21,width: 21}}/>
+                                                                        {/* <Image source={deleteIcon} style={{height: 21,width: 21}}/> */}
+                                                                        <FontAwesomeIcon icon="fa-solid fa-trash" size={18} style={{color: '#fff'}}/>
                                                                     </Pressable>
                                                                 </View>
                                                             )
@@ -861,13 +858,19 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                     }
                                                 }
                                             }}>
-                                                <Image source={backIconWhite} style={{display: 'flex',height: 35,width: 35,alignItems: 'center',justifyContent: 'center'}}></Image>
+                                                {/* <Image source={backIconWhite} style={{display: 'flex',height: 35,width: 35,alignItems: 'center',justifyContent: 'center'}}></Image> */}
+                                                <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{color: '#fff',marginRight: 10}}/>
                                             </Pressable>
                                             <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
                                                 {
                                                     userPfp==""
                                                     ?
-                                                    <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
+                                                    <Pressable onPress={()=>{
+
+                                                    }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                      {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                                                      <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
+                                                    </Pressable>
                                                     :
                                                     <Image src={userPfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',}}/>
                                                 }
@@ -886,7 +889,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                             <Pressable onPress={()=>{
                                                 setEditWorkout(true);
                                             }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                <Image source={editIcon} style={{height: 20,width: 20,marginRight: 20}}/>
+                                                {/* <Image source={editIcon} style={{height: 20,width: 20,marginRight: 20}}/> */}
+                                                <FontAwesomeIcon icon="fa-solid fa-pen" size={20} style={{color: '#fff',marginRight: 20}}/>
                                             </Pressable>
                                             <Pressable onPress={()=>{
                                                 deleteWorkout();
@@ -898,7 +902,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                     hideUserNavbar(false);
                                                 }
                                             }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                <Image source={deleteIcon} style={{height: 20,width: 20,marginRight: 10}}/>
+                                                {/* <Image source={deleteIcon} style={{height: 20,width: 20,marginRight: 10}}/> */}
+                                                <FontAwesomeIcon icon="fa-solid fa-trash" size={20} style={{color: '#fff',marginRight: 10}}/>
                                             </Pressable>
                                         </View>
                                         :
@@ -929,13 +934,15 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                             <Pressable onPress={()=>{
                                                                 setDropdownArray(dropdownArray.filter(arr => arr != exercises.id))
                                                             }}>
-                                                                <Image source={upArrow} style={{display: 'flex',height: 30,width: 30,alignItems: 'center',justifyContent: 'center',marginRight: 5}}></Image>
+                                                                {/* <Image source={upArrow} style={{display: 'flex',height: 30,width: 30,alignItems: 'center',justifyContent: 'center',marginRight: 5}}></Image> */}
+                                                                <FontAwesomeIcon icon="fa-solid fa-angle-up" size={20} style={{color: '#fff',marginRight: 10}}/>
                                                             </Pressable>
                                                             :
                                                             <Pressable onPress={()=>{
                                                                 setDropdownArray([...dropdownArray,exercises.id])
                                                             }}>
-                                                                <Image source={downArrow} style={{display: 'flex',height: 30,width: 30,alignItems: 'center',justifyContent: 'center',marginRight: 5}}></Image>
+                                                                {/* <Image source={downArrow} style={{display: 'flex',height: 30,width: 30,alignItems: 'center',justifyContent: 'center',marginRight: 5}}></Image> */}
+                                                                <FontAwesomeIcon icon="fa-solid fa-angle-down" size={20} style={{color: '#fff',marginRight: 10}} />
                                                             </Pressable>
                                                         }
                                                         <View style={{borderBottomColor: '#2B8CFF',borderBottomWidth: 2,paddingBottom: 5}}>
@@ -1053,17 +1060,20 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                             <Pressable onPress={()=>{
                                                 unlikeWorkout(clickedWorkout)
                                             }}>
-                                                <Image source={likeBlue} style={styles.likeIcon}/>
+                                                {/* <Image source={likeBlue} style={styles.likeIcon}/> */}
+                                                <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red'}}/>
                                             </Pressable>
                                             :
                                             <Pressable onPress={()=>{
                                                 likeWorkout(clickedWorkout)
                                             }}>
-                                                <Image source={like} style={styles.likeIcon}/>
+                                                {/* <Image source={like} style={styles.likeIcon}/> */}
+                                                <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff'}}/>
                                             </Pressable>
                                         }
                                         <Pressable>
-                                            <Image source={comment} style={styles.commentIcon}/>
+                                            {/* <Image source={comment} style={styles.commentIcon}/> */}
+                                            <FontAwesomeIcon icon="fa-regular fa-comment" size={20} style={{color: '#fff'}}/>
                                         </Pressable>
                                     </View>
                                 </View>
@@ -1072,7 +1082,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                             <ScrollView  style={{backgroundColor: '#1e1e1e',borderColor: '#DDD',borderWidth: 1,marginTop: 30,borderRadius: 15,padding: 20,position: 'relative'}}>
                                 <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start',marginBottom: 10}}>
                                     <View style={{marginRight: 10,justifyContent: 'center',alignItems: 'center'}}>
-                                        <Image source={comment} style={styles.commentIcon}/>
+                                        {/* <Image source={comment} style={styles.commentIcon}/> */}
+                                        <FontAwesomeIcon icon="fa-regular fa-comment" size={20} style={{color: '#fff'}}/>
                                     </View>
                                     <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
                                         <Text style={{fontSize: 18,color: '#fff',textAlignVertical: 'center',textAlign: 'center',fontWeight: '500',fontFamily: 'LeagueSpartan'}}>{clickedWorkout.comments.length} Comments</Text>
@@ -1095,7 +1106,12 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                             {
                                                                 comment.profileUrl=="" || comment.profileUrl==undefined
                                                                 ?
-                                                                <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#ddd',}}/>
+                                                                <Pressable onPress={()=>{
+
+                                                                }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                                  {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                                                                  <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
+                                                                </Pressable>
                                                                 :
                                                                 <Image src={comment.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#ddd',}}/>
                                                             }
@@ -1116,13 +1132,15 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                                 <Pressable onPress={()=>{
                                                                     unlikeComment(comment)
                                                                 }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center'}}>
-                                                                    <Image source={likeBlue} style={{height: 14,width: 14}}/>
+                                                                    {/* <Image source={likeBlue} style={{height: 14,width: 14}}/> */}
+                                                                    <FontAwesomeIcon icon="fa-solid fa-heart" size={15} style={{color: 'red'}}/>
                                                                 </Pressable>
                                                                 :
                                                                 <Pressable onPress={()=>{
                                                                     likeComment(comment)
                                                                 }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center'}}>
-                                                                    <Image source={likeBlack} style={{height: 14,width: 14}}/>
+                                                                    {/* <Image source={likeBlack} style={{height: 14,width: 14}}/> */}
+                                                                    <FontAwesomeIcon icon={faHeart} size={15} style={{color: '#fff'}}/>
                                                                 </Pressable>
                                                             }
                                                             <Pressable style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginLeft: 5}}>
@@ -1146,8 +1164,9 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                     ?
                                                     <Pressable onPress={()=>{
                                                         deleteComment(clickedWorkout,comment)
-                                                    }} style={{position: 'absolute',top: 18,right: 10}}>
-                                                        <Image source={deleteIcon} style={{height: 20,width: 20}}/>
+                                                    }} style={{position: 'absolute',top: 20,right: 10}}>
+                                                        {/* <Image source={deleteIcon} style={{height: 20,width: 20}}/> */}
+                                                        <FontAwesomeIcon icon="fa-solid fa-trash" size={18} style={{color: '#fff'}}/>
                                                     </Pressable>
                                                     :
                                                     null
@@ -1160,26 +1179,28 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                     <TextInput value={commentInput} onChangeText={(text)=>{
                                         setCommentInput(text);
                                     }} placeholder='Add a comment' placeholderTextColor='#fff' style={{width: '85%',fontFamily: 'LeagueSpartan',minHeight:30,fontSize: 17,color: '#fff',backgroundColor: '#363636',padding: 10,paddingLeft: 15,borderRadius: 15,paddingTop: 5,paddingBottom: 5}}/>
-                                    <Pressable style={{justifyContent: 'center',alignItems: 'center',marginLeft: 10}} onPress={()=>{
+                                    <Pressable style={{justifyContent: 'center',alignItems: 'center',backgroundColor: '#3e3e3e',padding: 7.5,borderRadius: 50}} onPress={()=>{
                                         addComments(clickedWorkout)
                                     }}>
-                                        <Image source={addComment} style={{height: 30,width:31}}/>
+                                        {/* <Image source={addComment} style={{height: 30,width:31}}/> */}
+                                        <FontAwesomeIcon icon="fa-solid fa-arrow-up" size={25} style={{color: '#fff'}}/>
                                     </Pressable>
                                 </View>
                             </ScrollView>
                         </ScrollView>
                         :
-                        <ScrollView  contentContainerStyle={{width: '100%',display: 'flex',marginTop: 20,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
+                        <ScrollView  contentContainerStyle={{width: '100%',backgroundColor: '#1e1e1e',display: 'flex',marginTop: 40,marginBottom: 50,minHeight: 500,borderRadius: 10,padding: 20}}>
                             <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative',marginBottom: 20}}>
                                 <View style={{position: 'absolute',left: 0}}>
                                     <Pressable onPress={()=>{
                                         setShowLikesBool(false);
                                     }} >
-                                        <Image source={backIconBlack} style={{height: 30,width: 30,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                                        {/* <Image source={backIconWhite} style={{height: 30,width: 30,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/> */}
+                                        <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{color: '#fff',marginRight: 10}}/>
                                     </Pressable>
                                 </View>
                                 <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
-                                    <Text style={{display: 'flex',textAlign: 'center',fontSize: 20,fontWeight: '500',borderBottomColor: 'black',borderBottomWidth: 2}}>Likes</Text>
+                                    <Text style={{display: 'flex',textAlign: 'center',fontSize: 22,fontWeight: '500',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,color: '#fff',fontFamily:'LeagueSpartan'}}>Likes</Text>
                                 </View>
                             </View>
                             {
@@ -1187,8 +1208,8 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                 ?
                                 likedUsers.map(user => {
                                     return(
-                                        <View key={user.uid} style={{marginTop: 15,borderRadius:25,backgroundColor: '#f5f4f4',borderWidth: 1,borderColor: '#DDD'}}>
-                                            <View  style={{display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 7.5,backgroundColor: 'white',margin: 7.5,borderRadius: 20,elevation: 5,paddingLeft: 10,paddingRight: 10,alignItems: 'center',justifyContent: 'space-between'}}>
+                                        <View key={user.uid} style={{marginTop: 15,width: '100%'}}>
+                                            <View  style={{display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 10,backgroundColor: '#3e3e3e',margin: 7.5,borderRadius: 10,paddingLeft: 15,paddingRight: 15,alignItems: 'center',justifyContent: 'space-between'}}>
                                                 <View style={{display:'flex',flexDirection: 'row',justifyContent:'center',alignItems: 'center'}}>
                                                     <Pressable onPress={() => {
                                                         navigation.navigate('UserPage')
@@ -1196,16 +1217,22 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                         {
                                                             user.profileUrl=="" || user.profileUrl==undefined
                                                             ?
-                                                            <Image source={pfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
+                                                            <Pressable onPress={()=>{
+
+                                                            }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                              {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                                                              <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
+                                                            </Pressable>
                                                             :
                                                             <Image src={user.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
                                                         }
                                                     </Pressable>
-                                                    <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 15,color: '#444444',fontWeight: '500'}}>{user.name}</Text>
+                                                    <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 17,color: '#fff',fontWeight: '500',fontFamily:'LeagueSpartan'}}>{user.name}</Text>
                                                 </View>
                                                 <View style={{marginRight: 10}}>
                                                     <Pressable>
-                                                        <Image source={likeBlue} style={{height: 20,width: 20}}/>
+                                                        {/* <Image source={likeBlue} style={{height: 20,width: 20}}/> */}
+                                                        <FontAwesomeIcon icon="fa-solid fa-heart" size={20} style={{color: 'red'}}/>
                                                     </Pressable>
                                                 </View>
                                             </View>

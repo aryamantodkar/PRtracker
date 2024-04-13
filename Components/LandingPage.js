@@ -1,10 +1,15 @@
-import React from 'react';
-import { StyleSheet, Text, View,Pressable, Image, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View,Pressable, Image, SafeAreaView, ActivityIndicator } from 'react-native';
 import { useFonts } from 'expo-font';
 import { useCallback } from 'react';
-const bg = require("../assets/bgImage.jpg");
+import { useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
+import { getStorage, ref,getDownloadURL } from "firebase/storage";
 
-export default function LandingPage({navigation}) {
+export const LandingPage = () => {
+  const [bgImage,setBgImage] = useState("");
+  const [isLoading,setIsLoading] = useState(true);
+
   const [fontsLoaded, fontError] = useFonts({
     'JosefinSans': require('../assets/fonts/JosefinSans-Regular.ttf'),
     'JosefinSans-Bold': require('../assets/fonts/JosefinSans-Bold.ttf'),
@@ -13,15 +18,37 @@ export default function LandingPage({navigation}) {
     'LeagueSpartan-Medium': require('../assets/fonts/LeagueSpartan-Medium.ttf'),
   });
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded || fontError) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
+  // const onLayoutRootView = useCallback(async () => {
+  //   if (fontsLoaded || fontError) {
+  //     await SplashScreen.hideAsync();
+  //   }
+  // }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
+  // if (!fontsLoaded && !fontError) {
+  //   return null;
+  // }
+
+  useEffect(()=>{
+    const getProfileImage = async () => {
+        await getDownloadURL(ref(storage, `bgImage.jpg`))
+        .then((url) => {
+          setBgImage(url);
+          setIsLoading(false)
+        })
+        .catch((error) => {
+          // Handle any errors
+          console.log(error)
+        });
+    }
+
+    getProfileImage()
+  },[])
+
+  
+
+  const storage = getStorage();
+  const navigation = useNavigation();
+  const route = useRoute();
 
   const goToLogin = () => {
     navigation.navigate('Login');
@@ -30,27 +57,32 @@ export default function LandingPage({navigation}) {
   const goToRegister = () => {
     navigation.navigate('Register');
   }
-  
 
-  return (
-    <SafeAreaView style={styles.homepage}>
-        <Image source={bg} style={styles.bgImage}/>
-        <View style={styles.homecontent}>
-          <View style={styles.headingContainer}>
-            <Text style={styles.heading}>Track your workouts.</Text>
-            <Text style={styles.subHeading}>Simple and Fast.</Text>
+
+  if(isLoading){
+    <ActivityIndicator size="large" color="#000" />
+  }
+  else{
+    return (
+      <SafeAreaView style={styles.homepage}>
+          <Image src={bgImage} style={styles.bgImage}/>
+          <View style={styles.homecontent}>
+            <View style={styles.headingContainer}>
+              <Text style={styles.heading}>Track your workouts.</Text>
+              <Text style={styles.subHeading}>Simple and Fast.</Text>
+            </View>
+            <View style={styles.btnContainer}>
+              <Pressable style={styles.btn} onPress={goToLogin}>
+                <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign In</Text>
+              </Pressable>
+              <Pressable style={styles.btn} onPress={goToRegister}>
+                <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign Up</Text>
+              </Pressable>
+            </View>
           </View>
-          <View style={styles.btnContainer}>
-            <Pressable style={styles.btn} onPress={goToLogin}>
-              <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign In</Text>
-            </Pressable>
-            <Pressable style={styles.btn} onPress={goToRegister}>
-              <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign Up</Text>
-            </Pressable>
-          </View>
-        </View>
-    </SafeAreaView>
-  );
+      </SafeAreaView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({

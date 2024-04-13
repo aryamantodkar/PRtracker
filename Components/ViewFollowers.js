@@ -6,16 +6,13 @@ import Animated, {
     Easing,
     withRepeat,
   } from 'react-native-reanimated';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView,ActivityIndicator } from 'react-native'
 import { collection, query, where, getDocs,doc,getDoc,updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { FIREBASE_DB } from '../FirebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
-
-const pfp = require("../assets/pfp.jpg");
-const backIconBlack = require("../assets/back-arrow-icon.png");
-const crossIcon = require("../assets/cross-icon-white.png");
 
 export default function ViewFollowers() {
     const [followingArray,setFollowingArray] = useState([]);
@@ -271,8 +268,9 @@ export default function ViewFollowers() {
                         <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10,alignItems: 'center'}}>
                             <Pressable onPress={()=>{
                                 navigation.goBack();
-                            }} style={{position: 'absolute',left: 0}}>
-                                <Image source={backIconBlack} style={{height: 35,width: 35}}/>
+                            }} style={{position: 'absolute',left: 10}}>
+                                {/* <Image source={backIconBlack} style={{height: 35,width: 35}}/> */}
+                                <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{}}/>
                             </Pressable>
                             <Pressable style={{display: 'flex',flexDirection: 'row'}}>
                                 <Text style={{color: '#000',fontSize: 20,fontWeight: '600',fontFamily: 'LeagueSpartan-Medium',marginRight: 10}}>{followersArray.length}</Text>
@@ -307,7 +305,12 @@ export default function ViewFollowers() {
                                                         {
                                                             user.profileUrl=="" || user.profileUrl==undefined
                                                             ?
-                                                            <Image source={pfp} style={{height: 45,width: 45,borderRadius: 50,borderColor: '#DDD',borderWidth: 2}}/>
+                                                            <Pressable onPress={()=>{
+
+                                                            }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                              {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                                                              <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
+                                                            </Pressable>
                                                             :
                                                             <Image src={user.profileUrl} style={{height: 45,width: 45,borderRadius: 50,borderColor: '#DDD',borderWidth: 2}}/>
                                                         }
@@ -326,8 +329,9 @@ export default function ViewFollowers() {
                                                             </Pressable>
                                                             <Pressable onPress={()=>{
                                                                 removeFollower(user.uid);
-                                                            }} style={{padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 50,backgroundColor: '#3e3e3e',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                <Image source={crossIcon} style={{height: 12.5,width: 12.5,}}/>
+                                                            }} style={{padding: 5,paddingLeft: 7.5,paddingRight: 7.5,borderRadius: 50,backgroundColor: '#3e3e3e',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                                {/* <Image source={crossIcon} style={{height: 12.5,width: 12.5,}}/> */}
+                                                                <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#fff'}}/>
                                                             </Pressable>
                                                         </View>
                                                         :
@@ -339,8 +343,9 @@ export default function ViewFollowers() {
                                                             </Pressable>
                                                             <Pressable onPress={()=>{
                                                                 removeFollower(user.uid);
-                                                            }} style={{padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 50,backgroundColor: '#3e3e3e',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                <Image source={crossIcon} style={{height: 12.5,width: 12.5,}}/>
+                                                            }} style={{padding: 5,paddingLeft: 7.5,paddingRight: 7.5,borderRadius: 50,backgroundColor: '#3e3e3e',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                                {/* <Image source={crossIcon} style={{height: 12.5,width: 12.5,}}/> */}
+                                                                <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#fff'}}/>
                                                             </Pressable>
                                                         </View>
                                                     }
@@ -366,8 +371,9 @@ export default function ViewFollowers() {
                         <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around',marginBottom: 10,marginTop: 10,alignItems: 'center'}}>
                             <Pressable onPress={()=>{
                                 navigation.goBack();
-                            }} style={{position: 'absolute',left: 0}}>
-                                <Image source={backIconBlack} style={{height: 35,width: 35}}/>
+                            }} style={{position: 'absolute',left: 10}}>
+                                {/* <Image source={backIconBlack} style={{height: 35,width: 35}}/> */}
+                                <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{}}/>
                             </Pressable>
                             <Pressable onPress={()=>{
                                 setTabBool(true);
@@ -402,7 +408,12 @@ export default function ViewFollowers() {
                                                         {
                                                             user.profileUrl=="" || user.profileUrl==undefined
                                                             ?
-                                                            <Image source={pfp} style={{height: 45,width: 45,borderRadius: 50,borderColor: '#DDD',borderWidth: 2}}/>
+                                                            <Pressable onPress={()=>{
+
+                                                            }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                              {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                                                              <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
+                                                            </Pressable>
                                                             :
                                                             <Image src={user.profileUrl} style={{height: 45,width: 45,borderRadius: 50,borderColor: '#DDD',borderWidth: 2}}/>
                                                         }

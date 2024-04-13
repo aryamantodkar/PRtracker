@@ -1,19 +1,24 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LandingPage from './Components/LandingPage';
+import { LandingPage } from './Components/LandingPage';
 import Login from './Components/Login';
 import Register from './Components/Register';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './FirebaseConfig';
 import InsideLayout from './Components/InsideLayout';
-import AppNavbar from './Components/AppNavbar';
 import { LogBox } from 'react-native';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faUser,faArrowLeft,faBell,faArrowUp,faXmark,faTrash,faAngleDown,faPen,faAt,faHouse,faDumbbell,faHeart,faArrowRightFromBracket,faGear,faLock,faPlus,faAngleUp,faCheck,faMagnifyingGlass,faImage } from '@fortawesome/free-solid-svg-icons'
+import {faComment,faEye,faEyeSlash} from '@fortawesome/free-regular-svg-icons'
+
+library.add(faUser,faArrowLeft,faBell,faArrowUp,faComment,faXmark,faTrash,faAngleDown,faPen,faAt,faEye,faEyeSlash,faHouse,faDumbbell,faHeart,faArrowRightFromBracket,faGear,faLock,faPlus,faAngleUp,faCheck,faMagnifyingGlass,faImage)
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  
   // Ignore log notification by message
   LogBox.ignoreLogs(['Warning: ...']);
 

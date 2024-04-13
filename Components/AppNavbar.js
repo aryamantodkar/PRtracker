@@ -1,14 +1,9 @@
 import { StyleSheet, Text, View, Pressable, Image, Keyboard, KeyboardAvoidingView,Platform } from 'react-native'
 import React,{useEffect, useState} from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
-const workoutWhite = require("../assets/workout-icon-white.png");
-const workoutBlack = require("../assets/workout-icon-black.png");
-const homeWhite = require("../assets/home-icon-white.png");
-const homeBlack = require("../assets/home-icon-black.png");
-const accountWhite = require("../assets/account-icon-white.png");
-const accountBlack = require("../assets/account-icon-black.png");
 
 
 const AppNavbar = ({showNavbar}) => {
@@ -92,31 +87,37 @@ const AppNavbar = ({showNavbar}) => {
               {
                 home ?
                 <Pressable style={styles.navBtnActivated} >
-                  <Image source={homeWhite} style={styles.plusIcon}/>
+                  {/* <Image source={homeWhite} style={styles.plusIcon}/> */}
+                  <FontAwesomeIcon icon="fa-solid fa-house" size={22} style={{color: '#fff'}}/>
                 </Pressable>
                 :
                 <Pressable style={styles.navAdd} onPress={goToHome}>
-                  <Image source={homeBlack} style={styles.plusIcon}/>
+                  {/* <Image source={homeBlack} style={styles.plusIcon}/> */}
+                  <FontAwesomeIcon icon="fa-solid fa-house" size={22} style={{color: '#ddd'}}/>
                 </Pressable>
               }
               {
                 plus ?
                 <Pressable style={styles.navBtnActivated}>
-                  <Image source={workoutWhite} style={{height: 40, width: 40}}/>
+                  {/* <Image source={workoutWhite} style={{height: 40, width: 40}}/> */}
+                  <FontAwesomeIcon icon="fa-solid fa-dumbbell" size={30} style={{color: '#fff'}}/>
                 </Pressable>
                 :
                 <Pressable style={styles.navAdd} onPress={addWorkout}>
-                  <Image source={workoutBlack} style={{height: 40, width: 40}}/>
+                  {/* <Image source={workoutBlack} style={{height: 40, width: 40}}/> */}
+                  <FontAwesomeIcon icon="fa-solid fa-dumbbell" size={30} style={{color: '#ddd'}}/>
                 </Pressable>
               }
               {
                 account ?
                 <Pressable style={styles.navBtnActivated}>
-                  <Image source={accountWhite} style={styles.plusIcon}/>
+                  {/* <Image source={accountWhite} style={styles.plusIcon}/> */}
+                  <FontAwesomeIcon size={20} icon="fa-solid fa-user" style={{color: '#fff'}}/>
                 </Pressable>
                 :
                 <Pressable style={styles.navAdd} onPress={goToAccount}>
-                  <Image source={accountBlack} style={styles.plusIcon}/>
+                  {/* <Image source={accountBlack} style={styles.plusIcon}/> */}
+                  <FontAwesomeIcon size={20} icon="fa-solid fa-user" style={{color: '#ddd'}}/>
                 </Pressable>
               }
           </View>

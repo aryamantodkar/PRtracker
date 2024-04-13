@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View,ScrollView, TextInput, Pressable,Image,KeyboardAvoidingView,Platform,Keyboard } from 'react-native'
 import React, { useState,useEffect } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native';
 import {useRef} from 'react';
@@ -11,13 +12,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { useFonts } from 'expo-font';
 import { useCallback } from 'react';
 
-const plusWhite = require("../assets/plus-icon-white.png");
-const deleteIcon = require("../assets/delete-icon.png");
-const crossIconWhite = require("../assets/cross-icon-white.png");
-const crossIconBlack = require("../assets/cross-icon-black.png");
-const tickIcon = require("../assets/tick-icon.png");
-const tickIconBlack = require("../assets/tick-icon-black.png");
-const editIcon = require("../assets/edit-icon.png");
 
 const NewWorkout = () => {
     const navigation = useNavigation();
@@ -246,11 +240,13 @@ const NewWorkout = () => {
                                 {
                                     exerciseAdded || !showExerciseContainer?
                                     <Pressable onPress={newExercise} style={{padding: 5}}>
-                                        <Image source={plusWhite} style={styles.plusIcon}/>
+                                        {/* <Image source={plusWhite} style={styles.plusIcon}/> */}
+                                        <FontAwesomeIcon icon="fa-solid fa-plus" size={20} style={{color: '#fff'}}/>
                                     </Pressable>
                                     :
                                     <Pressable onPress={()=>setShowExerciseContainer(!showExerciseContainer)} style={{padding: 5}}>
-                                        <Image source={crossIconWhite} style={{height: 15,width: 15}}/>
+                                        {/* <Image source={crossIconWhite} style={{height: 15,width: 15}}/> */}
+                                        <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#fff'}}/>
                                     </Pressable>
                                 }
                             </View>
@@ -271,12 +267,14 @@ const NewWorkout = () => {
                                                             <Pressable onPress={()=>{
                                                                 editWorkout(workout)
                                                             }}>
-                                                                <Image source={editIcon} style={{height: 20,width: 20,marginRight: 10}}/>
+                                                                {/* <Image source={editIcon} style={{height: 20,width: 20,marginRight: 10}}/> */}
+                                                                <FontAwesomeIcon icon="fa-solid fa-pen" size={18} style={{color: '#fff',marginRight: 10}}/>
                                                             </Pressable>
                                                             <Pressable onPress={()=>{
                                                                 deleteExercise(workout.id)
                                                             }}>
-                                                                <Image source={deleteIcon} style={{height: 20,width: 20,marginLeft: 10}}/>
+                                                                {/* <Image source={deleteIcon} style={{height: 20,width: 20,marginLeft: 10}}/> */}
+                                                                <FontAwesomeIcon icon="fa-solid fa-trash" size={18} style={{color: '#fff',marginLeft: 5}}/>
                                                             </Pressable>
                                                         </View>
                                                     </View>
@@ -423,7 +421,8 @@ const NewWorkout = () => {
                                                                                 setAllWorkouts(arr);
 
                                                                             }} style={styles.plusIconContainer}>
-                                                                                <Image source={deleteIcon} style={[styles.plusIcon,{height:17,width: 17}]}/>
+                                                                                {/* <Image source={deleteIcon} style={[styles.plusIcon,{height:17,width: 17}]}/> */}
+                                                                                <FontAwesomeIcon icon="fa-solid fa-trash" size={16} style={{color: '#fff'}}/>
                                                                             </Pressable>
                                                                         </View>
                                                                     </View>
@@ -485,11 +484,13 @@ const NewWorkout = () => {
                                                                         setEditTickIconBool(true);
 
                                                                     }} style={styles.plusIconContainer}>
-                                                                        <Image source={plusWhite} style={styles.plusIcon}/>
+                                                                        {/* <Image source={plusWhite} style={styles.plusIcon}/> */}
+                                                                        <FontAwesomeIcon icon="fa-solid fa-plus" size={20} style={{color: '#fff'}}/>
                                                                     </Pressable>
                                                                     :
                                                                     <Pressable style={[styles.plusIconContainer,{backgroundColor:'#C2C2C2'}]}>
-                                                                        <Image source={plusWhite} style={styles.plusIcon}/>
+                                                                        {/* <Image source={plusWhite} style={styles.plusIcon}/> */}
+                                                                        <FontAwesomeIcon icon="fa-solid fa-plus" size={20} style={{color: '#fff'}}/>
                                                                     </Pressable>
                                                                 }
                                                             </View>
@@ -502,7 +503,8 @@ const NewWorkout = () => {
                                                                 setEditWorkoutID(-1);
                                                                 setEditTickIconBool(false)
                                                             }}>
-                                                                <Image style={{height:17.5,width: 17.5}} source={crossIconWhite}/>
+                                                                {/* <Image style={{height:17.5,width: 17.5}} source={crossIconWhite}/> */}
+                                                                <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#fff'}}/>
                                                             </Pressable>
                                                             <Pressable style={{marginLeft: 10,marginRight:10,padding: 10,borderRadius: 20,backgroundColor: editTickIconBool ? 'black' : '#DDDDDD'}} onPress={()=>{
                                                                 const newWorkoutNameObj = {
@@ -522,7 +524,8 @@ const NewWorkout = () => {
                                                                 setEditWorkoutID(-1);
                                                                 setEditTickIconBool(false)
                                                             }}>
-                                                                <Image style={{height:17.5,width: 17.5}} source={tickIcon}/>
+                                                                {/* <Image style={{height:17.5,width: 17.5}} source={tickIcon}/> */}
+                                                                <FontAwesomeIcon icon="fa-solid fa-check" size={20} style={{color: '#fff'}}/>
                                                             </Pressable>
                                                         </View>
                                                     </View>
@@ -560,7 +563,8 @@ const NewWorkout = () => {
                                                     <Pressable onPress={()=>{
                                                         deleteSet(set.id)
                                                     }} style={styles.plusIconContainer}>
-                                                        <Image source={deleteIcon} style={[styles.plusIcon,{height:17,width: 17}]}/>
+                                                        {/* <Image source={deleteIcon} style={[styles.plusIcon,{height:17,width: 17}]}/> */}
+                                                        <FontAwesomeIcon icon="fa-solid fa-trash" size={16} style={{color: '#fff'}}/>
                                                     </Pressable>
                                                 </View>
                                             </View>
@@ -601,11 +605,13 @@ const NewWorkout = () => {
                                                 weight!="" && reps!=""
                                                 ?
                                                 <Pressable onPress={addSets} style={styles.plusIconContainer}>
-                                                    <Image source={plusWhite} style={styles.plusIcon}/>
+                                                    {/* <Image source={plusWhite} style={styles.plusIcon}/> */}
+                                                    <FontAwesomeIcon icon="fa-solid fa-plus" size={20} style={{color: '#fff'}}/>
                                                 </Pressable>
                                                 :
                                                 <Pressable onPress={addSets} style={[styles.plusIconContainer,{backgroundColor:'#C2C2C2'}]}>
-                                                    <Image source={plusWhite} style={styles.plusIcon}/>
+                                                    {/* <Image source={plusWhite} style={styles.plusIcon}/> */}
+                                                    <FontAwesomeIcon icon="fa-solid fa-plus" size={20} style={{color: '#fff'}}/>
                                                 </Pressable>
                                             }
                                         </View>
@@ -634,16 +640,19 @@ const NewWorkout = () => {
                 ?
                 <View style={{position: 'absolute', left: 0, right: 0, bottom: 20, justifyContent: 'center', alignItems: 'center',display: 'flex',flexDirection: 'row'}}>
                         <Pressable onPress={goToHomeScreen} style={{backgroundColor: '#000',borderRadius: 50,padding: 17.5,marginRight: 10,borderWidth: 3,borderColor: '#fff'}}>
-                            <Image source={crossIconWhite} style={{height: 22.5,width: 22.5}}/>
+                            {/* <Image source={crossIconWhite} style={{height: 22.5,width: 22.5}}/> */}
+                            <FontAwesomeIcon icon="fa-solid fa-xmark" size={25} style={{color: '#fff'}}/>
                         </Pressable>
                     {
                         !showExerciseContainer && workoutName!="" && allWorkouts.length>0 ?
                         <Pressable onPress={addWorkoutToDB} style={{backgroundColor: '#000',borderRadius: 50,padding: 17.5,marginLeft: 10,borderWidth: 3,borderColor: '#fff'}}>
-                            <Image source={tickIcon} style={{height: 22.5,width: 22.5}}/>
+                            {/* <Image source={tickIcon} style={{height: 22.5,width: 22.5}}/> */}
+                            <FontAwesomeIcon icon="fa-solid fa-check" size={25} style={{color: '#fff'}}/>
                         </Pressable>
                         :
                         <Pressable style={{backgroundColor: '#DDDDDD',borderRadius: 50,padding: 17.5,marginLeft: 10,borderWidth: 3,borderColor: '#fff'}}>
-                            <Image source={tickIcon} style={{height: 22.5,width: 22.5}}/>
+                            {/* <Image source={tickIcon} style={{height: 22.5,width: 22.5}}/> */}
+                            <FontAwesomeIcon icon="fa-solid fa-check" size={25} style={{color: '#fff'}}/>
                         </Pressable>
                     }
                 </View>
