@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
+import React, { useContext,useRef } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { StyleSheet, Text, View, TextInput,KeyboardAvoidingView,Pressable,SafeAreaView, Platform,Image, ScrollView } from 'react-native';
 import {useState} from 'react'
 import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
-import { createUserWithEmailAndPassword,updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword,sendEmailVerification,updateProfile } from 'firebase/auth';
 import { doc, setDoc,collection, addDoc } from 'firebase/firestore';
 import { getAuth } from "firebase/auth";
 
@@ -17,6 +17,7 @@ export default function Register({navigation}) {
   const [loading,setLoading] = useState(false);
   const [showPassword,setShowPassword] = useState(false);
   const [showConfirmPassword,setShowConfirmPassword] = useState(false);
+  const [validEmail,setValidEmail] = useState(false);
 
   const auth = FIREBASE_AUTH;
   const userAuth = getAuth();
@@ -56,163 +57,189 @@ export default function Register({navigation}) {
     }
   }
   return (
-    <ScrollView style={{height: '100%',backgroundColor: '#fff',display: 'flex'}} keyboardShouldPersistTaps='handled' contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+    <ScrollView style={{height: '100%',backgroundColor: '#fff',display: 'flex'}} keyboardShouldPersistTaps='handled' contentContainerStyle={{ flexGrow: 1,display: 'flex', justifyContent: 'center',alignItems: 'center' }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.login}>
-          <View style={styles.logincontent}>
-            
-              <View style={styles.headingContainer}>
-                <Text style={styles.heading}>Welcome to the Club.</Text>
-                <Text style={styles.subHeading}>It's time to hit PR's</Text>
-              </View>
-              <View style={styles.form}>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.inputHeading}>Name</Text>
-                  <View>
-                    <TextInput style={styles.input} value={name} onChangeText={text => {
-                      setError('')
-                      setName(text);
-                    }} placeholder='Enter your Name' />
-                  </View>
+          <ScrollView style={{height: '100%',width: '100%',display: 'flex'}} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center',alignItems: 'center' }}>
+            <View style={styles.logincontent} >
+                <View style={styles.headingContainer}>
+                  <Text style={styles.heading}>Welcome to the Club.</Text>
+                  <Text style={styles.subHeading}>It's time to hit PR's</Text>
                 </View>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.inputHeading}>Email</Text>
-                  <View>
-                    <TextInput style={styles.input} value={email} onChangeText={text => {
-                      setError('');
-                      setEmail(text);
-                    }} placeholder='Enter Email ID' />
+                <View style={styles.form}>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputHeading}>Name</Text>
+                    <View>
+                      <TextInput onFocus={()=>{
+                        setValidEmail(false)
+                      }} style={styles.input} value={name} onChangeText={text => {
+                        setError('')
+                        setName(text);
+                      }} placeholder='Enter your Name' />
+                    </View>
                   </View>
-                </View>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.inputHeading}>Password</Text>
-                  <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative'}}>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputHeading}>Email</Text>
+                    <View>
+                      <TextInput onFocus={()=>{
+                        setValidEmail(true)
+                      }} style={styles.input} value={email} onChangeText={text => {
+                        setError('');
+                        setEmail(text);
+                      }} placeholder='Enter Email ID' />
+                    </View>
                     {
-                      showPassword
+                      validEmail
                       ?
-                      <TextInput style={styles.input} value={password} onChangeText={text => {
-                        setError('')
-                        setPassword(text);
-                      }} placeholder='Enter Password'/>
+                      <Text style={[styles.inputHeading,{fontSize: 15,marginTop: 10,color: '#404040'}]}>Please enter valid email, this cannot be changed later.</Text>
                       :
-                      <TextInput secureTextEntry={true} password={true} style={styles.input} value={password} onChangeText={text => {
-                        setError('')
-                        setPassword(text);
-                      }} placeholder='Enter Password'/>
+                      null
                     }
-                    <Pressable onPress={()=>{
-                      setShowPassword(!showPassword);
-                    }} style={{display: 'flex',justifyContent: 'center',position: 'absolute',margin: 'auto',right: 10,top: 0,bottom: 0}}>
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputHeading}>Password</Text>
+                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative'}}>
                       {
                         showPassword
                         ?
-                        // <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
-                        <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5}}/>
+                        <TextInput onFocus={()=>{
+                          setValidEmail(false)
+                        }} style={styles.input} value={password} onChangeText={text => {
+                          setError('')
+                          setPassword(text);
+                        }} placeholder='Enter Password'/>
                         :
-                        <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5}}/>
-                        // <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        <TextInput onFocus={()=>{
+                          setValidEmail(false)
+                        }} secureTextEntry={true} password={true} style={styles.input} value={password} onChangeText={text => {
+                          setError('')
+                          setPassword(text);
+                        }} placeholder='Enter Password'/>
                       }
-                    </Pressable>
+                      <Pressable onPress={()=>{
+                        setShowPassword(!showPassword);
+                      }} style={{display: 'flex',justifyContent: 'center',position: 'absolute',margin: 'auto',right: 10,top: 0,bottom: 0}}>
+                        {
+                          showPassword
+                          ?
+                          // <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                          <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5}}/>
+                          :
+                          <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5}}/>
+                          // <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        }
+                      </Pressable>
+                    </View>
                   </View>
-                </View>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.inputHeading}>Confirm Password</Text>
-                  <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative'}}>
-                    {
-                      showConfirmPassword
-                      ?
-                      <TextInput style={styles.input} value={confirmPassword} onChangeText={text => {
-                        setError('')
-                        setConfirmPassword(text);
-                      }} placeholder='Re-Enter Password'/>
-                      :
-                      <TextInput secureTextEntry={true} password={true} style={styles.input} value={confirmPassword} onChangeText={text => {
-                        setError('')
-                        setConfirmPassword(text);
-                      }} placeholder='Re-Enter Password'/>
-                    }
-                    <Pressable onPress={()=>{
-                      setShowConfirmPassword(!showConfirmPassword);
-                    }} style={{display: 'flex',justifyContent: 'center',position: 'absolute',margin: 'auto',right: 10,top: 0,bottom: 0}}>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputHeading}>Confirm Password</Text>
+                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',position: 'relative'}}>
                       {
                         showConfirmPassword
                         ?
-                        // <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
-                        <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5}}/>
+                        <TextInput onFocus={()=>{
+                          setValidEmail(false)
+                        }} style={styles.input} value={confirmPassword} onChangeText={text => {
+                          setError('')
+                          setConfirmPassword(text);
+                        }} placeholder='Re-Enter Password'/>
                         :
-                        <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5}}/>
-                        // <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        <TextInput onFocus={()=>{
+                          setValidEmail(false)
+                        }} secureTextEntry={true} password={true} style={styles.input} value={confirmPassword} onChangeText={text => {
+                          setError('')
+                          setConfirmPassword(text);
+                        }} placeholder='Re-Enter Password'/>
                       }
-                    </Pressable>
+                      <Pressable onPress={()=>{
+                        setShowConfirmPassword(!showConfirmPassword);
+                      }} style={{display: 'flex',justifyContent: 'center',position: 'absolute',margin: 'auto',right: 10,top: 0,bottom: 0}}>
+                        {
+                          showConfirmPassword
+                          ?
+                          // <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                          <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5}}/>
+                          :
+                          <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5}}/>
+                          // <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
+                        }
+                      </Pressable>
+                    </View>
                   </View>
-                </View>
-                {error ? <Text>{error}</Text> : null}
-                <View style={[styles.btnContainer, styles.inputContainer]}>
-                  <Pressable style={styles.btn} onPress={handleSignup}>
-                    <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign Up</Text>
+                  {error ? <Text>{error}</Text> : null}
+                  <View style={[styles.btnContainer, styles.inputContainer]}>
+                    {
+                      name!="" && email!="" && password!="" && confirmPassword!="" && password==confirmPassword
+                      ?
+                      <Pressable style={styles.btn} onPress={handleSignup}>
+                        <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10,fontFamily: 'LeagueSpartan'}}>Sign Up</Text>
+                      </Pressable>
+                      :
+                      <Pressable style={[styles.btn,{backgroundColor: '#ddd'}]}>
+                        <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10,fontFamily: 'LeagueSpartan'}}>Sign Up</Text>
+                      </Pressable>
+                    }
+                  </View>
+                  <Pressable style={styles.registerContainer} onPress={goToRegister}>
+                    <Text style={{ fontFamily: "LeagueSpartan", fontSize: 17, color: '#404040'}}>Already have an Account?</Text>
+                    <Text style={{ fontFamily: "LeagueSpartan", fontSize: 17, marginLeft: 5, color: '#2B8CFF' }}>Login</Text>
                   </Pressable>
                 </View>
-                <Pressable style={styles.registerContainer} onPress={goToRegister}>
-                  <Text>Already have an Account?</Text>
-                </Pressable>
-              </View>
-          </View>
+            </View>
+          </ScrollView>
       </KeyboardAvoidingView>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-    login: {
-        display: 'flex',
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: 'auto',
-        height: '100%',
-        width: '100%',
-        padding: 15
+  login: {
+      display: 'flex',
+      flex: 1,
+      backgroundColor: '#fff',
+      alignItems: 'center',
+      justifyContent: 'center',
+      margin: 'auto',
+      height: '100%',
+      width: '100%',
+      padding: 15
   },
   logincontent: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '85%',
+    height: '100%',
   },
   headingContainer: {
     display: 'flex',
     flexDirection: 'column',
     marginBottom: 20,
+    marginTop: 30
   },
   heading: {
-    fontFamily: 'JosefinSans',
-    fontSize: 30,
+    fontFamily: 'LeagueSpartan',
+    fontSize: 35,
     paddingBottom: 10,
   },
   subHeading: {
-    fontFamily: 'JosefinSans',
+    fontFamily: 'LeagueSpartan',
     fontSize: 18,
     paddingBottom: 10,
     color: '#696969'
   },
   input: {
-    width: '100%',
-    borderWidth: 2,
-    borderColor: '#A4A4A4',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 'auto',
-    padding: 10,
+    width: "100%",
     borderRadius: 10,
-    fontFamily: 'JosefinSans',
-    color: '#A4A4A4',
-    paddingTop: 12.5,
-    paddingBottom: 12.5
+    backgroundColor: "#f6f6f7",
+    padding: 15,
+    paddingTop: 10,
+    paddingBottom: 10,
+    fontFamily: "LeagueSpartan",
+    fontSize: 16,
   },
   inputHeading:{
-    fontFamily: 'JosefinSans',
+    fontFamily: 'LeagueSpartan',
     fontSize: 20,
     paddingBottom: 10,
   },
@@ -226,17 +253,15 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   btn: {
-    backgroundColor: '#000',
-    color: '#fff',
-    borderRadius: 20,
+    backgroundColor: "#000",
+    color: "#fff",
+    borderRadius: 30,
     fontSize: 20,
+    width: '100%',
+    fontFamily: "LeagueSpartan",
+    alignItems: "center",
     paddingTop: 10,
-    paddingBottom: 10,
-    paddingLeft: 20,
-    paddingRight: 20,
-    fontFamily: 'JosefinSans',
-    alignItems: 'center',
-    boxShadow: 'rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px',
+    paddingBottom: 10
   },
   btnContainer: {
     display: 'flex',
@@ -251,6 +276,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 'auto',
     color: '#B3B3B3',
-    marginTop: 20
+    flexDirection: 'row',
+    marginBottom: 20
   }
 });

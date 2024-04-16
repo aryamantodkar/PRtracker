@@ -15,6 +15,7 @@ export default function Home() {
   const [searchParams,setSearchParams] = useState("");
   const [profilePic,setProfilePic] = useState("");
   const [hideUserNavbar,setHideUserNavbar] = useState(false);
+  const [isLoading,setIsLoading] = useState(true);
 
   const navigation = useNavigation();
   
@@ -44,6 +45,14 @@ export default function Home() {
   },[])
 
   useEffect(()=>{
+    const timeout = setTimeout(() => {
+        setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  },[])
+
+  useEffect(()=>{
     if(isFocused){
       getProfileImage();
     }
@@ -55,7 +64,7 @@ export default function Home() {
         <ScrollView style={styles.home}>
             <ScrollView contentContainerStyle ={[styles.home,{padding: 30,paddingLeft: 15,paddingRight: 15,display:'flex',justifyContent: 'space-between',alignItems: 'center',height: '100%',flexDirection: 'column'}]}>
                 {
-                  !hideUserNavbar
+                  !hideUserNavbar && !isLoading
                   ?
                   <View style={{width: '100%'}}>
                     {
@@ -85,9 +94,15 @@ export default function Home() {
                             <View style={{display: 'flex',justifyContent: 'center'}}>
                               <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#869AAF',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>Hi, </Text>
                             </View>
-                            <View style={{display: 'flex',justifyContent: 'center'}}>
-                              <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#000',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>{user.displayName.split(" ")[0]} {user.displayName.split(" ").length>1 ? user.displayName.split(" ")[1][0] : null}.</Text>
-                            </View>
+                            {
+                              user.displayName!=null
+                              ?
+                              <View style={{display: 'flex',justifyContent: 'center'}}>
+                                <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#000',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>{user.displayName.split(" ")[0]} {user.displayName.split(" ").length>1 ? user.displayName.split(" ")[1][0] : null}.</Text>
+                              </View>
+                              :
+                              null
+                            }
                           </View>
                         </View>
                         <View style={{display: 'flex',flexDirection: 'row'}}>

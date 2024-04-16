@@ -73,10 +73,10 @@ export const LandingPage = () => {
             </View>
             <View style={styles.btnContainer}>
               <Pressable style={styles.btn} onPress={goToLogin}>
-                <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign In</Text>
+                <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10,fontFamily: 'LeagueSpartan'}}>Sign In</Text>
               </Pressable>
               <Pressable style={styles.btn} onPress={goToRegister}>
-                <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10}}>Sign Up</Text>
+                <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10,fontFamily: 'LeagueSpartan'}}>Sign Up</Text>
               </Pressable>
             </View>
           </View>
@@ -96,7 +96,6 @@ const styles = StyleSheet.create({
         margin: 'auto',
         height: '100%',
         width: '100%',
-        paddingRight: 20,
         paddingTop: 30,
   },
     homecontent: {
@@ -110,22 +109,25 @@ const styles = StyleSheet.create({
       display: 'flex',
       flexDirection: 'row',
       justifyContent: 'space-around',
+      alignItems: 'center',
       position: 'absolute',
       bottom: 70,
       left: 0,
       right: 0,
+      margin: 'auto',
     },
     btn: {
       backgroundColor: '#000',
       color: '#fff',
-      borderRadius: 20,
+      borderRadius: 30,
       fontSize: 20,
       paddingTop: 10,
       paddingBottom: 10,
       paddingLeft: 20,
       paddingRight: 20,
-      fontFamily: 'JosefinSans',
+      fontFamily: 'LeagueSpartan',
       alignItems: 'center',
+      
     },
     headingContainer: {
       display: 'flex',
@@ -136,12 +138,12 @@ const styles = StyleSheet.create({
       left: 40,
     },
     heading: {
-      fontFamily: 'JosefinSans-Bold',
+      fontFamily: 'LeagueSpartan-Medium',
       fontSize: 50,
       paddingBottom: 10,
     },
     subHeading: {
-      fontFamily: 'JosefinSans',
+      fontFamily: 'LeagueSpartan',
       fontSize: 18,
       paddingBottom: 10,
       color: '#696969',
