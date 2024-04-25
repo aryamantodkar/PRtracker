@@ -287,14 +287,12 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
             const newArray = [];
             
             querySnapshot.forEach(doc => {
-                if(doc.data().uid!=auth.currentUser.uid){
-                    newArray.push({
-                        uid: doc.data().uid,
-                        name: doc.data().name,
-                        profileUrl: doc.data().profileUrl,
-                        following: followingArr.includes(doc.data().uid) ? true : false
-                    })
-                }
+                newArray.push({
+                    uid: doc.data().uid,
+                    name: doc.data().name,
+                    profileUrl: doc.data().profileUrl,
+                    following: followingArr.includes(doc.data().uid) ? true : false
+                })
             });
 
             return newArray;
@@ -358,44 +356,65 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
     }
 
     const groupByUser = (workout,profileUid) => {
+        let workoutLikesLength = workout.likes.length;
+        let userPfp1 = workoutLikesLength>0 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[0].uid) : "";
+        let userPfp2 = workoutLikesLength>1 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[1].uid) : "";
+        let userPfp3 = workoutLikesLength>2 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[2].uid) : "";
+
+        if(userPfp1!="" && userPfp1!=undefined){
+            userPfp1 = userPfp1.profileUrl;
+        }
+        if(userPfp2!="" && userPfp2!=undefined){
+            userPfp2 = userPfp2.profileUrl;
+        }
+        if(userPfp3!="" && userPfp3!=undefined){
+            userPfp3 = userPfp3.profileUrl;
+        }
+
+        if(userPfp1==undefined) userPfp1 = "";
+        if(userPfp2==undefined) userPfp2 = "";
+        if(userPfp3==undefined) userPfp3 = "";
+
         UserGroup.set(`${workout.name}`,'1')
         return(
-            <Pressable onPress={() => {
-                openWorkoutBox(workout.workout,workout.uid);
-            }} style={{display: 'flex',justifyContent: 'space-between',flexDirection: 'column',backgroundColor: '#1e1e1e',padding: 15,paddingLeft: 20,paddingRight: 20,borderRadius: 10,elevation: 5,borderWidth: 1,borderColor: '#A5A5A5'}}>
+            <View style={{display: 'flex',justifyContent: 'space-between',flexDirection: 'column',backgroundColor: '#1e1e1e',padding: 15,paddingLeft: 20,paddingRight: 20,borderRadius: 10,elevation: 5,borderWidth: 1,borderColor: '#A5A5A5'}}>
                 <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',flexDirection: 'row',marginBottom: 15}}>
                     <Pressable onPress={()=>{
-                        navigation.navigate('IndividualUser',{
-                            uid: profileUid,
-                            name: workout.name,
-                            profileUrl: workout.profileUrl!=undefined ? workout.profileUrl : ""
+                        if(profileUid!=auth.currentUser.uid){
+                            navigation.navigate('IndividualUser',{
+                                uid: profileUid,
+                                name: workout.name,
+                                profileUrl: workout.profileUrl!=undefined ? workout.profileUrl : ""
                             })
+                        }
+                        else{
+                            navigation.navigate('UserPage')
+                        }
                         }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
                             <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
                                 {
                                     workout.profileUrl=="" || workout.profileUrl==undefined
                                     ?
-                                    <Pressable onPress={()=>{
-
-                                    }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd',borderWidth: 1.5,borderColor: '#DDD'}}>
-                                      {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                                    <View style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd',borderWidth: 1.5,borderColor: '#DDD'}}>
                                       <FontAwesomeIcon icon="fa-solid fa-user" size={30} style={{color: '#fff'}}/>
-                                    </Pressable>
+                                    </View>
                                     :
                                     <Image src={workout.profileUrl} style={{height: 50,width: 50,borderRadius: 50,borderWidth: 1.5,borderColor: '#DDD'}}/>
                                 }
                             </View>
                             <Text style={{color: '#fff',fontSize: 18,marginLeft: 10,fontWeight: '500',fontFamily: 'LeagueSpartan-Medium'}}>{workout.name}</Text>
                     </Pressable>
-                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                        {
-                            workout.timeStamp.toDate().toTimeString().slice(0,2)<12
-                            ?
-                            <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
-                            :
-                            <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
-                        }       
-                    </View>
+                    <Pressable onPress={()=>{
+                        openWorkoutBox(workout.workout,workout.uid);
+                    }} style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
+                    {
+                        workout.timeStamp.toDate().toTimeString().slice(0,2)<12
+                        ?
+                        <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
+                        :
+                        <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
+                    }       
+                    </Pressable>
                 </View>
                 <Pressable onPress={() => {
                         openWorkoutBox(workout.workout,workout.uid);
@@ -430,8 +449,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                             )
                         })
                     }
-
-                    
                 </Pressable>
                 <View style={styles.interactComponent}>
                     {/* display likes */}
@@ -444,59 +461,49 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                     <Pressable onPress={()=>{
                                         showLikes(workout.likes);
                                     }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
-                                        
                                             {
                                                 workout.likes.some(e => e.uid == `${userID}`)
                                                 ?
                                                 <Pressable onPress={()=>{
                                                     unlikeWorkout(workout);
                                                 }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                    {/* <Image source={likeBlue} style={styles.likeIcon}/> */}
                                                     <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
                                                 </Pressable>
                                                 :
                                                 <Pressable onPress={()=>{
                                                     likeWorkout(workout);
                                                 }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                    {/* <Image source={like} style={styles.likeIcon}/> */}
-                                                    <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff'}}/>
+                                                    <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff',marginRight: 5}}/>
                                                 </Pressable>
                                             }
-                                            {/* {
-                                                allUsers.length>0 && allUsers.find(user => user.uid==workout.likes[0].uid)
-                                                ?
-                                                <Image src={allUsers.find(user => user.uid==workout.likes[0].uid).profileUrl} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
-                                                :
-                                                <Pressable onPress={()=>{
-
-                                                }} style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
-                                                    <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
-                                                </Pressable>
-                                            }
-                                            
+                                            {/* display like profile pictures */}
                                             {
-                                                allUsers.length>0 && allUsers.find(user => user.uid==workout.likes[1].uid)
+                                                userPfp1!="" && userPfp1!=undefined
                                                 ?
-                                                <Image src={allUsers.find(user => user.uid==workout.likes[1].uid).profileUrl} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
+                                                <Image src={userPfp1} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
                                                 :
-                                                <Pressable onPress={()=>{
-
-                                                }} style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
+                                                <Pressable style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
                                                     <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
                                                 </Pressable>
                                             }
                                             {
-                                                allUsers.length>0 && allUsers.find(user => user.uid==workout.likes[2].uid)
+                                                userPfp2!="" && userPfp2!=undefined
                                                 ?
-                                                <Image src={allUsers.find(user => user.uid==workout.likes[2].uid).profileUrl} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
+                                                <Image src={userPfp2} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
                                                 :
-                                                <Pressable onPress={()=>{
-
-                                                }} style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
+                                                <Pressable style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
                                                     <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
                                                 </Pressable>
-                                            } */}
-                                            
+                                            }
+                                            {
+                                                userPfp3!="" && userPfp3!=undefined
+                                                ?
+                                                <Image src={userPfp3} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
+                                                :
+                                                <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
+                                                    <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
+                                                </View>
+                                            }
                                     </Pressable>
                                 </View>
                             
@@ -535,16 +542,28 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                                         likeWorkout(workout);
                                                     }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
                                                         {/* <Image source={like} style={styles.likeIcon}/> */}
-                                                        <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff'}}/>
+                                                        <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff',marginRight: 5}}/>
                                                     </Pressable>
                                                 }
-                                                
-                                                {/* {
-                                                    returnProfilePic(workout.likes[0].uid,0)
+                                                {/* display like profile pictures */}
+                                                {
+                                                    userPfp1!="" && userPfp1!=undefined
+                                                    ?
+                                                    <Image src={userPfp1} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
+                                                    :
+                                                    <Pressable style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
+                                                        <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
+                                                    </Pressable>
                                                 }
                                                 {
-                                                    returnProfilePic(workout.likes[1].uid,-5)
-                                                } */}
+                                                    userPfp2!="" && userPfp2!=undefined
+                                                    ?
+                                                    <Image src={userPfp2} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
+                                                    :
+                                                    <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
+                                                        <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
+                                                    </View>
+                                                }
                                             </View>
                                             
                                             {/* {
@@ -574,20 +593,25 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                                             <Pressable onPress={()=>{
                                                                 unlikeWorkout(workout);
                                                             }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                {/* <Image source={likeBlue} style={styles.likeIcon}/> */}
                                                                 <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
                                                             </Pressable>
                                                             :
                                                             <Pressable onPress={()=>{
                                                                 likeWorkout(workout);
                                                             }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                {/* <Image source={like} style={styles.likeIcon}/> */}
-                                                                <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff'}}/>
+                                                                <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff',marginRight: 5}}/>
                                                             </Pressable>
                                                         }
-                                                        {/* {
-                                                            returnProfilePic(workout.likes[0].uid,0)
-                                                        } */}
+                                                        {/* display like profile pictures */}
+                                                        {
+                                                            userPfp1!="" && userPfp1!=undefined
+                                                            ?
+                                                            <Image src={userPfp1} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
+                                                            :
+                                                            <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
+                                                                <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
+                                                            </View>
+                                                        }
                                                     </View>
                                                     
                                                     {/* {
@@ -622,7 +646,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                                                     likeWorkout(workout);
                                                                 }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
                                                                     {/* <Image source={like} style={styles.likeIcon}/> */}
-                                                                    <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff'}}/>
+                                                                    <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff',marginRight: 5}}/>
                                                                 </Pressable>
                                                             }
                                                         </View>
@@ -645,18 +669,18 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                         }
                         
                     </View>  
-                    <View style={{display: 'flex',marginLeft: 5,justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
-                        <Pressable onPress={()=>{
+                    <Pressable onPress={()=>{
                             openWorkoutBox(workout.workout,workout.uid);
-                        }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                    }} style={{display: 'flex',padding: 10,justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
+                        <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
                             {/* <Image source={comment} style={styles.commentIcon}/> */}
                             <FontAwesomeIcon icon="fa-regular fa-comment" size={20} style={{color: '#fff'}}/>
-                        </Pressable>
+                        </View>
                         <Text style={{fontFamily: 'LeagueSpartan',textAlign: 'center',textAlignVertical: 'center',color: '#fff',fontSize: 18,marginLeft: 5,}}>{workout.workout.comments.length}</Text>
-                    </View>
+                    </Pressable>
                 </View>
                 
-            </Pressable>
+            </View>
         )
     }
 
@@ -1009,44 +1033,46 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                                 
                                                 <ScrollView horizontal={true} style={{width: '100%',height: '100%',padding: 10,paddingLeft: 0,paddingRight: 0,display: 'flex',flexDirection: 'row',overflow: 'scroll'}}>
                                                     {allUsers.map(user => {
-                                                        return(
-                                                            <Pressable onPress={()=>{
-                                                                navigation.navigate('IndividualUser',{
-                                                                    uid: user.uid,
-                                                                    name: user.name,
-                                                                    profileUrl: user.profileUrl
-                                                                })
-                                                            }} key={user.uid} style={{height: '100%',width: 170,backgroundColor: '#1e1e1e',borderRadius: 10,marginRight: 10,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',padding: 10,paddingLeft: 0,paddingRight: 0}}>
-                                                                {
-                                                                    user.profileUrl=="" || user.profileUrl==undefined
-                                                                    ?
-                                                                    <Pressable onPress={()=>{
-
-                                                                    }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
-                                                                      {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
-                                                                      <FontAwesomeIcon icon="fa-solid fa-user" size={40} style={{color: '#fff'}}/>
-                                                                    </Pressable>
-                                                                    :
-                                                                    <Image src={user.profileUrl} style={{height: 60,width: 60,borderRadius: 50,borderWidth: 2,borderColor: '#fff'}}/>
-                                                                }
-                                                                <Text style={{fontFamily: 'LeagueSpartan',fontSize: 18,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>{user.name}</Text>
-                                                                {
-                                                                    user.following
-                                                                    ?
-                                                                    <Pressable onPress={()=>{
-                                                                        unfollowUser(user.uid)
-                                                                    }} style={{width: '60%',backgroundColor: '#303030',borderRadius: 5,padding: 5,borderWidth: 2,borderColor: '#404040'}}>
-                                                                        <Text style={{fontFamily: 'LeagueSpartan',fontSize: 16,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>Unfollow</Text>
-                                                                    </Pressable>
-                                                                    :
-                                                                    <Pressable onPress={()=>{
-                                                                        followBackUser(user.uid)
-                                                                    }} style={{width: '60%',backgroundColor: '#2B8CFF',borderRadius: 5,padding: 5}}>
-                                                                        <Text style={{fontFamily: 'LeagueSpartan',fontSize: 16,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>Follow</Text>
-                                                                    </Pressable>
-                                                                }
-                                                            </Pressable>
-                                                        )
+                                                        if(user.uid!=auth.currentUser.uid){
+                                                            return(
+                                                                <Pressable onPress={()=>{
+                                                                    navigation.navigate('IndividualUser',{
+                                                                        uid: user.uid,
+                                                                        name: user.name,
+                                                                        profileUrl: user.profileUrl
+                                                                    })
+                                                                }} key={user.uid} style={{height: '100%',width: 170,backgroundColor: '#1e1e1e',borderRadius: 10,marginRight: 10,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',padding: 10,paddingLeft: 0,paddingRight: 0}}>
+                                                                    {
+                                                                        user.profileUrl=="" || user.profileUrl==undefined
+                                                                        ?
+                                                                        <Pressable onPress={()=>{
+    
+                                                                        }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                                          {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
+                                                                          <FontAwesomeIcon icon="fa-solid fa-user" size={40} style={{color: '#fff'}}/>
+                                                                        </Pressable>
+                                                                        :
+                                                                        <Image src={user.profileUrl} style={{height: 60,width: 60,borderRadius: 50,borderWidth: 2,borderColor: '#fff'}}/>
+                                                                    }
+                                                                    <Text style={{fontFamily: 'LeagueSpartan',fontSize: 18,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>{user.name}</Text>
+                                                                    {
+                                                                        user.following
+                                                                        ?
+                                                                        <Pressable onPress={()=>{
+                                                                            unfollowUser(user.uid)
+                                                                        }} style={{width: '60%',backgroundColor: '#303030',borderRadius: 5,padding: 5,borderWidth: 2,borderColor: '#404040'}}>
+                                                                            <Text style={{fontFamily: 'LeagueSpartan',fontSize: 16,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>Unfollow</Text>
+                                                                        </Pressable>
+                                                                        :
+                                                                        <Pressable onPress={()=>{
+                                                                            followBackUser(user.uid)
+                                                                        }} style={{width: '60%',backgroundColor: '#2B8CFF',borderRadius: 5,padding: 5}}>
+                                                                            <Text style={{fontFamily: 'LeagueSpartan',fontSize: 16,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>Follow</Text>
+                                                                        </Pressable>
+                                                                    }
+                                                                </Pressable>
+                                                            )
+                                                        }
                                                     })}
                                                 </ScrollView>
                                             </View>

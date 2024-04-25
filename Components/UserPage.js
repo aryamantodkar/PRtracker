@@ -135,7 +135,6 @@ const UserPage = () => {
       })
       .catch((error) => {
         // Handle any errors
-        console.log("err",error)
         setProfilePic("");
       });
     }
