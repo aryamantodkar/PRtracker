@@ -65,15 +65,6 @@ const NewWorkout = () => {
         'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
     });
 
-    //track input
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            console.log("user has stopped typing", exerciseName);
-        }, 500)
-
-        return () => clearTimeout(timer)
-    }, [exerciseName])
-
     //track sets
     useEffect(() => {
         if(totalSets>0){
@@ -218,9 +209,7 @@ const NewWorkout = () => {
     }
 
     const goToHomeScreen = () => {
-        navigation.navigate('Home',{
-            isReload: true
-        });
+        navigation.navigate('Home');
     }
 
 

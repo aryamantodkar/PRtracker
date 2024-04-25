@@ -10,7 +10,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHeart } from '@fortawesome/free-regular-svg-icons'
 import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView,ActivityIndicator, ViewBase } from 'react-native'
-import { collection, query, where, getDocs,doc,getDoc,updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs,doc,getDoc,updateDoc, onSnapshot } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { FIREBASE_DB } from '../FirebaseConfig';
 import { useNavigation } from '@react-navigation/native';
@@ -20,11 +20,11 @@ import { getStorage, ref,uploadBytes,getDownloadURL } from "firebase/storage";
 import { useFonts } from 'expo-font';
 import { v4 as uuidv4 } from 'uuid';
 
-const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,userProfile}) => {
+const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfile}) => {
     const [workoutsArray,setWorkoutsArray] = useState([]);
     const [showWorkoutBox,setShowWorkoutBox] = useState(false);
     const [clickedWorkoutID,setClickedWorkoutID] = useState();
-    const [isLoading,setIsLoading] = useState(true);
+    const [isLoading,setIsLoading] = useState(false);
     
     const [myWorkouts,setMyWorkouts] = useState([]);
     const [followingWorkouts,setFollowingWorkouts] = useState([]);
@@ -36,11 +36,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
     const [showLikesBool,setShowLikesBool] = useState(false);
     const [likedUsers,setLikedUsers] = useState([]);
     const [goToCommentBox,setGoToCommentBox] = useState(false);
-
-    const [currentDay,setCurrentDay] = useState((new Date().getDay()));
-    const [currentDate,setCurrentDate] = useState((new Date()).getDate());
-    const [currentMonth,setCurrentMonth] = useState((new Date()).getMonth()+1);
-    const [currentYear,setCurrentYear] = useState((new Date()).getFullYear());
 
     const storage = getStorage();
 
@@ -54,7 +49,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
         'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
         'Futura-Condensed': require('../assets/fonts/Futura_Condensed_Extra_Bold.otf'),
     });
-
 
     const months = new Map;
     const dateSuffix = new Map;
@@ -172,24 +166,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
             return [];
         }
     };
-    
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            try {
-                const myWorkouts = await getMyWorkouts();
-                
-                const followingWorkouts = uid==null ? await getFollowingWorkouts() : [];
-    
-                const combinedWorkouts = myWorkouts.concat(...followingWorkouts);
-                setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
-            } catch (error) {
-                console.error("Error fetching data: ", error);
-            }
-        };
-    
-        fetchData();
-    }, []);
 
     const searchWorkouts = async () => {
         setIsLoading(true);
@@ -293,8 +269,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
             setFollowingUserArray(updatedArray);
             setAllUsers(allUsersArray);
         }
-    
-        
     };
 
     const getAllUsers = async () => {
@@ -346,22 +320,10 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
             if (isLoading) {
                 setIsLoading(false);
             }
-        }, 1500); // Adjust the timeout duration as needed
+        }, 500); // Adjust the timeout duration as needed
     
         return () => clearTimeout(timeout);
     }, [followingUserArray]);
-
-    // useEffect(() => {
-    //     if(searchBar && searchParams!=""){
-    //         const timeout = setTimeout(() => {
-    //             if (isLoading) {
-    //                 setIsLoading(false);
-    //             }
-    //         }, 500); // Adjust the timeout duration as needed
-        
-    //         return () => clearTimeout(timeout);
-    //     }
-    // }, [searchBar]);
 
     const openWorkoutBox = (workout,tempUid = null) => {
         if(uid==null){
@@ -381,18 +343,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
             hideUserNavbar(true);
         }
     }
-
-    // const groupByDate = (workout) => {
-    //     dateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
-    //     return(
-    //         <View style={{marginTop: 15,borderColor: '#E7E7E7',borderWidth: 1,padding: 10,paddingLeft: 15,paddingRight: 15,alignSelf: 'flex-start',borderRadius: 15,backgroundColor: '#f5f4f4'}}>
-    //             <Text style={{fontSize: 15,color: '#444444',fontWeight: '500'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
-    //                 {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
-    //                 {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
-    //             </Text>
-    //         </View>
-    //     )
-    // }
 
     const followingGroupByDate = (workout) => {
         followingDateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
@@ -418,6 +368,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                         navigation.navigate('IndividualUser',{
                             uid: profileUid,
                             name: workout.name,
+                            profileUrl: workout.profileUrl!=undefined ? workout.profileUrl : ""
                             })
                         }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
                             <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
@@ -426,12 +377,12 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                                     ?
                                     <Pressable onPress={()=>{
 
-                                    }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                    }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd',borderWidth: 1.5,borderColor: '#DDD'}}>
                                       {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
-                                      <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
+                                      <FontAwesomeIcon icon="fa-solid fa-user" size={30} style={{color: '#fff'}}/>
                                     </Pressable>
                                     :
-                                    <Image src={workout.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 1.5,borderColor: '#DDD'}}/>
+                                    <Image src={workout.profileUrl} style={{height: 50,width: 50,borderRadius: 50,borderWidth: 1.5,borderColor: '#DDD'}}/>
                                 }
                             </View>
                             <Text style={{color: '#fff',fontSize: 18,marginLeft: 10,fontWeight: '500',fontFamily: 'LeagueSpartan-Medium'}}>{workout.name}</Text>
@@ -511,16 +462,40 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                                                     <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff'}}/>
                                                 </Pressable>
                                             }
+                                            {/* {
+                                                allUsers.length>0 && allUsers.find(user => user.uid==workout.likes[0].uid)
+                                                ?
+                                                <Image src={allUsers.find(user => user.uid==workout.likes[0].uid).profileUrl} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
+                                                :
+                                                <Pressable onPress={()=>{
+
+                                                }} style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
+                                                    <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
+                                                </Pressable>
+                                            }
                                             
                                             {
-                                                returnProfilePic(workout.likes[0].profileUrl,0)
+                                                allUsers.length>0 && allUsers.find(user => user.uid==workout.likes[1].uid)
+                                                ?
+                                                <Image src={allUsers.find(user => user.uid==workout.likes[1].uid).profileUrl} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
+                                                :
+                                                <Pressable onPress={()=>{
+
+                                                }} style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
+                                                    <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
+                                                </Pressable>
                                             }
                                             {
-                                                returnProfilePic(workout.likes[1].profileUrl,-10)
-                                            }
-                                            {
-                                                returnProfilePic(workout.likes[2].profileUrl,-10)
-                                            }
+                                                allUsers.length>0 && allUsers.find(user => user.uid==workout.likes[2].uid)
+                                                ?
+                                                <Image src={allUsers.find(user => user.uid==workout.likes[2].uid).profileUrl} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
+                                                :
+                                                <Pressable onPress={()=>{
+
+                                                }} style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
+                                                    <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
+                                                </Pressable>
+                                            } */}
                                             
                                     </Pressable>
                                 </View>
@@ -563,12 +538,13 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                                                         <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff'}}/>
                                                     </Pressable>
                                                 }
-                                                {
-                                                    returnProfilePic(workout.likes[0].profileUrl,0)
+                                                
+                                                {/* {
+                                                    returnProfilePic(workout.likes[0].uid,0)
                                                 }
                                                 {
-                                                    returnProfilePic(workout.likes[1].profileUrl,-10)
-                                                }
+                                                    returnProfilePic(workout.likes[1].uid,-5)
+                                                } */}
                                             </View>
                                             
                                             {/* {
@@ -609,9 +585,9 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                                                                 <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff'}}/>
                                                             </Pressable>
                                                         }
-                                                        {
-                                                            returnProfilePic(workout.likes[0].profileUrl,0)
-                                                        }
+                                                        {/* {
+                                                            returnProfilePic(workout.likes[0].uid,0)
+                                                        } */}
                                                     </View>
                                                     
                                                     {/* {
@@ -684,16 +660,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
         )
     }
 
-    const sendNotif = (uid,title,message) => {
-        axios.post(`https://app.nativenotify.com/api/indie/notification`, {
-            subID: `${uid}`,
-            appId: 20703,
-            appToken: 'Rm1Zl1VwrryS2Q30JlKKp3',
-            title: `${title}`,
-            message: `${message}`
-        });
-    }
-
     const likeWorkout = async (userProfile) => {
         let docID = "";
         let likeArray = [];
@@ -710,17 +676,14 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
         const nameSnap = await getDoc(nameRef);
         
         let name = "";
-        let profileUrl = "";
 
         if(nameSnap.exists()){
             name = nameSnap.data().name;
-            profileUrl = nameSnap.data().profileUrl;
         }
 
         likeArray.push({
             uid: userID,
             name: name,
-            profileUrl
         });
         
         const likeRef = doc(FIREBASE_DB, `${userProfile.uid}`, `${docID}`);
@@ -744,8 +707,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                 return user;
             }
         }))
-
-        sendNotif(userProfile.uid,`${name} liked ${userProfile.workout.workoutName} post!`,"Check it out");
     }
 
     const unlikeWorkout = async (userProfile) => {
@@ -904,55 +865,53 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
     }, [showWorkoutBox]);
 
     useEffect(() => {
+        if(uid!=null && uid!=auth.currentUser.uid){
+            userID = uid;
+        }
+
         const fetchData = async () => {
-            setIsLoading(true);
             try {
                 const myWorkouts = await getMyWorkouts();
                 const followingWorkouts = uid==null ? await getFollowingWorkouts() : [];
                 const combinedWorkouts = myWorkouts.concat(...followingWorkouts);
-                
                 const getUsers = await getAllUsers();
+                
                 setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
                 setAllUsers(getUsers);
             } catch (error) {
                 console.error("Error fetching data: ", error);
             }
         };
-    
-        if(isReload!==undefined){
-            fetchData()
-        }
-    }, [isReload]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const myWorkouts = await getMyWorkouts();
-                const followingWorkouts = uid==null ? await getFollowingWorkouts() : [];
-                const combinedWorkouts = myWorkouts.concat(...followingWorkouts);
-                
-                setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
-            } catch (error) {
-                console.error("Error fetching data: ", error);
-            }
-        };
-    
-        fetchData()
-    }, [allUsers]);
+        const myWorkoutsQuery = query(collection(FIREBASE_DB, `${userID}`));
+        const unsubscribeMyWorkouts = onSnapshot(myWorkoutsQuery, (querySnapshot) => {
+            setIsLoading(true);
+            const timeout = setTimeout(() => {
+                if (isLoading) {
+                    setIsLoading(false);
+                }
+            }, 1000); // Adjust the timeout duration as needed
 
-    const returnProfilePic = (url,margin) => {
-        if(url=="" || url==undefined){
-            return <Pressable onPress={()=>{
+            fetchData();
 
-            }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
-              {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
-              <FontAwesomeIcon icon="fa-solid fa-user" size={20} style={{color: '#fff'}}/>
-            </Pressable>
-        }
-        else{
-            return <Image src={url} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
-        }
-    }
+            return () => clearTimeout(timeout);
+        });
+
+        const followingWorkoutsQuery = doc(FIREBASE_DB, "Users", `${auth.currentUser.uid}`);
+        const unsubscribeFollowingWorkouts = onSnapshot(followingWorkoutsQuery, (querySnapshot) => {
+            setIsLoading(true);
+            const timeout = setTimeout(() => {
+                if (isLoading) {
+                    setIsLoading(false);
+                }
+            }, 1000); // Adjust the timeout duration as needed
+
+            fetchData();
+
+            return () => clearTimeout(timeout);
+        });
+
+    }, []);
 
     const showLikes = async (likes) => {
         setShowLikesBool(true);
@@ -987,19 +946,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
             -1,
             false
         );
-        
-        setCurrentDay((new Date()).getDay());
-        setCurrentDate((new Date()).getDate())
-        setCurrentMonth((new Date()).getMonth()+1)
-        setCurrentYear((new Date()).getFullYear())
     }, []);
-
-    const updateCalendarDate = (date) => {
-        setCurrentDay(date.day());
-        setCurrentDate(date.date())
-        setCurrentMonth(date.month()+1)
-        setCurrentYear(date.year())
-    }
     
     if(isLoading){
         return(
@@ -1042,27 +989,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
     else{
         return (
             <View style={{display: 'flex',marginTop: 0,flex: 1,minWidth: '100%'}}>
-                {/* <CalendarStrip
-                    scrollable
-                    style={{height:170,marginTop: 40,marginBottom: 0}}
-                    calendarColor={'#fff'}
-                    dateNumberStyle={{color: '#898989',fontFamily: 'LeagueSpartan',fontWeight: '600'}}
-                    dateNameStyle={{color: '#898989',fontFamily: 'LeagueSpartan',fontSize: 15,marginBottom: 5,fontWeight: '500',borderBottomColor: '#898989',borderBottomWidth: 2,paddingBottom: 4}}
-                    numDaysInWeek={5}
-                    calendarHeaderContainerStyle={{position: 'absolute',left: 30}}
-                    calendarHeaderStyle={{fontFamily: 'LeagueSpartan',fontSize: 20,color: '#1e1e1e',fontWeight: '600'}}
-                    startingDate={Date.now()}
-                    selectedDate={Date.now()}
-                    dayContainerStyle={{backgroundColor: '#f6f6f7',borderRadius: 10,display: 'flex'}}
-                    highlightDateContainerStyle={{backgroundColor: '#1e1e1e'}}
-                    highlightDateNameStyle={{color: '#fff',fontSize: 15,marginBottom: 7.5,fontWeight: '600',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,paddingBottom: 4}}
-                    highlightDateNumberStyle={{color: '#fff'}}
-                    dayComponentHeight={75}
-                    headerText={`${weekday[currentDay]} ${currentDate} ${months.get(`${currentMonth}`)}, ${currentYear}`}
-                    onDateSelected={(date)=>{
-                        updateCalendarDate(date);
-                    }}
-                /> */}
                 {
                     !showLikesBool
                     ?
@@ -1073,7 +999,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                             <View style={styles.workoutList}>
                                 <View style={{height: '100%',marginTop: 20}}>
                                     {
-                                        searchBar && allUsers.length>0
+                                        searchBar && allUsers.length>0 && searchParams!=""
                                         ?
                                         <View>
                                             <View>
@@ -1084,9 +1010,15 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                                                 <ScrollView horizontal={true} style={{width: '100%',height: '100%',padding: 10,paddingLeft: 0,paddingRight: 0,display: 'flex',flexDirection: 'row',overflow: 'scroll'}}>
                                                     {allUsers.map(user => {
                                                         return(
-                                                            <View key={user.uid} style={{height: '100%',width: 170,backgroundColor: '#1e1e1e',borderRadius: 10,marginRight: 10,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',padding: 10,paddingLeft: 0,paddingRight: 0}}>
+                                                            <Pressable onPress={()=>{
+                                                                navigation.navigate('IndividualUser',{
+                                                                    uid: user.uid,
+                                                                    name: user.name,
+                                                                    profileUrl: user.profileUrl
+                                                                })
+                                                            }} key={user.uid} style={{height: '100%',width: 170,backgroundColor: '#1e1e1e',borderRadius: 10,marginRight: 10,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',padding: 10,paddingLeft: 0,paddingRight: 0}}>
                                                                 {
-                                                                    user.profileUrl==""
+                                                                    user.profileUrl=="" || user.profileUrl==undefined
                                                                     ?
                                                                     <Pressable onPress={()=>{
 
@@ -1113,7 +1045,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                                                                         <Text style={{fontFamily: 'LeagueSpartan',fontSize: 16,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>Follow</Text>
                                                                     </Pressable>
                                                                 }
-                                                            </View>
+                                                            </Pressable>
                                                         )
                                                     })}
                                                 </ScrollView>
@@ -1163,7 +1095,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,isReload,
                                                 }
                                             </View>
                                             :
-                                            <View  style={[styles.emptyWorkoutContainer,{paddingTop: 25,paddingBottom: 25,minHeight: 180,display: 'flex',justifyContent: 'space-around',marginTop: 100}]}>
+                                            <View  style={[styles.emptyWorkoutContainer,{paddingTop: 25,paddingBottom: 25,minHeight: 180,display: 'flex',justifyContent: 'space-around'}]}>
                                                 <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,paddingBottom: 5,alignSelf: 'center'}}>
                                                     <Text style={{color: 'white',fontSize:20,fontFamily: 'LeagueSpartan'}}>No Workouts Found</Text>
                                                 </View>

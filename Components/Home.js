@@ -20,7 +20,6 @@ export default function Home() {
   const navigation = useNavigation();
   
   const route = useRoute();
-  const isReload = route.params ? route.params.isReload : undefined;
   const isFocused = useIsFocused();
 
   const auth = getAuth();
@@ -35,7 +34,7 @@ export default function Home() {
     })
     .catch((error) => {
       // Handle any errors
-      console.log("error",error)
+      // console.log("error",error)
       setProfilePic("");
     });
   }
@@ -80,7 +79,7 @@ export default function Home() {
 
                               }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
                                 {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
-                                <FontAwesomeIcon icon="fa-solid fa-user" size={25} style={{color: '#fff'}}/>
+                                <FontAwesomeIcon icon="fa-solid fa-user" size={32} style={{color: '#fff'}}/>
                               </Pressable>
                               :
                               <Pressable onPress={()=>{
@@ -119,7 +118,8 @@ export default function Home() {
                         </View>
                       </View>
                       :
-                      <View style={{borderColor: '#455366',borderWidth: 1,display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',backgroundColor: '#1e1e1e',padding: 5,paddingLeft: 10,paddingRight: 15,borderRadius: 15,elevation: 5,width: '100%',marginBottom: 0}}>
+                      <View style={{display: 'flex',flexDirection: 'row',width: '100%',flex: 1,justifyContent: 'space-between'}}>
+                        <View style={{borderColor: '#455366',borderWidth: 1,display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',flex: 0.9,backgroundColor: '#1e1e1e',padding: 5,paddingLeft: 15,paddingRight: 15,borderRadius: 15,elevation: 5,marginBottom: 0}}>
                           <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
                             {/* <Image source={searchIcon} style={{height: 25,width: 25,display: 'flex',alignItems: 'center',marginRight: 5}}/> */}
                             <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={18} style={{marginRight: 10,color: '#fff',}}/>
@@ -127,16 +127,30 @@ export default function Home() {
                                 setSearchText(text);
                                 setSearchParams(text);
                                 inputRef.current.focus();
-                            }} style={{height: 40,fontSize: 16,color: '#fff',fontWeight: '500',textAlignVertical: 'center',width: '80%',fontFamily: 'LeagueSpartan'}}/>
+                            }} style={{height: 40,fontSize: 16,color: '#fff',fontWeight: '500',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}/>
                           </View>
+                          {
+                            searchParams!=""
+                            ?
+                            <Pressable onPress={()=>{
+                              setSearchParams("");
+                              setSearchText("");
+                            }} style={{backgroundColor: '#3e3e3e',padding: 5,borderRadius: 10}}>
+                              <Text style={{fontFamily: 'LeagueSpartan',color: '#fff'}}>Clear</Text>
+                            </Pressable>
+                            :
+                            null
+                          }
+                        </View>
+                        <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',flex: 0.1,marginLeft:5}}>
                           <Pressable onPress={()=>{
                             setSearchBar(false);
                             setSearchParams("");
                             setSearchText("");
-                          }}>
-                            {/* <Image source={crossIcon} style={{height: 15,width: 15,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/> */}
+                          }} style={{backgroundColor: '#1e1e1e',padding: 7.5,borderRadius: 50}}>
                             <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#fff'}}/>
                           </Pressable>
+                        </View>
                       </View> 
                     }
                   </View>
@@ -144,7 +158,7 @@ export default function Home() {
                   null
                 }
                 
-                <Workout searchParams={searchParams} showNavbar={setShowNavbar} uid={null} hideUserNavbar={setHideUserNavbar} searchBar={searchBar} isReload={isReload} userProfile={false}/>
+                <Workout searchParams={searchParams} showNavbar={setShowNavbar} uid={null} hideUserNavbar={setHideUserNavbar} searchBar={searchBar} userProfile={false}/>
             </ScrollView>
         </ScrollView>
         <AppNavbar showNavbar={showNavbar}/>

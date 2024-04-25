@@ -235,7 +235,6 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
             id: randomID,
             timeStamp: date,
             likes: [],
-            profileUrl: nameSnap.data().profileUrl,
         });
         
         const commentRef = doc(FIREBASE_DB, `${uid}`, `${docID}`);
@@ -655,8 +654,6 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                         })
 
                                                         replaceArray.sort((a,b)=>a.id-b.id);
-
-                                                        console.log("rep array",replaceArray);
 
                                                         setClickedWorkout({
                                                             ...clickedWorkout,
@@ -1110,7 +1107,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
 
                                                                 }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
                                                                   {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
-                                                                  <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
+                                                                  <FontAwesomeIcon icon="fa-solid fa-user" size={20} style={{color: '#fff'}}/>
                                                                 </Pressable>
                                                                 :
                                                                 <Image src={comment.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#ddd',}}/>
