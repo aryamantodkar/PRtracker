@@ -1,5 +1,5 @@
 import { Button, Pressable, StyleSheet, Text, View,KeyboardAvoidingView, ScrollView, Image, TextInput,ActivityIndicator } from 'react-native'
-import React, { useContext, useEffect, useState,useRef } from 'react'
+import React, { useContext, useEffect, useState,useRef,useMemo,memo,useCallback } from 'react'
 import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -124,18 +124,14 @@ export const IndividualUser = () => {
                                 {
                                     profileUrl==""
                                     ?
-                                    <Pressable onPress={()=>{
-
-                                    }} style={{padding: 15,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                    <View style={{padding: 15,borderRadius: 50,backgroundColor: '#ddd'}}>
                                     {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
                                         <FontAwesomeIcon icon="fa-solid fa-user" size={70} style={{color: '#fff'}}/>
-                                    </Pressable>
+                                    </View>
                                     :
-                                    <Pressable onPress={()=>{
-
-                                    }} style={{borderRadius: 50}}>
+                                    <View style={{borderRadius: 50}}>
                                         <Image src={profileUrl} style={{height: 100,width: 100,borderRadius: 50,}}/>
-                                    </Pressable>
+                                    </View>
                                 }
                             </View>
                         </View>

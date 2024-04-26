@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useRef } from 'react'
+import React, { useEffect, useState,useRef,useMemo,memo,useCallback } from 'react'
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -392,27 +392,6 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
         })
     }
 
-    const userDetailsHeader = () => {
-        return(
-            <View style={{width: '100%',marginBottom: 15,display: 'flex',flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',padding: 15,backgroundColor: '#f5f4f4'}}>
-                {
-                    userPfp==""
-                    ?
-                    <Pressable onPress={()=>{
-
-                    }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
-                      {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
-                      <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
-                    </Pressable>
-                    :
-                    <Image src={userPfp} style={{height: 45,width: 45,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',}}/>
-                }
-                <View style={{marginLeft: 15}}>
-                    <Text style={{color: '#1e1e1e',fontFamily:'LeagueSpartan',fontSize: 18}}>{userName}</Text>
-                </View>
-            </View>
-        )
-    }
     const duration = 500;
 
     const defaultAnim = useSharedValue(120);
@@ -862,12 +841,10 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                 {
                                                     userPfp==""
                                                     ?
-                                                    <Pressable onPress={()=>{
-
-                                                    }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                    <View style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
                                                       {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
                                                       <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
-                                                    </Pressable>
+                                                    </View>
                                                     :
                                                     <Image src={userPfp} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',}}/>
                                                 }
@@ -1068,10 +1045,9 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                 <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff'}}/>
                                             </Pressable>
                                         }
-                                        <Pressable>
-                                            {/* <Image source={comment} style={styles.commentIcon}/> */}
+                                        <View>
                                             <FontAwesomeIcon icon="fa-regular fa-comment" size={20} style={{color: '#fff'}}/>
-                                        </Pressable>
+                                        </View>
                                     </View>
                                 </View>
                                 </View>     
@@ -1079,7 +1055,6 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                             <ScrollView  style={{backgroundColor: '#1e1e1e',borderColor: '#DDD',borderWidth: 1,marginTop: 30,borderRadius: 15,padding: 20,position: 'relative'}}>
                                 <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start',marginBottom: 10}}>
                                     <View style={{marginRight: 10,justifyContent: 'center',alignItems: 'center'}}>
-                                        {/* <Image source={comment} style={styles.commentIcon}/> */}
                                         <FontAwesomeIcon icon="fa-regular fa-comment" size={20} style={{color: '#fff'}}/>
                                     </View>
                                     <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
@@ -1103,12 +1078,10 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                             {
                                                                 comment.profileUrl=="" || comment.profileUrl==undefined
                                                                 ?
-                                                                <Pressable onPress={()=>{
-
-                                                                }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                                <View style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
                                                                   {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
                                                                   <FontAwesomeIcon icon="fa-solid fa-user" size={20} style={{color: '#fff'}}/>
-                                                                </Pressable>
+                                                                </View>
                                                                 :
                                                                 <Image src={comment.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#ddd',}}/>
                                                             }
@@ -1140,9 +1113,9 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                                     <FontAwesomeIcon icon={faHeart} size={15} style={{color: '#fff'}}/>
                                                                 </Pressable>
                                                             }
-                                                            <Pressable style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginLeft: 5}}>
+                                                            <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',marginLeft: 5}}>
                                                                 <Text style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center',color: '#fff'}}>{comment.likes.length}</Text>
-                                                            </Pressable>
+                                                            </View>
                                                             <Text style={{display: 'flex',justifyContent: 'center',alignItems: 'center',textAlign: 'center',marginLeft: 10,fontSize: 14,color:'#fff',fontWeight: '600',fontFamily: 'LeagueSpartan'}}>Reply</Text>
                                                         </View>
                                                     </View>
@@ -1214,12 +1187,10 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                         {
                                                             user.profileUrl=="" || user.profileUrl==undefined
                                                             ?
-                                                            <Pressable onPress={()=>{
-
-                                                            }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                            <View style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
                                                               {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
                                                               <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
-                                                            </Pressable>
+                                                            </View>
                                                             :
                                                             <Image src={user.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
                                                         }
@@ -1227,10 +1198,10 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                     <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 17,color: '#fff',fontWeight: '500',fontFamily:'LeagueSpartan'}}>{user.name}</Text>
                                                 </View>
                                                 <View style={{marginRight: 10}}>
-                                                    <Pressable>
+                                                    <View>
                                                         {/* <Image source={likeBlue} style={{height: 20,width: 20}}/> */}
                                                         <FontAwesomeIcon icon="fa-solid fa-heart" size={20} style={{color: 'red'}}/>
-                                                    </Pressable>
+                                                    </View>
                                                 </View>
                                             </View>
                                         </View>
@@ -1312,4 +1283,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default IndividualWorkout
+export default memo(IndividualWorkout)

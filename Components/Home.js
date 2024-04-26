@@ -75,18 +75,14 @@ export default function Home() {
                             {
                               profilePic==""
                               ?
-                              <Pressable onPress={()=>{
-
-                              }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                              <View style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
                                 {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
                                 <FontAwesomeIcon icon="fa-solid fa-user" size={32} style={{color: '#fff'}}/>
-                              </Pressable>
+                              </View>
                               :
-                              <Pressable onPress={()=>{
-
-                              }}>
+                              <View>
                                 <Image src={profilePic} style={{height: 50,width: 50,borderRadius: 50,}}/>
-                              </Pressable>
+                              </View>
                             }
                           </View>
                           <View style={{marginLeft:10,display: 'flex',flexDirection: 'row',justifyContent: 'center'}}>
@@ -111,10 +107,10 @@ export default function Home() {
                             {/* <Image source={searchIconBlack} style={{height: 25,width: 25,marginRight: 15,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/> */}
                             <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={20} style={{marginRight: 15}}/>
                           </Pressable>
-                          <Pressable style={{justifyContent: 'center', borderRadius: 50,backgroundColor: '#353F4E',alignSelf: 'center',padding: 7.5}}>
+                          <View style={{justifyContent: 'center', borderRadius: 50,backgroundColor: '#353F4E',alignSelf: 'center',padding: 7.5}}>
                             {/* <Image source={bellIcon} style={{height: 22,width: 22}}/> */}
                             <FontAwesomeIcon icon="fa-solid fa-bell" size={20} style={{color: '#fff'}}/>
-                          </Pressable>
+                          </View>
                         </View>
                       </View>
                       :

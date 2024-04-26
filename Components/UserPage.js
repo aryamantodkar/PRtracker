@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View, Image,Alert, TextInput, ScrollView } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useMemo,useCallback,memo } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from 'expo-file-system';
@@ -192,9 +192,9 @@ const UserPage = () => {
                       ?
                       <Image src={image} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: 300,width: 300,borderRadius: 250}}/>
                       :
-                      <Pressable style={{padding: 40,borderRadius: 500,backgroundColor: '#ddd'}}>
+                      <View style={{padding: 40,borderRadius: 500,backgroundColor: '#ddd'}}>
                         <FontAwesomeIcon icon="fa-solid fa-user" size={200} style={{color: '#fff'}}/>
-                      </Pressable>
+                      </View>
                     }
                     <View style={{display: 'flex',flexDirection: 'row',marginTop: 40,justifyContent: 'center'}}>
                       <Pressable onPress={()=>{
@@ -211,9 +211,9 @@ const UserPage = () => {
                           <Text style={{color: 'white',textAlign: 'center',fontWeight: '500',marginLeft: 5,marginRight: 5,fontFamily: 'LeagueSpartan',fontSize: 18}}>Upload Image</Text>
                         </Pressable>
                         :
-                        <Pressable style={{backgroundColor: '#DDD',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
+                        <View style={{backgroundColor: '#DDD',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
                           <Text style={{color: 'white',textAlign: 'center',fontWeight: '500',marginLeft: 5,marginRight: 5,fontFamily: 'LeagueSpartan',fontSize: 18}}>Upload Image</Text>
-                        </Pressable>
+                        </View>
                       }
                     </View>
                   </View>
@@ -249,10 +249,9 @@ const UserPage = () => {
                           <Text style={{color: 'white',textAlign: 'center',fontWeight: '500',marginLeft: 5,marginRight: 5,fontFamily: 'LeagueSpartan',fontSize: 18}}>Upload Image</Text>
                         </Pressable>
                         :
-                        <Pressable onPress={()=>{
-                        }} style={{backgroundColor: '#DDD',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
+                        <View  style={{backgroundColor: '#DDD',height: 45,padding: 10,alignSelf: 'center',borderRadius: 10,display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',marginLeft: 5,marginRight: 5}}>
                           <Text style={{color: 'white',textAlign: 'center',fontWeight: '500',marginLeft: 5,marginRight: 5,fontFamily: 'LeagueSpartan',fontSize: 18}}>Upload Image</Text>
-                        </Pressable>
+                        </View>
                       }
                     </View>
                   </View>
@@ -323,9 +322,9 @@ const UserPage = () => {
                             {
                               newUsername==""
                               ?
-                              <Pressable style={{marginTop: 40,backgroundColor: '#DDD',padding: 10,paddingTop: 5,paddingLeft: 20,paddingRight: 20,borderRadius: 25}}>
+                              <View style={{marginTop: 40,backgroundColor: '#DDD',padding: 10,paddingTop: 5,paddingLeft: 20,paddingRight: 20,borderRadius: 25}}>
                                 <Text style={{fontSize: 18,fontFamily: 'LeagueSpartan',color: '#fff'}}>Update</Text>
-                              </Pressable>
+                              </View>
                               :
                               <Pressable onPress={()=>{
                                 Alert.alert('Change Name?', 'Are you sure you want to change your name?', [
@@ -430,9 +429,9 @@ const UserPage = () => {
                                 {
                                   newPassword=="" || reEnterPassword==""
                                   ?
-                                  <Pressable style={{marginTop: 40,backgroundColor: '#DDD',padding: 10,paddingTop: 5,paddingLeft: 20,paddingRight: 20,borderRadius: 25}}>
+                                  <View style={{marginTop: 40,backgroundColor: '#DDD',padding: 10,paddingTop: 5,paddingLeft: 20,paddingRight: 20,borderRadius: 25}}>
                                     <Text style={{fontSize: 18,fontFamily: 'LeagueSpartan',color: '#fff'}}>Update</Text>
-                                  </Pressable>
+                                  </View>
                                   :
                                   <Pressable onPress={()=>{
                                     if(newPassword==reEnterPassword){
@@ -560,7 +559,7 @@ const UserPage = () => {
   )
 }
 
-export default UserPage
+export default memo(UserPage)
 
 const styles = StyleSheet.create({
     home: {

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Pressable, Image, Keyboard, KeyboardAvoidingView,Platform } from 'react-native'
-import React,{useEffect, useState} from 'react'
+import React,{useEffect, useState, memo} from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native';
@@ -125,7 +125,7 @@ const AppNavbar = ({showNavbar}) => {
   )
 }
 
-export default AppNavbar
+export default memo(AppNavbar)
 
 const styles = StyleSheet.create({
     navbar: {

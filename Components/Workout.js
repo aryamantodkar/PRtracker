@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,memo,useMemo,useCallback } from 'react'
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -361,6 +361,8 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
         let userPfp2 = workoutLikesLength>1 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[1].uid) : "";
         let userPfp3 = workoutLikesLength>2 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[2].uid) : "";
 
+        let userName = userPfp1!="" && userPfp1!=undefined ? userPfp1.name : "";
+
         if(userPfp1!="" && userPfp1!=undefined){
             userPfp1 = userPfp1.profileUrl;
         }
@@ -418,7 +420,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                 </View>
                 <Pressable onPress={() => {
                         openWorkoutBox(workout.workout,workout.uid);
-                    }} style={{display: 'flex',flexDirection: 'column',justifyContent: 'space-between',alignItems: 'flex-start'}}>
+                    }} style={{display: 'flex',flexDirection: 'column',justifyContent: 'space-between',alignItems: 'flex-start',marginBottom: 10}}>
                     <View style={{display:'flex',alignItems: 'center',justifyContent: 'center',marginTop: 20}}>
                         <Text style={styles.workoutTitle}>{workout.workout.workoutName}</Text>
                     </View>
@@ -450,230 +452,131 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                         })
                     }
                 </Pressable>
-                <View style={styles.interactComponent}>
-                    {/* display likes */}
-                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between'}}>
+                {/* display likes */}
+                {
+                    workoutLikesLength>2
+                    ?
+                    <Pressable onPress={()=>{
+                        showLikes(workout.likes)
+                    }} style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
+                        {/* display like profile pictures */}
                         {
-                            workout.likes.length>2
+                            userPfp1!="" && userPfp1!=undefined
                             ?
-                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between'}}>
-                                <View style={{display: 'flex',marginRight: 5,justifyContent: 'center',alignItems: 'center'}}>
-                                    <Pressable onPress={()=>{
-                                        showLikes(workout.likes);
-                                    }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
-                                            {
-                                                workout.likes.some(e => e.uid == `${userID}`)
-                                                ?
-                                                <Pressable onPress={()=>{
-                                                    unlikeWorkout(workout);
-                                                }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                    <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
-                                                </Pressable>
-                                                :
-                                                <Pressable onPress={()=>{
-                                                    likeWorkout(workout);
-                                                }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                    <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff',marginRight: 5}}/>
-                                                </Pressable>
-                                            }
-                                            {/* display like profile pictures */}
-                                            {
-                                                userPfp1!="" && userPfp1!=undefined
-                                                ?
-                                                <Image src={userPfp1} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
-                                                :
-                                                <Pressable style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
-                                                    <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
-                                                </Pressable>
-                                            }
-                                            {
-                                                userPfp2!="" && userPfp2!=undefined
-                                                ?
-                                                <Image src={userPfp2} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
-                                                :
-                                                <Pressable style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
-                                                    <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
-                                                </Pressable>
-                                            }
-                                            {
-                                                userPfp3!="" && userPfp3!=undefined
-                                                ?
-                                                <Image src={userPfp3} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
-                                                :
-                                                <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
-                                                    <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
-                                                </View>
-                                            }
-                                    </Pressable>
-                                </View>
-                            
-                                
-                                {/* {
-                                    workout.likes.some(e => e.uid == `${userID}`)
-                                    ?
-                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {workout.likes.length-1} others like this</Text>
-                                    :
-                                    <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{workout.likes[0].name.split(" ")[0]} and {workout.likes.length-1} others like this</Text>
-                                } */}
-                                
-                            </View>
+                            <Image src={userPfp1} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
                             :
-                            <View style={{}}>
-                            {
-                                workout.likes.length>1
-                                ?
-                                <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between'}}>
-                                    <View style={{display: 'flex',marginRight: 5}}>
-                                        <Pressable onPress={()=>{
-                                            showLikes(workout.likes);
-                                        }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row',justifyContent: 'space-between'}}>
-                                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                                                {
-                                                    workout.likes.some(e => e.uid == `${userID}`)
-                                                    ?
-                                                    <Pressable onPress={()=>{
-                                                        unlikeWorkout(workout);
-                                                    }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                        {/* <Image source={likeBlue} style={styles.likeIcon}/> */}
-                                                        <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
-                                                    </Pressable>
-                                                    :
-                                                    <Pressable onPress={()=>{
-                                                        likeWorkout(workout);
-                                                    }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                        {/* <Image source={like} style={styles.likeIcon}/> */}
-                                                        <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff',marginRight: 5}}/>
-                                                    </Pressable>
-                                                }
-                                                {/* display like profile pictures */}
-                                                {
-                                                    userPfp1!="" && userPfp1!=undefined
-                                                    ?
-                                                    <Image src={userPfp1} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
-                                                    :
-                                                    <Pressable style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
-                                                        <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
-                                                    </Pressable>
-                                                }
-                                                {
-                                                    userPfp2!="" && userPfp2!=undefined
-                                                    ?
-                                                    <Image src={userPfp2} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
-                                                    :
-                                                    <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
-                                                        <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
-                                                    </View>
-                                                }
-                                            </View>
-                                            
-                                            {/* {
-                                                workout.likes.some(e => e.uid == `${userID}`)
-                                                ?
-                                                <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {workout.likes.length-1} others like this</Text>
-                                                :
-                                                <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{workout.likes[0].name.split(" ")[0]} and {workout.likes.length-1} others like this</Text>
-                                            }  */}
-                                        </Pressable>
-                                    </View>
-                                </View>
-                                :
-                                <View style={{}}>
-                                    {
-                                        workout.likes.length>0
-                                        ?
-                                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between'}}>
-                                            <View style={{display: 'flex',marginRight: 5}}>
-                                                <Pressable onPress={()=>{
-                                                    showLikes(workout.likes);
-                                                }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row',justifyContent: 'space-between'}}>
-                                                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                                                        {
-                                                            workout.likes.some(e => e.uid == `${userID}`)
-                                                            ?
-                                                            <Pressable onPress={()=>{
-                                                                unlikeWorkout(workout);
-                                                            }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
-                                                            </Pressable>
-                                                            :
-                                                            <Pressable onPress={()=>{
-                                                                likeWorkout(workout);
-                                                            }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff',marginRight: 5}}/>
-                                                            </Pressable>
-                                                        }
-                                                        {/* display like profile pictures */}
-                                                        {
-                                                            userPfp1!="" && userPfp1!=undefined
-                                                            ?
-                                                            <Image src={userPfp1} style={{height: 22,width: 22,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
-                                                            :
-                                                            <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
-                                                                <FontAwesomeIcon icon="fa-solid fa-user" size={12.5} style={{color: '#fff'}}/>
-                                                            </View>
-                                                        }
-                                                    </View>
-                                                    
-                                                    {/* {
-                                                        workout.likes.some(e => e.uid == `${userID}`)
-                                                        ?
-                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {workout.likes.length-1} others like this</Text>
-                                                        :
-                                                        <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{workout.likes[0].name.split(" ")[0]} and {workout.likes.length-1} others like this</Text>
-                                                    }  */}
-                                                </Pressable>
-                                            </View>
-                                        </View>
-                                        :
-                                        <View style={{}}>
-                                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                                                <View style={{display: 'flex',marginRight: 5,justifyContent: 'center',alignItems: 'center'}}>
-                                                    <Pressable onPress={()=>{
-                                                        showLikes(workout.likes);
-                                                    }} style={{width:'100%',position: 'relative',display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                                                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                                                            {
-                                                                workout.likes.some(e => e.uid == `${userID}`)
-                                                                ?
-                                                                <Pressable onPress={()=>{
-                                                                    unlikeWorkout(workout);
-                                                                }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                    {/* <Image source={likeBlue} style={styles.likeIcon}/> */}
-                                                                    <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
-                                                                </Pressable>
-                                                                :
-                                                                <Pressable onPress={()=>{
-                                                                    likeWorkout(workout);
-                                                                }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                    {/* <Image source={like} style={styles.likeIcon}/> */}
-                                                                    <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff',marginRight: 5}}/>
-                                                                </Pressable>
-                                                            }
-                                                        </View>
-                                                        
-                                                        {/* {
-                                                            workout.likes.some(e => e.uid == `${userID}`)
-                                                            ?
-                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>You and {workout.likes.length-1} others like this</Text>
-                                                            :
-                                                            <Text style={{color: 'white',fontSize: 15,marginLeft: 5}}>{workout.likes[0].name.split(" ")[0]} and {workout.likes.length-1} others like this</Text>
-                                                        }  */}
-                                                    </Pressable>
-                                                </View>
-                                            </View>
-                                        </View>
-                                    }
-                                </View>
-                            }     
+                            <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
+                                <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
                             </View>
                         }
-                        
+                        {
+                            userPfp2!="" && userPfp2!=undefined
+                            ?
+                            <Image src={userPfp2} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
+                            :
+                            <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
+                                <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
+                            </View>
+                        }
+                        {
+                            userPfp3!="" && userPfp3!=undefined
+                            ?
+                            <Image src={userPfp3} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
+                            :
+                            <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
+                                <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
+                            </View>
+                        }
+                        <View style={{marginLeft: 10,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                            <Text style={{fontFamily: 'LeagueSpartan',color: '#fff',textAlign: 'center',textAlignVertical: 'center',fontSize: 16}}>Liked by <Text style={{fontFamily: 'LeagueSpartan-Medium'}}>{userName}</Text> and <Text style={{fontFamily: 'LeagueSpartan-Medium'}}>{workoutLikesLength-1} others</Text>.</Text>
+                        </View>
+                    </Pressable>
+                    :
+                    <View style={{}}>
+                        {
+                            workoutLikesLength>1
+                            ?
+                            <Pressable onPress={()=>{
+                                showLikes(workout.likes)
+                            }}  style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
+                                {/* display like profile pictures */}
+                                {
+                                    userPfp1!="" && userPfp1!=undefined
+                                    ?
+                                    <Image src={userPfp1} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
+                                    :
+                                    <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
+                                        <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
+                                    </View>
+                                }
+                                {
+                                    userPfp2!="" && userPfp2!=undefined
+                                    ?
+                                    <Image src={userPfp2} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
+                                    :
+                                    <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
+                                        <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
+                                    </View>
+                                }
+                                <View style={{marginLeft: 10,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                    <Text style={{fontFamily: 'LeagueSpartan',color: '#fff',textAlign: 'center',textAlignVertical: 'center',fontSize: 16}}>Liked by <Text style={{fontFamily: 'LeagueSpartan-Medium'}}>{userName}</Text> and <Text style={{fontFamily: 'LeagueSpartan-Medium'}}>{workoutLikesLength-1} others</Text>.</Text>
+                                </View>
+                            </Pressable>
+                            :
+                            <View>
+                                {
+                                    workoutLikesLength>0
+                                    ?
+                                    <Pressable onPress={()=>{
+                                        showLikes(workout.likes)
+                                    }}  style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
+                                        {/* display like profile pictures */}
+                                        {
+                                            userPfp1!="" && userPfp1!=undefined
+                                            ?
+                                            <Image src={userPfp1} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
+                                            :
+                                            <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
+                                                <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
+                                            </View>
+                                        }
+                                        <View style={{marginLeft: 10,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                            <Text style={{fontFamily: 'LeagueSpartan',color: '#fff',textAlign: 'center',textAlignVertical: 'center',fontSize: 16}}>Liked by <Text style={{fontFamily: 'LeagueSpartan-Medium'}}>{userName}</Text>.</Text>
+                                        </View>
+                                    </Pressable>
+                                    :
+                                    <View style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
+                                        <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                            <Text style={{fontFamily: 'LeagueSpartan',color: '#fff',textAlign: 'center',textAlignVertical: 'center',fontSize: 17}}><Text style={{fontFamily: 'LeagueSpartan-Medium'}}>0</Text> Likes</Text>
+                                        </View>
+                                    </View>
+                                }
+                            </View>
+                        }
+                    </View>
+                }
+                <View style={styles.interactComponent}>
+                    <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between'}}>
+                        {
+                            workout.likes.some(e => e.uid == `${userID}`)
+                            ?
+                            <Pressable onPress={()=>{
+                                unlikeWorkout(workout);
+                            }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
+                            </Pressable>
+                            :
+                            <Pressable onPress={()=>{
+                                likeWorkout(workout);
+                            }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff',marginRight: 5}}/>
+                            </Pressable>
+                        }
                     </View>  
                     <Pressable onPress={()=>{
                             openWorkoutBox(workout.workout,workout.uid);
                     }} style={{display: 'flex',padding: 10,justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
                         <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
-                            {/* <Image source={comment} style={styles.commentIcon}/> */}
                             <FontAwesomeIcon icon="fa-regular fa-comment" size={20} style={{color: '#fff'}}/>
                         </View>
                         <Text style={{fontFamily: 'LeagueSpartan',textAlign: 'center',textAlignVertical: 'center',color: '#fff',fontSize: 18,marginLeft: 5,}}>{workout.workout.comments.length}</Text>
@@ -1045,12 +948,10 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                                                     {
                                                                         user.profileUrl=="" || user.profileUrl==undefined
                                                                         ?
-                                                                        <Pressable onPress={()=>{
-    
-                                                                        }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                                        <View style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
                                                                           {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
                                                                           <FontAwesomeIcon icon="fa-solid fa-user" size={40} style={{color: '#fff'}}/>
-                                                                        </Pressable>
+                                                                        </View>
                                                                         :
                                                                         <Image src={user.profileUrl} style={{height: 60,width: 60,borderRadius: 50,borderWidth: 2,borderColor: '#fff'}}/>
                                                                     }
@@ -1152,7 +1053,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                 <Pressable onPress={()=>{
                                     setShowLikesBool(false);
                                 }} >
-                                    {/* <Image source={backIconWhite} style={{height: 30,width: 30,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/> */}
                                     <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{color: '#fff'}}/>
                                 </Pressable>
                             </View>
@@ -1164,6 +1064,12 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                             likedUsers.length>0
                             ?
                             likedUsers.map(user => {
+                                let userPfp = allUsers.length>0 ? allUsers.find(arr => arr.uid==user.uid) : "";
+                                if(userPfp!="" && userPfp!=undefined){
+                                    userPfp = userPfp.profileUrl;
+                                }
+                                if(userPfp==undefined) userPfp = "";
+
                                 return(
                                     <View key={user.uid} style={{marginTop: 15,width: '100%'}}>
                                         <View  style={{display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 10,backgroundColor: '#3e3e3e',margin: 7.5,borderRadius: 10,paddingLeft: 15,paddingRight: 15,alignItems: 'center',justifyContent: 'space-between'}}>
@@ -1172,25 +1078,19 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                                     navigation.navigate('UserPage')
                                                 }}>
                                                     {
-                                                        user.profileUrl=="" || user.profileUrl==undefined
+                                                        userPfp=="" || userPfp==undefined
                                                         ?
-                                                        <Pressable onPress={()=>{
-
-                                                        }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
-                                                          {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
-                                                          <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
-                                                        </Pressable>
+                                                        <View style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                                          <FontAwesomeIcon icon="fa-solid fa-user" size={30} style={{color: '#fff'}}/>
+                                                        </View>
                                                         :
-                                                        <Image src={user.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
+                                                        <Image src={userPfp} style={{height: 50,width: 50,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
                                                     }
                                                 </Pressable>
                                                 <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 17,color: '#fff',fontWeight: '500',fontFamily:'LeagueSpartan'}}>{user.name}</Text>
                                             </View>
                                             <View style={{marginRight: 10}}>
-                                                <Pressable>
-                                                    {/* <Image source={likeBlue} style={{height: 20,width: 20}}/> */}
-                                                    <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
-                                                </Pressable>
+                                                <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
                                             </View>
                                         </View>
                                     </View>
@@ -1208,7 +1108,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
     }
 }
 
-export default Workout
+export default memo(Workout)
 
 const styles = StyleSheet.create({
     workoutContainer: {
@@ -1336,7 +1236,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#1e1e1e',
         padding: 10,
         borderRadius: 10,
-        marginTop: 10
     },
     likeIcon: {
         height: 22,
