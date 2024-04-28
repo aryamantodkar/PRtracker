@@ -123,7 +123,7 @@ export default function Home() {
                                 setSearchText(text);
                                 setSearchParams(text);
                                 inputRef.current.focus();
-                            }} style={{height: 40,fontSize: 16,color: '#fff',fontWeight: '500',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}/>
+                            }} style={{height: 40,fontSize: 16,color: '#fff',fontWeight: '500',textAlignVertical: 'center',fontFamily: 'LeagueSpartan',flex: 1}}/>
                           </View>
                           {
                             searchParams!=""
@@ -131,7 +131,7 @@ export default function Home() {
                             <Pressable onPress={()=>{
                               setSearchParams("");
                               setSearchText("");
-                            }} style={{backgroundColor: '#3e3e3e',padding: 5,borderRadius: 10}}>
+                            }} style={{backgroundColor: '#3e3e3e',padding: 5,borderRadius: 10,position: 'absolute',right: 10}}>
                               <Text style={{fontFamily: 'LeagueSpartan',color: '#fff'}}>Clear</Text>
                             </Pressable>
                             :

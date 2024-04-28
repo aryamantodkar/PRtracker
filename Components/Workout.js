@@ -582,7 +582,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                         <Text style={{fontFamily: 'LeagueSpartan',textAlign: 'center',textAlignVertical: 'center',color: '#fff',fontSize: 18,marginLeft: 5,}}>{workout.workout.comments.length}</Text>
                     </Pressable>
                 </View>
-                
             </View>
         )
     }
@@ -1043,7 +1042,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                 </View>
                             </View>
                             :
-                            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid} hideUserNavbar={hideUserNavbar} followingUserArray={followingUserArray} setFollowingUserArray={setFollowingUserArray}/>
+                            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid} hideUserNavbar={hideUserNavbar} followingUserArray={followingUserArray} setFollowingUserArray={setFollowingUserArray} allUsers={allUsers}/>
                         }
                     </ScrollView>
                     :
@@ -1073,10 +1072,14 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                 return(
                                     <View key={user.uid} style={{marginTop: 15,width: '100%'}}>
                                         <View  style={{display: 'flex',flexDirection: 'row',alignItems: 'center',padding: 10,backgroundColor: '#3e3e3e',margin: 7.5,borderRadius: 10,paddingLeft: 15,paddingRight: 15,alignItems: 'center',justifyContent: 'space-between'}}>
-                                            <View style={{display:'flex',flexDirection: 'row',justifyContent:'center',alignItems: 'center'}}>
-                                                <Pressable onPress={() => {
-                                                    navigation.navigate('UserPage')
-                                                }}>
+                                            <Pressable onPress={() => {
+                                                navigation.navigate('IndividualUser',{
+                                                    uid: user.uid,
+                                                    name: user.name,
+                                                    profileUrl: userPfp
+                                                })
+                                            }} style={{display:'flex',flexDirection: 'row',justifyContent:'center',alignItems: 'center'}}>
+                                                <View>
                                                     {
                                                         userPfp=="" || userPfp==undefined
                                                         ?
@@ -1086,9 +1089,9 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                                         :
                                                         <Image src={userPfp} style={{height: 50,width: 50,borderRadius: 50,borderWidth: 2,borderColor: '#DDD'}}/>
                                                     }
-                                                </Pressable>
+                                                </View>
                                                 <Text style={{textAlign: 'center',marginLeft: 10,fontSize: 17,color: '#fff',fontWeight: '500',fontFamily:'LeagueSpartan'}}>{user.name}</Text>
-                                            </View>
+                                            </Pressable>
                                             <View style={{marginRight: 10}}>
                                                 <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
                                             </View>
