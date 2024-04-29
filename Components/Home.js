@@ -41,9 +41,7 @@ export default function Home() {
   
   useEffect(()=>{
     getProfileImage();
-  },[])
-
-  useEffect(()=>{
+    
     const timeout = setTimeout(() => {
         setIsLoading(false);
     }, 1000);

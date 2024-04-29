@@ -9,6 +9,7 @@ import Animated, {
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHeart } from '@fortawesome/free-regular-svg-icons'
+import { debounce } from 'lodash';
 import { StyleSheet, Text, View, SafeAreaView, Image, Pressable,ScrollView,ActivityIndicator, ViewBase } from 'react-native'
 import { collection, query, where, getDocs,doc,getDoc,updateDoc, onSnapshot } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -21,22 +22,18 @@ import { useFonts } from 'expo-font';
 import { v4 as uuidv4 } from 'uuid';
 
 const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfile}) => {
-    const [workoutsArray,setWorkoutsArray] = useState([]);
     const [showWorkoutBox,setShowWorkoutBox] = useState(false);
     const [clickedWorkoutID,setClickedWorkoutID] = useState();
     const [isLoading,setIsLoading] = useState(false);
     
-    const [myWorkouts,setMyWorkouts] = useState([]);
-    const [followingWorkouts,setFollowingWorkouts] = useState([]);
     const [followingUserArray,setFollowingUserArray] = useState([]);
     const [allUsers,setAllUsers] = useState([]);
+    const [searchUsers,setSearchUsers] = useState([]);
 
     const [newUid,setNewUid] = useState('');
     const [newUidBool,setNewUidBool] = useState(false);
     const [showLikesBool,setShowLikesBool] = useState(false);
     const [likedUsers,setLikedUsers] = useState([]);
-    const [goToCommentBox,setGoToCommentBox] = useState(false);
-
     const storage = getStorage();
 
     const [fontsLoaded, fontError] = useFonts({
@@ -85,17 +82,17 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
             const q = query(collection(FIREBASE_DB, `${userID}`));
             const querySnapshot = await getDocs(q);
     
-            const userNameRef = doc(FIREBASE_DB, "Users", `${userID}`);
-            const userNameRefSnap = await getDoc(userNameRef);
-    
+            let newAllUsers = await getAllUsers();
+
+            let loggedUser = newAllUsers.length>0 ? newAllUsers.find(user => user.uid==userID) : "";
             let loggedUserName = "";
             let loggedProfileUrl = "";
-    
-            if (userNameRefSnap.exists()) {
-                loggedUserName = userNameRefSnap.data().name;
-                loggedProfileUrl = userNameRefSnap.data().profileUrl;
+
+            if(loggedUser!="" && loggedUser!=undefined){
+                loggedProfileUrl = loggedUser.profileUrl
+                loggedUserName = loggedUser.name
             }
-    
+
             const newArray = [];
             querySnapshot.forEach(doc => {
                 newArray.push({
@@ -120,47 +117,39 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
         try {
             const docRef = doc(FIREBASE_DB, "Users", `${auth.currentUser.uid}`);
             const docSnap = await getDoc(docRef);
-    
-            if (docSnap.exists()) {
-                let followingArray = docSnap.data().following;
-    
-                const followingPromises = followingArray.map(async following => {
-                    const q = query(collection(FIREBASE_DB, `${following}`));
-                    const nameRef = doc(FIREBASE_DB, "Users", `${following}`);
-                    const nameSnap = await getDoc(nameRef);
-    
-                    let name = "";
-                    if (nameSnap.exists()) {
-                        name = nameSnap.data().name;
-                    }
-    
-                    let profileUrl = "";
-                    const profilePicRef = doc(FIREBASE_DB, "Users", `${following}`);
-                    const profilePicSnap = await getDoc(profilePicRef);
-    
-                    if (profilePicSnap.exists()) {
-                        profileUrl = profilePicSnap.data().profileUrl;
-                    }
-    
-                    const querySnapshot = await getDocs(q);
-                    const workouts = [];
-                    querySnapshot.forEach(doc => {
-                        workouts.push({
-                            timeStamp: doc.data().timeStamp,
-                            workout: doc.data(),
-                            uid: following,
-                            name: name,
-                            likes: doc.data().likes,
-                            comments: doc.data().comments,
-                            profileUrl: profileUrl
-                        });
-                    });
-                    return workouts;
-                });
-    
-                return Promise.all(followingPromises);
+
+            const getUsers = await getAllUsers();
+            let followingArray = getUsers.length>0 ? getUsers.find(user => user.uid==auth.currentUser.uid) : "";
+
+            if(followingArray!="" && followingArray!=undefined){
+                followingArray = followingArray.followingArr
             }
-            return [];
+    
+            const followingPromises = followingArray.map(async following => {
+                const q = query(collection(FIREBASE_DB, `${following}`));
+
+                let follUser = getUsers.length>0 ? getUsers.find(user => user.uid==following) : "";
+
+                let name = follUser.name;
+                let profileUrl = follUser.profileUrl;
+
+                const querySnapshot = await getDocs(q);
+                const workouts = [];
+                querySnapshot.forEach(doc => {
+                    workouts.push({
+                        timeStamp: doc.data().timeStamp,
+                        workout: doc.data(),
+                        uid: following,
+                        name: name,
+                        likes: doc.data().likes,
+                        comments: doc.data().comments,
+                        profileUrl: profileUrl
+                    });
+                });
+                return workouts;
+            });
+
+            return Promise.all(followingPromises);
         } catch (error) {
             console.error("Error fetching following workouts: ", error);
             return [];
@@ -168,61 +157,46 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
     };
 
     const searchWorkouts = async () => {
-        setIsLoading(true);
-    
-        const q = query(collection(FIREBASE_DB, `${userID}`));
-    
-        const userNameRef = doc(FIREBASE_DB, "Users", `${userID}`);
-        const userNameRefSnap = await getDoc(userNameRef);
-    
-        let loggedUserName = "";
-        let loggedProfileUrl = "";
-    
-        if (userNameRefSnap.exists()) {
-            loggedUserName = userNameRefSnap.data().name;
-            loggedProfileUrl = userNameRefSnap.data().profileUrl;
-        }
-    
-        const allWorkouts = [];
-    
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-            allWorkouts.push({
-                timeStamp: doc.data().timeStamp,
-                workout: doc.data(),
-                uid: userID,
-                name: loggedUserName,
-                likes: doc.data().likes,
-                comments: doc.data().comments,
-                profileUrl: loggedProfileUrl
+        try{
+            setIsLoading(true);
+
+            const q = query(collection(FIREBASE_DB, `${userID}`));
+            
+            let newAllUsers = await getAllUsers();
+
+            let loggedUser = newAllUsers.length>0 ? newAllUsers.find(user => user.uid==userID) : "";
+            let loggedUserName = "";
+            let loggedProfileUrl = "";
+
+            if(loggedUser!="" && loggedUser!=undefined){
+                loggedProfileUrl = loggedUser.profileUrl
+                loggedUserName = loggedUser.name
+            }
+
+            const allWorkouts = [];
+        
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                allWorkouts.push({
+                    timeStamp: doc.data().timeStamp,
+                    workout: doc.data(),
+                    uid: userID,
+                    name: loggedUserName,
+                    likes: doc.data().likes,
+                    comments: doc.data().comments,
+                    profileUrl: loggedProfileUrl
+                });
             });
-        });
-    
-        const docRef = doc(FIREBASE_DB, "Users", `${auth.currentUser.uid}`);
-        const docSnap = await getDoc(docRef);
-    
-        if (docSnap.exists()) {
-            const followingArray = docSnap.data().following;
-    
+        
+            const followingArray = loggedUser!=undefined && loggedUser!="" ? loggedUser.followingArr : [];
+        
             await Promise.all(followingArray.map(async (following) => {
                 const q = query(collection(FIREBASE_DB, `${following}`));
-                const nameRef = doc(FIREBASE_DB, "Users", `${following}`);
-                const nameSnap = await getDoc(nameRef);
-    
-                let name = "";
-    
-                if (nameSnap.exists()) {
-                    name = nameSnap.data().name;
-                }
-    
-                let profileUrl = "";
-    
-                const profilePicRef = doc(FIREBASE_DB, "Users", `${following}`);
-                const profilePicSnap = await getDoc(profilePicRef);
-    
-                if (profilePicSnap.exists()) {
-                    profileUrl = profilePicSnap.data().profileUrl;
-                }
+
+                let follUser = newAllUsers.length>0 ? newAllUsers.find(user => user.uid==following) : "";
+
+                let name = follUser.name;
+                let profileUrl = follUser.profileUrl;
     
                 const querySnapshot = await getDocs(q);
                 querySnapshot.forEach((doc) => {
@@ -241,33 +215,38 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
             allWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis());
     
             let updatedArray = allWorkouts;
-            let allUsersArray = await getAllUsers();
     
-            if (searchParams !== "") {
+            if (searchParams !== "" && searchParams!=undefined) {
                 const filterBySearch = allWorkouts.filter((item) => {
                     let search = false;
-                    item.workout.allWorkouts.map(workout => {
-                        if (workout.exerciseName.toLowerCase().includes(searchParams.toLowerCase())) {
-                            search = true;
+                    
+                    if(item.workout.workoutName!=undefined && item.name!=undefined){
+                        item.workout.allWorkouts.map(workout => {
+                            if (workout.exerciseName!=undefined && workout.exerciseName.toLowerCase().includes(searchParams.toLowerCase())) {
+                                search = true;
+                            }
+                        });
+                        if (item.workout.workoutName.toLowerCase().includes(searchParams.toLowerCase()) || item.name.toLowerCase().includes(searchParams.toLowerCase()) || search) {
+                            return item;
                         }
-                    });
-                    if (item.workout.workoutName.toLowerCase().includes(searchParams.toLowerCase()) || item.name.toLowerCase().includes(searchParams.toLowerCase()) || search) {
-                        return item;
                     }
                 });
 
-                const filterUsersBySearch = allUsersArray.filter((item) => {
+                const filterUsersBySearch = newAllUsers.filter((item) => {
                     if (item.name.toLowerCase().includes(searchParams.toLowerCase())) {
                         return item;
                     }
                 });
     
                 updatedArray = filterBySearch;
-                allUsersArray = filterUsersBySearch;
+                newAllUsers = filterUsersBySearch;
             }
-    
+
             setFollowingUserArray(updatedArray);
-            setAllUsers(allUsersArray);
+            setSearchUsers(newAllUsers);
+        }
+        catch(error){
+            console.log("Error in search workouts",error)
         }
     };
 
@@ -291,7 +270,8 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                     uid: doc.data().uid,
                     name: doc.data().name,
                     profileUrl: doc.data().profileUrl,
-                    following: followingArr.includes(doc.data().uid) ? true : false
+                    following: followingArr.includes(doc.data().uid) ? true : false,
+                    followingArr: followingArr
                 })
             });
 
@@ -302,26 +282,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
             return [];
         }
     }
-    
-    useEffect(() => {
-        setIsLoading(true);
-        const fetchData = async () => {
-            await searchWorkouts();
-        };
-
-    
-        fetchData()
-    }, [searchParams]);
-    
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (isLoading) {
-                setIsLoading(false);
-            }
-        }, 500); // Adjust the timeout duration as needed
-    
-        return () => clearTimeout(timeout);
-    }, [followingUserArray]);
 
     const openWorkoutBox = (workout,tempUid = null) => {
         if(uid==null){
@@ -357,6 +317,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
 
     const groupByUser = (workout,profileUid) => {
         let workoutLikesLength = workout.likes.length;
+
         let userPfp1 = workoutLikesLength>0 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[0].uid) : "";
         let userPfp2 = workoutLikesLength>1 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[1].uid) : "";
         let userPfp3 = workoutLikesLength>2 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[2].uid) : "";
@@ -781,7 +742,25 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
             }
         }))
     }
-    
+
+    const showLikes = async (likes) => {
+        setShowLikesBool(true);
+        setLikedUsers(likes);
+    }
+
+    const duration = 500;
+
+    const defaultAnim = useSharedValue(120);
+    const defaultColumn = useSharedValue(100);
+
+    const animatedDefault = useAnimatedStyle(() => ({
+        transform: [{ translateX: -(defaultAnim.value+10) }],
+    }));
+
+    const animatedColumn = useAnimatedStyle(() => ({
+        transform: [{ translateX: -defaultColumn.value }],
+    }));
+
     useEffect(() => {
         const fetchData = async () => {
             await updateWorkouts();
@@ -790,7 +769,24 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
         fetchData()
     }, [showWorkoutBox]);
 
+    // Rendered 6 times
+
     useEffect(() => {
+        defaultAnim.value = withRepeat(
+            withTiming(-defaultAnim.value, {
+              duration,
+            }),
+            -1,
+            false
+        );
+        defaultColumn.value = withRepeat(
+            withTiming(-defaultColumn.value, {
+            duration,
+            }),
+            -1,
+            false
+        );
+
         if(uid!=null && uid!=auth.currentUser.uid){
             userID = uid;
         }
@@ -801,7 +797,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                 const followingWorkouts = uid==null ? await getFollowingWorkouts() : [];
                 const combinedWorkouts = myWorkouts.concat(...followingWorkouts);
                 const getUsers = await getAllUsers();
-                
+
                 setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
                 setAllUsers(getUsers);
             } catch (error) {
@@ -838,42 +834,29 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
         });
 
     }, []);
+ 
+    //Rendered 4 times
 
-    const showLikes = async (likes) => {
-        setShowLikesBool(true);
-        setLikedUsers(likes);
-    }
-
-    const duration = 500;
-
-    const defaultAnim = useSharedValue(120);
-    const defaultColumn = useSharedValue(100);
-
-    const animatedDefault = useAnimatedStyle(() => ({
-        transform: [{ translateX: -(defaultAnim.value+10) }],
-    }));
-
-    const animatedColumn = useAnimatedStyle(() => ({
-        transform: [{ translateX: -defaultColumn.value }],
-    }));
+    const debouncedSearchWorkouts = debounce(searchWorkouts, 300);
 
     useEffect(() => {
-        defaultAnim.value = withRepeat(
-          withTiming(-defaultAnim.value, {
-            duration,
-          }),
-          -1,
-          false
-        );
-        defaultColumn.value = withRepeat(
-            withTiming(-defaultColumn.value, {
-              duration,
-            }),
-            -1,
-            false
-        );
-    }, []);
+        debouncedSearchWorkouts();
+
+        return () => {
+            debouncedSearchWorkouts.cancel();
+        };
+    }, [searchParams]);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (isLoading) {
+                setIsLoading(false);
+            }
+        }, 500);
     
+        return () => clearTimeout(timeout);
+    }, [followingUserArray]);
+
     if(isLoading){
         return(
             <View style={{height: '100%',minWidth:'100%',display: 'flex',justifyContent: 'flex-start',alignItems: 'center',minHeight: 500}}>
@@ -925,16 +908,16 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                             <View style={styles.workoutList}>
                                 <View style={{height: '100%',marginTop: 20}}>
                                     {
-                                        searchBar && allUsers.length>0 && searchParams!=""
+                                        searchBar && searchUsers.length>0 && searchParams!=""
                                         ?
                                         <View>
-                                            <View>
+                                            <View style={{marginBottom: 10}}>
                                                 <Text style={{fontFamily: 'LeagueSpartan-Medium',marginLeft: 5,fontSize: 23,alignSelf: 'flex-start'}}>Users</Text>
                                             </View>
                                             <View style={{width: '100%',height: 220,marginBottom: 20}}>
                                                 
                                                 <ScrollView horizontal={true} style={{width: '100%',height: '100%',padding: 10,paddingLeft: 0,paddingRight: 0,display: 'flex',flexDirection: 'row',overflow: 'scroll'}}>
-                                                    {allUsers.map(user => {
+                                                    {searchUsers.map(user => {
                                                         if(user.uid!=auth.currentUser.uid){
                                                             return(
                                                                 <Pressable onPress={()=>{
@@ -1111,7 +1094,24 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
     }
 }
 
-export default memo(Workout)
+const MemoizedWorkout = memo(Workout);
+
+const MemoizedWorkoutWrapper = ({ searchParams, showNavbar, setShowNavbar, uid, hideUserNavbar, setHideUserNavbar, searchBar, userProfile }) => {
+    return useMemo(() => (
+        <MemoizedWorkout
+            searchParams={searchParams}
+            showNavbar={showNavbar}
+            setShowNavbar={setShowNavbar}
+            uid={uid}
+            hideUserNavbar={hideUserNavbar}
+            setHideUserNavbar={setHideUserNavbar}
+            searchBar={searchBar}
+            userProfile={userProfile}
+        />
+    ), [searchParams, uid]);
+};
+
+export default MemoizedWorkoutWrapper;
 
 const styles = StyleSheet.create({
     workoutContainer: {
