@@ -42,6 +42,8 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
         'SignikaNegative': require('../assets/fonts/SignikaNegative-Medium.ttf'),
         'LeagueSpartan': require('../assets/fonts/LeagueSpartan-Regular.ttf'),
         'LeagueSpartan-Medium': require('../assets/fonts/LeagueSpartan-Medium.ttf'),
+        'LeagueSpartan-SemiBold': require('../assets/fonts/LeagueSpartan-SemiBold.ttf'),
+        'LeagueSpartan-Bold': require('../assets/fonts/LeagueSpartan-Bold.ttf'),
         'Inter': require('../assets/fonts/Inter-Regular.ttf'),
         'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
         'Futura-Condensed': require('../assets/fonts/Futura_Condensed_Extra_Bold.otf'),
@@ -69,8 +71,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
     dateSuffix.set('01','st');
     dateSuffix.set('02','nd');
     dateSuffix.set('03','rd');
-
-    const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
     const navigation = useNavigation();
     const auth = getAuth();
@@ -302,45 +302,16 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
         }
     }
 
-    const followingGroupByDate = (workout) => {
-        followingDateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
-        UserGroup.clear();
-        return(
-            <View style={{marginBottom: 20,padding: 10,paddingLeft: 15,paddingRight: 15,alignSelf: 'flex-start',borderRadius: 5,backgroundColor: '#f6f6f7'}}>
-                <Text style={{fontSize: 18,color: '#1e1e1e',fontFamily: 'LeagueSpartan'}}>{workout.timeStamp.toDate().toISOString().slice(8,10)} 
-                    {/* last digit(1,2,3,...9) ? st/nd/rd : th */}
-                    {dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)}
-                </Text>
-            </View>
-        )
-    }
-
     const groupByUser = (workout,profileUid) => {
-        let workoutLikesLength = workout.likes.length;
+        let totalSets = 0;
+        let totalVol = "0";
+        let totalReps = "0";
 
-        let userPfp1 = workoutLikesLength>0 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[0].uid) : "";
-        let userPfp2 = workoutLikesLength>1 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[1].uid) : "";
-        let userPfp3 = workoutLikesLength>2 && allUsers.length>0 ? allUsers.find(user => user.uid==workout.likes[2].uid) : "";
-
-        let userName = userPfp1!="" && userPfp1!=undefined ? userPfp1.name : "";
-
-        if(userPfp1!="" && userPfp1!=undefined){
-            userPfp1 = userPfp1.profileUrl;
-        }
-        if(userPfp2!="" && userPfp2!=undefined){
-            userPfp2 = userPfp2.profileUrl;
-        }
-        if(userPfp3!="" && userPfp3!=undefined){
-            userPfp3 = userPfp3.profileUrl;
-        }
-
-        if(userPfp1==undefined) userPfp1 = "";
-        if(userPfp2==undefined) userPfp2 = "";
-        if(userPfp3==undefined) userPfp3 = "";
+        followingDateGroup.set(`${workout.timeStamp.toDate().toISOString().slice(8,10)}${workout.timeStamp.toDate().toISOString().slice(5,7)}${workout.timeStamp.toDate().toISOString().slice(0,4)}`,'1')
 
         UserGroup.set(`${workout.name}`,'1')
         return(
-            <View style={{display: 'flex',justifyContent: 'space-between',flexDirection: 'column',backgroundColor: '#1e1e1e',padding: 15,paddingLeft: 20,paddingRight: 20,borderRadius: 10,elevation: 5,borderWidth: 1,borderColor: '#A5A5A5'}}>
+            <View style={{display: 'flex',justifyContent: 'space-between',flexDirection: 'column',backgroundColor: '#FFFFFF',padding: 15,paddingLeft: 20,paddingRight: 20,borderWidth: 2,borderColor: '#F1F1F1'}}>
                 <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',flexDirection: 'row',marginBottom: 15}}>
                     <Pressable onPress={()=>{
                         if(profileUid!=auth.currentUser.uid){
@@ -365,183 +336,137 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                     <Image src={workout.profileUrl} style={{height: 50,width: 50,borderRadius: 50,borderWidth: 1.5,borderColor: '#DDD'}}/>
                                 }
                             </View>
-                            <Text style={{color: '#fff',fontSize: 18,marginLeft: 10,fontWeight: '500',fontFamily: 'LeagueSpartan-Medium'}}>{workout.name}</Text>
-                    </Pressable>
-                    <Pressable onPress={()=>{
-                        openWorkoutBox(workout.workout,workout.uid);
-                    }} style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
-                    {
-                        workout.timeStamp.toDate().toTimeString().slice(0,2)<12
-                        ?
-                        <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
-                        :
-                        <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
-                    }       
+                            <View style={{display: 'flex',flexDirection: 'column'}}>
+                                <Text style={{color: '#1e1e1e',fontSize: 18,marginLeft: 10,fontFamily: 'LeagueSpartan-Medium'}}>{workout.name}</Text>
+                                <Pressable onPress={()=>{
+                                    openWorkoutBox(workout.workout,workout.uid);
+                                }} style={{display: 'flex',flexDirection: 'row',marginLeft: 10,alignItems: 'center'}}>
+                                {
+                                    workout.timeStamp.toDate().toTimeString().slice(0,2)<12
+                                    ?
+                                    <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toISOString().slice(8,10)}{dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)} at {workout.timeStamp.toDate().toTimeString().slice(0,5)} AM</Text>
+                                    :
+                                    <Text style={styles.workoutTime}>{workout.timeStamp.toDate().toISOString().slice(8,10)}{dateSuffix.has(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) ? dateSuffix.get(`${workout.timeStamp.toDate().toISOString().slice(8,10)}`) : 'th'} {months.get(`${workout.timeStamp.toDate().toISOString().slice(5,7)}`)}, {workout.timeStamp.toDate().toISOString().slice(0,4)} at {workout.timeStamp.toDate().toTimeString().slice(0,5)} PM</Text>
+                                }       
+                                </Pressable>
+                            </View>
                     </Pressable>
                 </View>
                 <Pressable onPress={() => {
                         openWorkoutBox(workout.workout,workout.uid);
-                    }} style={{display: 'flex',flexDirection: 'column',justifyContent: 'space-between',alignItems: 'flex-start',marginBottom: 10}}>
+                    }} style={{display: 'flex',flexDirection: 'column',justifyContent: 'space-between',alignItems: 'flex-start',marginBottom: 10,marginLeft: 5}}>
                     <View style={{display:'flex',alignItems: 'center',justifyContent: 'center',marginTop: 20}}>
                         <Text style={styles.workoutTitle}>{workout.workout.workoutName}</Text>
                     </View>
                     
-                    <View style={{marginTop: 20,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%'}}>
+                    <View style={{marginTop: 15,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
                         <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center'}}>
                             {
                                 workout.workout.allWorkouts.length>1
                                 ?
-                                <Text style={{fontSize: 15,color: '#DDD',fontWeight: '500',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}>{workout.workout.allWorkouts.length} Exercises</Text>
+                                <Text style={{fontSize: 18,color: '#5f5f5f',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}><Text style={{color: '#343434',fontFamily: 'LeagueSpartan-SemiBold'}}>{workout.workout.allWorkouts.length}</Text> Variations</Text>
                                 :
-                                <Text style={{fontSize: 15,color: '#DDD',fontWeight: '500',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}>{workout.workout.allWorkouts.length} Exercise</Text>
+                                <Text style={{fontSize: 18,color: '#5f5f5f',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}><Text style={{color: '#343434',fontFamily: 'LeagueSpartan-SemiBold'}}>{workout.workout.allWorkouts.length}</Text> Variations</Text>
                             }
                         </View>
                     </View>
-
-                    {
-                        workout.workout.allWorkouts.map(exercise => {
-                            return(
-                                <View key={exercise.id} style={{marginTop: 10,display: 'flex',flexDirection: 'row'}}>
-                                    <View style={{borderBottomWidth: 2,borderColor: '#2B8CFF'}}>
-                                        <Text style={{color: '#fff',fontSize: 18,fontFamily: 'LeagueSpartan',marginTop: 10,paddingBottom: 5}}>{exercise.exerciseName}</Text>
-                                    </View>
-                                    <View>
-                                        <Text style={{color: '#fff',fontSize: 18,fontFamily: 'LeagueSpartan',marginTop: 10}}> x {exercise.allSets.length}</Text>
-                                    </View>
-                                </View>
-                            )
-                        })
-                    }
-                </Pressable>
-                {/* display likes */}
-                {
-                    workoutLikesLength>2
-                    ?
-                    <Pressable onPress={()=>{
-                        showLikes(workout.likes)
-                    }} style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
-                        {/* display like profile pictures */}
-                        {
-                            userPfp1!="" && userPfp1!=undefined
-                            ?
-                            <Image src={userPfp1} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
-                            :
-                            <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
-                                <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
-                            </View>
-                        }
-                        {
-                            userPfp2!="" && userPfp2!=undefined
-                            ?
-                            <Image src={userPfp2} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
-                            :
-                            <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
-                                <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
-                            </View>
-                        }
-                        {
-                            userPfp3!="" && userPfp3!=undefined
-                            ?
-                            <Image src={userPfp3} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
-                            :
-                            <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
-                                <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
-                            </View>
-                        }
-                        <View style={{marginLeft: 10,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                            <Text style={{fontFamily: 'LeagueSpartan',color: '#fff',textAlign: 'center',textAlignVertical: 'center',fontSize: 16}}>Liked by <Text style={{fontFamily: 'LeagueSpartan-Medium'}}>{userName}</Text> and <Text style={{fontFamily: 'LeagueSpartan-Medium'}}>{workoutLikesLength-1} others</Text>.</Text>
+                    <View style={{marginTop: 15,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
+                        <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center'}}>
+                            {
+                                workout.workout.allWorkouts.map(w => {
+                                    totalSets += w.allSets.length;
+                                })
+                            }
+                            {
+                                totalSets>1
+                                ?
+                                <Text style={{fontSize: 18,color: '#5f5f5f',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}><Text style={{color: '#343434',fontFamily: 'LeagueSpartan-SemiBold'}}>{totalSets}</Text> Sets</Text>
+                                :
+                                <Text style={{fontSize: 18,color: '#5f5f5f',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}><Text style={{color: '#343434',fontFamily: 'LeagueSpartan-SemiBold'}}>{totalSets}</Text> Sets</Text>
+                            }
                         </View>
-                    </Pressable>
-                    :
-                    <View style={{}}>
-                        {
-                            workoutLikesLength>1
-                            ?
-                            <Pressable onPress={()=>{
-                                showLikes(workout.likes)
-                            }}  style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
-                                {/* display like profile pictures */}
-                                {
-                                    userPfp1!="" && userPfp1!=undefined
-                                    ?
-                                    <Image src={userPfp1} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
-                                    :
-                                    <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
-                                        <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
-                                    </View>
-                                }
-                                {
-                                    userPfp2!="" && userPfp2!=undefined
-                                    ?
-                                    <Image src={userPfp2} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7',marginLeft: -5}}/>
-                                    :
-                                    <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5,marginLeft: -5}}>
-                                        <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
-                                    </View>
-                                }
-                                <View style={{marginLeft: 10,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                    <Text style={{fontFamily: 'LeagueSpartan',color: '#fff',textAlign: 'center',textAlignVertical: 'center',fontSize: 16}}>Liked by <Text style={{fontFamily: 'LeagueSpartan-Medium'}}>{userName}</Text> and <Text style={{fontFamily: 'LeagueSpartan-Medium'}}>{workoutLikesLength-1} others</Text>.</Text>
-                                </View>
-                            </Pressable>
-                            :
-                            <View>
-                                {
-                                    workoutLikesLength>0
-                                    ?
-                                    <Pressable onPress={()=>{
-                                        showLikes(workout.likes)
-                                    }}  style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
-                                        {/* display like profile pictures */}
-                                        {
-                                            userPfp1!="" && userPfp1!=undefined
-                                            ?
-                                            <Image src={userPfp1} style={{height: 26,width: 26,borderRadius: 50,borderWidth: 1.5,borderColor: '#f6f6f7'}}/>
-                                            :
-                                            <View style={{borderRadius: 50,backgroundColor: '#ddd',padding: 5}}>
-                                                <FontAwesomeIcon icon="fa-solid fa-user" size={15} style={{color: '#fff'}}/>
-                                            </View>
-                                        }
-                                        <View style={{marginLeft: 10,display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                            <Text style={{fontFamily: 'LeagueSpartan',color: '#fff',textAlign: 'center',textAlignVertical: 'center',fontSize: 16}}>Liked by <Text style={{fontFamily: 'LeagueSpartan-Medium'}}>{userName}</Text>.</Text>
-                                        </View>
-                                    </Pressable>
-                                    :
-                                    <View style={{display: 'flex',flexDirection: 'row',marginTop: 20}}>
-                                        <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                            <Text style={{fontFamily: 'LeagueSpartan',color: '#fff',textAlign: 'center',textAlignVertical: 'center',fontSize: 17}}><Text style={{fontFamily: 'LeagueSpartan-Medium'}}>0</Text> Likes</Text>
-                                        </View>
-                                    </View>
-                                }
-                            </View>
-                        }
                     </View>
-                }
+                    <View style={{marginTop: 15,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
+                        <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center'}}>
+                            {
+                                workout.workout.allWorkouts.map(w => {
+                                    w.allSets.map(s => {
+                                        totalReps = +totalReps + +s.reps
+                                    })
+                                })
+                            }
+                            {
+                                totalReps>1
+                                ?
+                                <Text style={{fontSize: 18,color: '#5f5f5f',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}><Text style={{color: '#343434',fontFamily: 'LeagueSpartan-SemiBold'}}>{totalReps}</Text> Reps</Text>
+                                :
+                                <Text style={{fontSize: 18,color: '#5f5f5f',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}><Text style={{color: '#343434',fontFamily: 'LeagueSpartan-SemiBold'}}>{totalReps}</Text> Reps</Text>
+                            }
+                        </View>
+                    </View>
+                    <View style={{marginTop: 15,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
+                        <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center'}}>
+                            {
+                                workout.workout.allWorkouts.map(w => {
+                                    w.allSets.map(s => {
+                                        totalVol = +totalVol + +s.weight
+                                    })
+                                })
+                            }
+                            {
+                                totalVol>1
+                                ?
+                                <Text style={{fontSize: 18,color: '#5f5f5f',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}><Text style={{color: '#343434',fontFamily: 'LeagueSpartan-SemiBold'}}>{totalVol} kg</Text> Volume</Text>
+                                :
+                                <Text style={{fontSize: 18,color: '#5f5f5f',display: 'flex',justifyContent: 'center',alignItems: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}}><Text style={{color: '#343434',fontFamily: 'LeagueSpartan-SemiBold'}}>{totalVol} kg</Text> Volume</Text>
+                            }
+                        </View>
+                    </View>
+                </Pressable>
                 <View style={styles.interactComponent}>
                     <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-between'}}>
                         {
                             workout.likes.some(e => e.uid == `${userID}`)
                             ?
-                            <Pressable onPress={()=>{
-                                unlikeWorkout(workout);
-                            }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
-                            </Pressable>
+                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
+                                <Pressable onPress={()=>{
+                                    unlikeWorkout(workout);
+                                }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                    <FontAwesomeIcon icon="fa-solid fa-heart" size={22} style={{color: 'red',marginRight: 5}}/>
+                                </Pressable>
+                                <Pressable onPress={()=>{
+                                    showLikes(workout.likes)
+                                }} style={{marginLeft: 5}}>
+                                    <Text style={{color: '#1e1e1e',fontSize: 20,fontFamily: 'LeagueSpartan-Medium'}}>{workout.likes.length}</Text>
+                                </Pressable>
+                            </View>
                             :
-                            <Pressable onPress={()=>{
-                                likeWorkout(workout);
-                            }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff',marginRight: 5}}/>
-                            </Pressable>
+                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
+                                <Pressable onPress={()=>{
+                                    likeWorkout(workout);
+                                }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                    <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#A19EA3',marginRight: 5}}/>
+                                </Pressable>
+                                <Pressable onPress={()=>{
+                                    showLikes(workout.likes)
+                                }} style={{marginLeft: 5}}>
+                                    <Text style={{color: '#1e1e1e',fontSize: 20,fontFamily: 'LeagueSpartan-Medium'}}>{workout.likes.length}</Text>
+                                </Pressable>
+                            </View>
+                            
                         }
                     </View>  
                     <Pressable onPress={()=>{
                             openWorkoutBox(workout.workout,workout.uid);
-                    }} style={{display: 'flex',padding: 10,justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
+                    }} style={{display: 'flex',justifyContent: 'center',alignItems: 'center',flexDirection: 'row'}}>
                         <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
-                            <FontAwesomeIcon icon="fa-regular fa-comment" size={20} style={{color: '#fff'}}/>
+                            <FontAwesomeIcon icon="fa-regular fa-comment" size={20} style={{color: '#A19EA3',marginRight: 5}}/>
                         </View>
-                        <Text style={{fontFamily: 'LeagueSpartan',textAlign: 'center',textAlignVertical: 'center',color: '#fff',fontSize: 18,marginLeft: 5,}}>{workout.workout.comments.length}</Text>
+                        <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                            <Text style={{marginLeft: 5,color: '#1e1e1e',fontSize: 20,fontFamily: 'LeagueSpartan-Medium'}}>{workout.workout.comments.length}</Text>
+                        </View>
                     </Pressable>
+                    
                 </View>
             </View>
         )
@@ -915,7 +840,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                                 <Text style={{fontFamily: 'LeagueSpartan-Medium',marginLeft: 5,fontSize: 23,alignSelf: 'flex-start'}}>Users</Text>
                                             </View>
                                             <View style={{width: '100%',height: 220,marginBottom: 20}}>
-                                                
                                                 <ScrollView horizontal={true} style={{width: '100%',height: '100%',padding: 10,paddingLeft: 0,paddingRight: 0,display: 'flex',flexDirection: 'row',overflow: 'scroll'}}>
                                                     {searchUsers.map(user => {
                                                         if(user.uid!=auth.currentUser.uid){
@@ -964,13 +888,14 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                         null
                                     }
                                     <View style={{width: '100%',height: '100%',paddingBottom: 20,}}>
-                                        {
+                                        {/* {
                                             searchBar
                                             ?
-                                            <Text style={{fontFamily: 'LeagueSpartan-Medium',marginLeft: 5,fontSize: 23,marginBottom: 20,alignSelf: 'flex-start'}}>Workouts</Text>
+                                            <Text style={{fontFamily: 'LeagueSpartan-Medium',marginLeft: 5,fontSize: 23,marginBottom: 20,alignSelf: 'flex-start',color: '#E3E3E3'}}>Workouts</Text>
                                             :
                                             null
-                                        }
+                                        } */}
+                                        <Text style={{fontFamily: 'LeagueSpartan',fontSize: 20,marginTop: 10,marginBottom: 30,alignSelf: 'flex-start',color: '#8F8F8F',borderBottomColor: '#E3E3E3',borderBottomWidth: 2,paddingBottom: 5}}>Workouts</Text>
                                         {
                                             followingUserArray.length>0 && !isLoading
                                             ?
@@ -980,14 +905,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                                         let randomID = uuidv4();
                                                         return(
                                                             <View style={{}}  key={randomID}>
-                                                                {
-                                                                    // check if date is already present in dateGroup in ddmmyyyy format ->
-                                                                    !followingDateGroup.has(`${userProfile.timeStamp.toDate().toISOString().slice(8,10)}${userProfile.timeStamp.toDate().toISOString().slice(5,7)}${userProfile.timeStamp.toDate().toISOString().slice(0,4)}`)
-                                                                    ?
-                                                                    followingGroupByDate(userProfile)
-                                                                    :
-                                                                    null
-                                                                }
 
                                                                 {
                                                                     groupByUser(userProfile,userProfile.uid)
@@ -1180,23 +1097,21 @@ const styles = StyleSheet.create({
     },
     workoutTitle: {
         fontSize: 32,
-        color: '#fff',
+        color: '#343434',
         textAlign: 'center',
         textAlignVertical: 'center',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        fontFamily: 'Futura-Condensed',
+        fontFamily: 'LeagueSpartan-Bold',
         // borderWidth: 2,
         // borderColor: "#444444",
         // borderRadius: 10,
-        fontWeight: '500',
         marginTop: -5
     },
     workoutTime: {
-        fontWeight: '500',
-        fontSize: 15,
-        color: '#DDD',
+        fontSize: 13,
+        color: '#949494',
         fontFamily: 'LeagueSpartan'
     },
     exerciseList:{
@@ -1236,9 +1151,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         width: '100%',
-        backgroundColor: '#1e1e1e',
+        backgroundColor: '#FFFFFF',
         padding: 10,
         borderRadius: 10,
+        marginTop: 15
     },
     likeIcon: {
         height: 22,

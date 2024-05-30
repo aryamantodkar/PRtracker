@@ -2,7 +2,6 @@ import { Pressable, StyleSheet, Text, View,KeyboardAvoidingView, ScrollView, Ima
 import React, {useEffect, useState,useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import Workout from './Workout';
-import AppNavbar from './AppNavbar';
 import { getAuth } from "firebase/auth";
 import { useNavigation,useIsFocused} from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
@@ -57,9 +56,9 @@ export default function Home() {
 
 
   return (
-    <View style={{height: '100%',width: '100%',flex: 1,paddingTop: 20}}>
+    <View style={{height: '100%',width: '100%',flex: 1}}>
         <ScrollView style={styles.home}>
-            <ScrollView contentContainerStyle ={[styles.home,{padding: 30,paddingLeft: 15,paddingRight: 15,display:'flex',justifyContent: 'space-between',alignItems: 'center',height: '100%',flexDirection: 'column'}]}>
+            <ScrollView contentContainerStyle ={[styles.home,{padding: 30,paddingLeft: 25,paddingRight: 25,display:'flex',justifyContent: 'space-between',alignItems: 'center',height: '100%',flexDirection: 'column'}]}>
                 {
                   !hideUserNavbar && !isLoading
                   ?
@@ -69,29 +68,15 @@ export default function Home() {
                       ?
                       <View style={{display:'flex',flexDirection: 'row',marginTop: 10,justifyContent: 'space-between',width: '100%',marginBottom: 0}}>
                         <View style={{display:'flex',flexDirection: 'row'}}>
-                          <View style={{borderColor: '#ddd',borderWidth: 2,borderRadius: 50}}>
-                            {
-                              profilePic==""
-                              ?
-                              <View style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
-                                {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
-                                <FontAwesomeIcon icon="fa-solid fa-user" size={32} style={{color: '#fff'}}/>
-                              </View>
-                              :
-                              <View>
-                                <Image src={profilePic} style={{height: 50,width: 50,borderRadius: 50,}}/>
-                              </View>
-                            }
-                          </View>
-                          <View style={{marginLeft:10,display: 'flex',flexDirection: 'row',justifyContent: 'center'}}>
+                          <View style={{marginLeft:0,display: 'flex',flexDirection: 'column',justifyContent: 'center'}}>
                             <View style={{display: 'flex',justifyContent: 'center'}}>
-                              <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#869AAF',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>Hi, </Text>
+                              <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 30,color: '#8F8F8F',textAlignVertical: 'center',fontFamily: 'LeagueSpartan'}]}>Hello, </Text>
                             </View>
                             {
                               user.displayName!=null
                               ?
                               <View style={{display: 'flex',justifyContent: 'center'}}>
-                                <Text style={[styles.headingTitle,{fontWeight: 500,fontSize: 20,color: '#000',textAlignVertical: 'center',fontFamily: 'SignikaNegative'}]}>{user.displayName.split(" ")[0]} {user.displayName.split(" ").length>1 ? user.displayName.split(" ")[1][0] : null}.</Text>
+                                <Text style={[styles.headingTitle,{fontSize: 35,color: '#1e1e1e',textAlignVertical: 'center',fontFamily: 'LeagueSpartan-Bold'}]}>{user.displayName.split(" ")[0]} {user.displayName.split(" ").length>1 ? user.displayName.split(" ")[1][0] : null}.</Text>
                               </View>
                               :
                               null
@@ -102,26 +87,38 @@ export default function Home() {
                           <Pressable onPress={()=>{
                             setSearchBar(true);
                           }} style={styles.headingTitleContainer}>
-                            {/* <Image source={searchIconBlack} style={{height: 25,width: 25,marginRight: 15,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/> */}
-                            <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={20} style={{marginRight: 15}}/>
+                            <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={20} style={{marginRight: 15,color: '#1e1e1e'}}/>
                           </Pressable>
-                          <View style={{justifyContent: 'center', borderRadius: 50,backgroundColor: '#353F4E',alignSelf: 'center',padding: 7.5}}>
-                            {/* <Image source={bellIcon} style={{height: 22,width: 22}}/> */}
-                            <FontAwesomeIcon icon="fa-solid fa-bell" size={20} style={{color: '#fff'}}/>
+                          <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                            {
+                              profilePic==""
+                              ?
+                              <Pressable onPress={()=>{
+                                navigation.navigate('UserPage');
+                              }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd',borderColor: '#ddd',borderWidth: 2,borderRadius: 50,}}>
+                                <FontAwesomeIcon icon="fa-solid fa-user" size={32} style={{color: '#fff'}}/>
+                              </Pressable>
+                              :
+                              <Pressable onPress={()=>{
+                                navigation.navigate('UserPage');
+                              }} style={{borderColor: '#ddd',borderWidth: 2,borderRadius: 50,}}>
+                                <Image src={profilePic} style={{height: 50,width: 50,borderRadius: 50,}}/>
+                              </Pressable>
+                            }
                           </View>
                         </View>
                       </View>
                       :
                       <View style={{display: 'flex',flexDirection: 'row',width: '100%',flex: 1,justifyContent: 'space-between'}}>
-                        <View style={{borderColor: '#455366',borderWidth: 1,display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',flex: 0.9,backgroundColor: '#1e1e1e',padding: 5,paddingLeft: 15,paddingRight: 15,borderRadius: 15,elevation: 5,marginBottom: 0}}>
+                        <View style={{display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',backgroundColor: '#2d2d2d',flex: 0.9,padding: 5,paddingLeft: 15,paddingRight: 15,borderRadius: 15,marginBottom: 0,paddingBottom: 0,paddingTop: 0}}>
                           <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
-                            {/* <Image source={searchIcon} style={{height: 25,width: 25,display: 'flex',alignItems: 'center',marginRight: 5}}/> */}
-                            <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={18} style={{marginRight: 10,color: '#fff',}}/>
-                            <TextInput ref={inputRef} value={searchText} placeholderTextColor='#ddd' placeholder='Search Workouts or Users' onChangeText={(text)=>{
+                            <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={18} style={{marginRight: 10,color: '#A7A7A7',}}/>
+                            <TextInput ref={inputRef} value={searchText} placeholderTextColor='#A7A7A7' placeholder='Search Workouts or Users' onChangeText={(text)=>{
                                 setSearchText(text);
                                 setSearchParams(text);
                                 inputRef.current.focus();
-                            }} style={{height: 40,fontSize: 16,color: '#fff',fontWeight: '500',textAlignVertical: 'center',fontFamily: 'LeagueSpartan',flex: 1}}/>
+                            }} 
+                            style={{height: 50,fontSize: 16,color: '#fff',fontWeight: '500',textAlignVertical: 'center',fontFamily: 'LeagueSpartan',flex: 1}}/>
                           </View>
                           {
                             searchParams!=""
@@ -141,7 +138,7 @@ export default function Home() {
                             setSearchBar(false);
                             setSearchParams("");
                             setSearchText("");
-                          }} style={{backgroundColor: '#1e1e1e',padding: 7.5,borderRadius: 50}}>
+                          }} style={{backgroundColor: '#2d2d2d',padding: 7.5,borderRadius: 50}}>
                             <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#fff'}}/>
                           </Pressable>
                         </View>
@@ -155,7 +152,11 @@ export default function Home() {
                 <Workout searchParams={searchParams} showNavbar={setShowNavbar} uid={null} hideUserNavbar={setHideUserNavbar} searchBar={searchBar} userProfile={false}/>
             </ScrollView>
         </ScrollView>
-        <AppNavbar showNavbar={showNavbar}/>
+        <Pressable onPress={()=>{
+          navigation.navigate('NewWorkout');
+        }} style={{position: 'absolute',bottom: 25,right: 25,borderRadius: 50,backgroundColor: '#1e1e1e',elevation: 10,height: 60,width: 60,display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
+          <FontAwesomeIcon icon="fa-solid fa-plus" size={30} style={{color: '#fff'}}/>
+        </Pressable>
     </View>
   )
 }
@@ -167,10 +168,9 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     width: '100%',
-    backgroundColor: '#fff',
-    paddingTop: 20,
+    backgroundColor: '#F6F6F6',
+    paddingTop: 30,
     paddingBottom: 100,
-    fontFamily: 'SignikaNegative',
   },
   header: {
     display: 'flex',
@@ -192,12 +192,10 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   },
   headingTitle: {
-    fontSize: 30,
-    color: 'black',
+    color: '#E3E3E3',
     textAlign: 'left',
     textAlignVertical: 'center',
     fontWeight: 'bold',
-    
   },
   logoutIcon: {
     height: 25,

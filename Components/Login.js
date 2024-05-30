@@ -68,7 +68,7 @@ export default function Login({ navigation }) {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           flexGrow: 1,
-          display: 'flex',
+          display: "flex",
           justifyContent: "center",
           alignItems: "center",
         }}
@@ -95,7 +95,7 @@ export default function Login({ navigation }) {
                 width: "100%",
               }}
             >
-              <Text style={{ fontFamily: "LeagueSpartan", fontSize: 30 }}>
+              <Text style={{ fontFamily: "LeagueSpartan", fontSize: 30, color: '#343434' }}>
                 Forgot Password?
               </Text>
             </View>
@@ -107,24 +107,28 @@ export default function Login({ navigation }) {
                 width: "100%",
               }}
             >
-              <Text style={{ fontFamily: "LeagueSpartan", fontSize: 20 }}>
+              <Text style={{ fontFamily: "LeagueSpartan", fontSize: 20, color: '#949494' }}>
                 Please enter a valid email address.
               </Text>
-              <View style={{ width: "100%", marginTop: 15 }}>
+              <View style={{ width: "100%", marginTop: 25 }}>
                 <TextInput
                   value={recoveryEmail}
                   onChangeText={(text) => {
                     setRecoveryEmail(text);
                   }}
                   placeholder="Enter email address"
+                  placeholderTextColor='#777777'
                   style={{
-                    borderRadius: 10,
-                    backgroundColor: "#f6f6f7",
+                    width: "100%",
                     padding: 15,
                     paddingTop: 10,
                     paddingBottom: 10,
                     fontFamily: "LeagueSpartan",
-                    fontSize: 18,
+                    fontSize: 17,
+                    color: '#343434',
+                    borderWidth: 2,
+                    borderColor: '#f1f1f1',
+                    borderRadius: 5
                   }}
                 />
               </View>
@@ -139,23 +143,15 @@ export default function Login({ navigation }) {
             >
               {recoveryEmail == "" ? (
                 <Pressable
-                  onPress={() => {}}
-                  style={{
-                    padding: 25,
-                    paddingTop: 10,
-                    paddingBottom: 10,
-                    backgroundColor: "#DDD",
-                    borderRadius: 30,
-                    width: "100%",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  style={[styles.btn, {backgroundColor: '#f5f4f4', }]}
                 >
                   <Text
                     style={{
+                      color: "#949494",
+                      fontSize: 18,
+                      paddingLeft: 10,
+                      paddingRight: 10,
                       fontFamily: "LeagueSpartan",
-                      fontSize: 20,
-                      color: "#fff",
                     }}
                   >
                     Reset
@@ -166,22 +162,15 @@ export default function Login({ navigation }) {
                   onPress={() => {
                     resetPassword();
                   }}
-                  style={{
-                    padding: 25,
-                    paddingTop: 10,
-                    paddingBottom: 10,
-                    backgroundColor: "#000",
-                    borderRadius: 30,
-                    width: "100%",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  style={styles.btn}
                 >
                   <Text
                     style={{
-                      fontFamily: "LeagueSpartan",
-                      fontSize: 20,
                       color: "#fff",
+                      fontSize: 18,
+                      paddingLeft: 10,
+                      paddingRight: 10,
+                      fontFamily: "LeagueSpartan",
                     }}
                   >
                     Reset
@@ -202,35 +191,65 @@ export default function Login({ navigation }) {
                   setForgotPassword(false);
                 }}
                 style={{
-                  display: 'flex',
-                  flexDirection: 'row',
+                  display: "flex",
+                  flexDirection: "row",
                   marginBottom: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center'
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-                <Text style={{ fontFamily: "LeagueSpartan", fontSize: 18,color: '#404040' }}>
-                  Already a user? 
+                <Text
+                  style={{
+                    fontFamily: "LeagueSpartan",
+                    fontSize: 18,
+                    color: "#747474",
+                  }}
+                >
+                  Already a user?
                 </Text>
-                <Text style={{ fontFamily: "LeagueSpartan", fontSize: 18,marginLeft: 10, color: '#2B8CFF'}}>Login</Text>
+                <Text
+                  style={{
+                    fontFamily: "LeagueSpartan",
+                    fontSize: 18,
+                    marginLeft: 10,
+                    color: "#343434",
+                  }}
+                >
+                  Login
+                </Text>
               </Pressable>
               <Pressable
                 onPress={() => {
                   goToRegister();
-                  setForgotPassword(false)
+                  setForgotPassword(false);
                 }}
                 style={{
-                  display: 'flex',
-                  flexDirection: 'row',
+                  display: "flex",
+                  flexDirection: "row",
                   marginBottom: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center'
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-                <Text style={{ fontFamily: "LeagueSpartan", fontSize: 18,color: '#404040'}}>
+                <Text
+                  style={{
+                    fontFamily: "LeagueSpartan",
+                    fontSize: 18,
+                    color: "#747474",
+                  }}
+                >
                   Don't have an account?
                 </Text>
-                <Text style={{ fontFamily: "LeagueSpartan", fontSize: 18,marginLeft: 10, color: '#2B8CFF' }}>Register</Text>
+                <Text
+                  style={{
+                    fontFamily: "LeagueSpartan",
+                    fontSize: 18,
+                    marginLeft: 10,
+                    color: "#343434",
+                  }}
+                >
+                  Register
+                </Text>
               </Pressable>
             </View>
           </View>
@@ -242,18 +261,25 @@ export default function Login({ navigation }) {
       <ScrollView
         style={{ height: "100%", backgroundColor: "#fff", display: "flex" }}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        contentContainerStyle={{ flexGrow: 1,display: 'flex', justifyContent: 'center',alignItems: 'center' }}
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.login}
         >
-          <ScrollView style={{height: '100%',width: '100%',display: 'flex'}} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center',alignItems: 'center' }}>
+          <ScrollView
+            style={{ height: "100%", width: "100%", display: "flex" }}
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <View style={styles.logincontent}>
               <View style={styles.headingContainer}>
                 <Text style={styles.heading}>Welcome Back.</Text>
                 <Text style={styles.subHeading}>
-                  Hope you're killing your workout :)
+                  Hope you have a good workout today :)
                 </Text>
               </View>
               <View style={styles.form}>
@@ -263,6 +289,7 @@ export default function Login({ navigation }) {
                     <TextInput
                       style={styles.input}
                       value={email}
+                      placeholderTextColor="#949494"
                       onChangeText={(text) => {
                         setError("");
                         setEmail(text);
@@ -286,6 +313,7 @@ export default function Login({ navigation }) {
                       <TextInput
                         style={styles.input}
                         value={password}
+                        placeholderTextColor="#949494"
                         onChangeText={(text) => {
                           setError("");
                           setPassword(text);
@@ -298,6 +326,7 @@ export default function Login({ navigation }) {
                         password={true}
                         style={styles.input}
                         value={password}
+                        placeholderTextColor="#949494"
                         onChangeText={(text) => {
                           setError("");
                           setPassword(text);
@@ -324,14 +353,14 @@ export default function Login({ navigation }) {
                         <FontAwesomeIcon
                           icon="fa-regular fa-eye"
                           size={20}
-                          style={{ marginRight: 5 }}
+                          style={{ marginRight: 5,color: '#949494' }}
                         />
                       ) : (
                         // <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
                         <FontAwesomeIcon
                           icon="fa-regular fa-eye-slash"
                           size={20}
-                          style={{ marginRight: 5 }}
+                          style={{ marginRight: 5,color: '#949494' }}
                         />
                       )}
                     </Pressable>
@@ -346,7 +375,7 @@ export default function Login({ navigation }) {
                       style={{
                         fontFamily: "LeagueSpartan",
                         fontSize: 14,
-                        color: "#404040",
+                        color: "#747474",
                       }}
                     >
                       Forgot Password?
@@ -359,7 +388,7 @@ export default function Login({ navigation }) {
                     <Pressable style={styles.btn} onPress={handleLogin}>
                       <Text
                         style={{
-                          color: "white",
+                          color: "#fff",
                           fontSize: 18,
                           paddingLeft: 10,
                           paddingRight: 10,
@@ -371,12 +400,11 @@ export default function Login({ navigation }) {
                     </Pressable>
                   ) : (
                     <Pressable
-                      style={[styles.btn, { backgroundColor: "#ddd" }]}
-                      onPress={handleLogin}
+                      style={[styles.btn,{backgroundColor: '#f5f4f4'}]}
                     >
                       <Text
                         style={{
-                          color: "white",
+                          color: "#949494",
                           fontSize: 18,
                           paddingLeft: 10,
                           paddingRight: 10,
@@ -392,10 +420,24 @@ export default function Login({ navigation }) {
                   style={styles.registerContainer}
                   onPress={goToRegister}
                 >
-                  <Text style={{ fontFamily: "LeagueSpartan", fontSize: 17, color: '#404040' }}>
+                  <Text
+                    style={{
+                      fontFamily: "LeagueSpartan",
+                      fontSize: 17,
+                      color: "#949494",
+                      alignItems: 'center'
+                    }}
+                  >
                     New User?
                   </Text>
-                  <Text style={{ fontFamily: "LeagueSpartan", fontSize: 17, marginLeft: 5, color:'#2B8CFF'}}>
+                  <Text
+                    style={{
+                      fontFamily: "LeagueSpartan",
+                      fontSize: 17,
+                      marginLeft: 5,
+                      color: "#343434",
+                    }}
+                  >
                     Register
                   </Text>
                 </Pressable>
@@ -419,43 +461,53 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
     padding: 15,
+    paddingLeft: 5,
+    paddingRight: 5,
+    paddingBottom: 0,
   },
   logincontent: {
-    display: "flex",
-    flexDirection: "column",
-    width: "85%",
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    width: '85%',
+    height: '100%',
   },
   headingContainer: {
     display: "flex",
     flexDirection: "column",
     marginBottom: 40,
-    marginTop: 30
+    marginTop: 30,
   },
   heading: {
-    fontFamily: "LeagueSpartan",
-    fontSize: 35,
+    fontFamily: "LeagueSpartan-Medium",
+    fontSize: 40,
     paddingBottom: 10,
+    color: '#343434'
   },
   subHeading: {
     fontFamily: "LeagueSpartan",
-    fontSize: 18,
+    fontSize: 20,
     paddingBottom: 10,
-    color: "#696969",
+    color: "#A7A7A7",
   },
   input: {
     width: "100%",
-    borderRadius: 10,
-    backgroundColor: "#f6f6f7",
     padding: 15,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: 15,
+    paddingBottom: 15,
     fontFamily: "LeagueSpartan",
     fontSize: 16,
+    color: '#343434',
+    borderWidth: 1,
+    borderColor: '#F1F1F1',
+    borderRadius: 5
   },
   inputHeading: {
     fontFamily: "LeagueSpartan",
-    fontSize: 20,
+    fontSize: 24,
     paddingBottom: 10,
+    color: '#343434'
   },
   form: {
     marginTop: 30,
@@ -463,11 +515,10 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 30,
   },
   btn: {
-    backgroundColor: "#000",
-    color: "#fff",
+    backgroundColor: "#343434",
     borderRadius: 30,
     fontSize: 20,
     width: "100%",
@@ -487,10 +538,8 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    margin: "auto",
-    color: "#B3B3B3",
     marginTop: 10,
-    flexDirection: 'row',
-    marginBottom: 20
+    flexDirection: "row",
+    marginBottom: 20,
   },
 });

@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState,useRef,useMemo,memo,useCallback 
 import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppNavbar from './AppNavbar';
 import { getAuth } from "firebase/auth";
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';

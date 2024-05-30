@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from 'expo-file-system';
 import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
-import AppNavbar from './AppNavbar';
 import { doc,updateDoc, getDoc,getDocs, onSnapshot } from "firebase/firestore";
 import { getAuth,updateProfile,updatePassword,reauthenticateWithCredential,EmailAuthProvider} from "firebase/auth";
 import { useNavigation } from '@react-navigation/native';
@@ -554,7 +553,6 @@ const UserPage = () => {
           </View>
         }
       </ScrollView>
-      <AppNavbar showNavbar={showNavbar}/>
     </View>
   )
 }

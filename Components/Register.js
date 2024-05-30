@@ -74,7 +74,9 @@ export default function Register({navigation}) {
                       }} style={styles.input} value={name} onChangeText={text => {
                         setError('')
                         setName(text);
-                      }} placeholder='Enter your Name' />
+                      }} 
+                      placeholderTextColor="#777777"
+                      placeholder='Enter your Name' />
                     </View>
                   </View>
                   <View style={styles.inputContainer}>
@@ -85,7 +87,9 @@ export default function Register({navigation}) {
                       }} style={styles.input} value={email} onChangeText={text => {
                         setError('');
                         setEmail(text);
-                      }} placeholder='Enter Email ID' />
+                      }} 
+                      placeholderTextColor="#777777"
+                      placeholder='Enter Email ID' />
                     </View>
                     {
                       validEmail
@@ -106,14 +110,18 @@ export default function Register({navigation}) {
                         }} style={styles.input} value={password} onChangeText={text => {
                           setError('')
                           setPassword(text);
-                        }} placeholder='Enter Password'/>
+                        }} 
+                        placeholderTextColor="#777777"
+                        placeholder='Enter Password'/>
                         :
                         <TextInput onFocus={()=>{
                           setValidEmail(false)
                         }} secureTextEntry={true} password={true} style={styles.input} value={password} onChangeText={text => {
                           setError('')
                           setPassword(text);
-                        }} placeholder='Enter Password'/>
+                        }} 
+                        placeholderTextColor="#777777"
+                        placeholder='Enter Password'/>
                       }
                       <Pressable onPress={()=>{
                         setShowPassword(!showPassword);
@@ -122,9 +130,9 @@ export default function Register({navigation}) {
                           showPassword
                           ?
                           // <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
-                          <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5}}/>
+                          <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5,color: '#DBDBDB'}}/>
                           :
-                          <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5}}/>
+                          <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5,color: '#DBDBDB'}}/>
                           // <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
                         }
                       </Pressable>
@@ -141,14 +149,18 @@ export default function Register({navigation}) {
                         }} style={styles.input} value={confirmPassword} onChangeText={text => {
                           setError('')
                           setConfirmPassword(text);
-                        }} placeholder='Re-Enter Password'/>
+                        }} 
+                        placeholderTextColor="#777777"
+                        placeholder='Re-Enter Password'/>
                         :
                         <TextInput onFocus={()=>{
                           setValidEmail(false)
                         }} secureTextEntry={true} password={true} style={styles.input} value={confirmPassword} onChangeText={text => {
                           setError('')
                           setConfirmPassword(text);
-                        }} placeholder='Re-Enter Password'/>
+                        }} 
+                        placeholderTextColor="#777777"
+                        placeholder='Re-Enter Password'/>
                       }
                       <Pressable onPress={()=>{
                         setShowConfirmPassword(!showConfirmPassword);
@@ -157,9 +169,9 @@ export default function Register({navigation}) {
                           showConfirmPassword
                           ?
                           // <Image source={eyeIcon} style={{height: 22,width: 22,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
-                          <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5}}/>
+                          <FontAwesomeIcon icon="fa-regular fa-eye" size={20} style={{marginRight: 5,color: '#DBDBDB'}}/>
                           :
-                          <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5}}/>
+                          <FontAwesomeIcon icon="fa-regular fa-eye-slash" size={20} style={{marginRight: 5,color: '#DBDBDB'}}/>
                           // <Image source={hideEyeIcon} style={{height: 25,width: 25,display: 'flex',justifyContent: 'center',alignItems: 'center'}}/>
                         }
                       </Pressable>
@@ -171,17 +183,17 @@ export default function Register({navigation}) {
                       name!="" && email!="" && password!="" && confirmPassword!="" && password==confirmPassword
                       ?
                       <Pressable style={styles.btn} onPress={handleSignup}>
-                        <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10,fontFamily: 'LeagueSpartan'}}>Sign Up</Text>
+                        <Text style={{color: '#fff', fontSize: 18,paddingLeft: 10,paddingRight: 10,fontFamily: 'LeagueSpartan'}}>Sign Up</Text>
                       </Pressable>
                       :
-                      <Pressable style={[styles.btn,{backgroundColor: '#ddd'}]}>
-                        <Text style={{color: 'white', fontSize: 18,paddingLeft: 10,paddingRight: 10,fontFamily: 'LeagueSpartan'}}>Sign Up</Text>
+                      <Pressable style={[styles.btn, {backgroundColor: '#f5f4f4' }]}>
+                        <Text style={{color: '#949494', fontSize: 18,paddingLeft: 10,paddingRight: 10,fontFamily: 'LeagueSpartan'}}>Sign Up</Text>
                       </Pressable>
                     }
                   </View>
                   <Pressable style={styles.registerContainer} onPress={goToRegister}>
-                    <Text style={{ fontFamily: "LeagueSpartan", fontSize: 17, color: '#404040'}}>Already have an Account?</Text>
-                    <Text style={{ fontFamily: "LeagueSpartan", fontSize: 17, marginLeft: 5, color: '#2B8CFF' }}>Login</Text>
+                    <Text style={{ fontFamily: "LeagueSpartan", fontSize: 17, color: '#949494'}}>Already have an Account?</Text>
+                    <Text style={{ fontFamily: "LeagueSpartan", fontSize: 17, marginLeft: 5, color: '#343434' }}>Login</Text>
                   </Pressable>
                 </View>
             </View>
@@ -201,7 +213,10 @@ const styles = StyleSheet.create({
       margin: 'auto',
       height: '100%',
       width: '100%',
-      padding: 15
+      padding: 15,
+      paddingLeft: 5,
+      paddingRight: 5,
+      paddingBottom: 0
   },
   logincontent: {
     display: 'flex',
@@ -221,27 +236,31 @@ const styles = StyleSheet.create({
     fontFamily: 'LeagueSpartan',
     fontSize: 35,
     paddingBottom: 10,
+    color: '#343434'
   },
   subHeading: {
     fontFamily: 'LeagueSpartan',
-    fontSize: 18,
+    fontSize: 20,
     paddingBottom: 10,
-    color: '#696969'
+    color: '#949494'
   },
   input: {
     width: "100%",
-    borderRadius: 10,
-    backgroundColor: "#f6f6f7",
     padding: 15,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: 15,
+    paddingBottom: 15,
     fontFamily: "LeagueSpartan",
-    fontSize: 16,
+    fontSize: 17,
+    color: '#343434',
+    borderWidth: 1,
+    borderColor: '#f1f1f1',
+    borderRadius: 5
   },
-  inputHeading:{
-    fontFamily: 'LeagueSpartan',
-    fontSize: 20,
+  inputHeading: {
+    fontFamily: "LeagueSpartan",
+    fontSize: 24,
     paddingBottom: 10,
+    color: '#343434'
   },
   form: {
     marginTop: 10,
@@ -249,19 +268,20 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   inputContainer: {
-    marginBottom: 20,
-    marginTop: 10
+    marginBottom: 5,
+    marginTop: 5
   },
   btn: {
-    backgroundColor: "#000",
-    color: "#fff",
+    backgroundColor: "#343434",
     borderRadius: 30,
     fontSize: 20,
-    width: '100%',
+    width: "100%",
     fontFamily: "LeagueSpartan",
     alignItems: "center",
     paddingTop: 10,
-    paddingBottom: 10
+    paddingBottom: 10,
+    marginTop: 10,
+    marginBottom: 10
   },
   btnContainer: {
     display: 'flex',
