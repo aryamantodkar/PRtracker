@@ -16,13 +16,14 @@ export const IndividualUser = () => {
     const [followingArray,setFollowingArray] = useState([]);
     const [followersArray,setFollowersArray] = useState([]);
     const [loading,setLoading] = useState(false);
+    const [enlargePfp,setEnlargePfp] = useState(false);
 
     const auth = getAuth();
     const user = auth.currentUser;
     const navigation = useNavigation();
     const route = useRoute();
 
-    const { uid, name, profileUrl } = route.params;
+    const { uid, name, profileUrl} = route.params;
 
     const followUser = async () => {
         setFollowing(true);
@@ -105,79 +106,103 @@ export const IndividualUser = () => {
         getFollowStats();
     },[])
 
-    return(
-        <View>
-            {
-                !loading
-                ?
-                <ScrollView style={styles.home}>
-                    <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'space-around',width: '100%',height: '100%',maxHeight: 150,marginTop: 50}}>
-                        <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',height: '100%'}}>
-                            <Pressable onPress={()=>{
-                                navigation.goBack();
-                            }} style={{margin: 0,padding: 0}}>
-                                {/* <Image source={backIconBlack} style={{height: 35,width: 35}}/> */}
-                                <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{marginRight: 10}}/>
-                            </Pressable>
-                            <View>
-                                {
-                                    profileUrl==""
-                                    ?
-                                    <View style={{padding: 15,borderRadius: 50,backgroundColor: '#ddd'}}>
-                                    {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
-                                        <FontAwesomeIcon icon="fa-solid fa-user" size={70} style={{color: '#fff'}}/>
-                                    </View>
-                                    :
-                                    <View style={{borderRadius: 50}}>
-                                        <Image src={profileUrl} style={{height: 100,width: 100,borderRadius: 50,}}/>
-                                    </View>
-                                }
-                            </View>
+    if(enlargePfp){
+        return(
+            <View style={{height: '100%',width: '100%'}}>
+                <Pressable onPress={()=>{
+                    setEnlargePfp(false);
+                }}>
+                    <FontAwesomeIcon icon="fa-solid fa-xmark" size={30} style={{position: 'absolute',right: 30,top: 80,color: '#000'}}/>
+                </Pressable>
+                <View style={{position: 'absolute',top: 0,bottom: 0,left: 0,right: 0,margin:'auto',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                    {
+                        profileUrl==""
+                        ?
+                        <View>
+                            <FontAwesomeIcon icon="fa-solid fa-user" size={200} style={{color: '#fff'}}/>
                         </View>
-                        <View style={{display: 'flex',flexDirection: 'column',justifyContent: 'space-around',height: '100%'}}>
-                            <View style={{display: 'flex'}}>
-                                <Text style={{fontSize: 22,color: '#000',fontFamily:'LeagueSpartan-Medium'}}>{name}</Text>
+                        :
+                        <View style={{borderRadius: 50}}>
+                            <Image src={profileUrl} style={{height: 300,width: 300,borderRadius: 250,}}/>
+                        </View>
+                    }
+                    <Text style={{fontSize: 25,marginTop: 20,fontFamily: 'LeagueSpartan-Medium',color: '#1e1e1e'}}>{name}</Text>
+                </View>
+            </View>
+        )
+    }
+    else{
+        return(
+            <View>
+                {
+                    !loading
+                    ?
+                    <ScrollView style={styles.home}>
+                        <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',width: '100%',height: '100%',maxHeight: 150,marginTop: 50}}>
+                            <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center',height: '100%'}}>
+                                <Pressable onPress={()=>{
+                                    navigation.goBack();
+                                }} style={{margin: 0,padding: 0,display: 'flex'}}>
+                                    <FontAwesomeIcon icon="fa-solid fa-chevron-left" size={25} style={{marginRight: 10}}/>
+                                </Pressable>
+                                <Pressable onPress={()=>{
+                                    setEnlargePfp(true);
+                                }}>
+                                    {
+                                        profileUrl==""
+                                        ?
+                                        <View style={{padding: 15,borderRadius: 50,backgroundColor: '#ddd'}}>
+                                            <FontAwesomeIcon icon="fa-solid fa-user" size={70} style={{color: '#fff'}}/>
+                                        </View>
+                                        :
+                                        <View style={{borderRadius: 50}}>
+                                            <Image src={profileUrl} style={{height: 100,width: 100,borderRadius: 50,}}/>
+                                        </View>
+                                    }
+                                </Pressable>
                             </View>
-                            <View style={{}}>
-                                <View style={{display: 'flex',flexDirection: 'row',borderBottomWidth: 1,borderBottomColor: '#EBEAEA',paddingBottom: 10}}>
-                                    <Text style={{fontSize: 17,fontWeight: '400',color: '#696969',fontFamily: 'LeagueSpartan'}}><Text style={{fontWeight: '600',color: 'black'}}>{followersArray.length}</Text> Followers | <Text style={{fontWeight: '600',color: 'black'}}>{followingArray.length}</Text> Following</Text>
+                            <View style={{width: '100%',height: '100%',flex: 1,alignItems: 'center',justifyContent: 'center'}}>
+                                <View style={{display: 'flex',flexDirection: 'column',justifyContent: 'space-around',height: '100%'}}>
+                                    <View style={{display: 'flex'}}>
+                                        <Text style={{fontSize: 22,color: '#000',fontFamily:'LeagueSpartan-Medium'}}>{name}</Text>
+                                    </View>
+                                    <View style={{}}>
+                                        <View style={{display: 'flex',flexDirection: 'row',borderBottomWidth: 1,borderBottomColor: '#EBEAEA',paddingBottom: 10}}>
+                                            <Text style={{fontSize: 17,color: '#696969',fontFamily: 'LeagueSpartan'}}><Text style={{color: 'black'}}>{followersArray.length}</Text> Followers | <Text style={{fontWeight: '600',color: 'black'}}>{followingArray.length}</Text> Following</Text>
+                                        </View>
+                                    </View>
+                                    <View>
+                                        {
+                                            following
+                                            ?
+                                            <Pressable onPress={()=>{
+                                                removeFollower();
+                                            }}>
+                                                <Text style={{color: '#949494',fontSize: 16,textAlign:'center',backgroundColor: '#E5E5E5',padding: 15,paddingTop: 7.5,paddingBottom: 7.5,borderRadius: 5,fontFamily: 'LeagueSpartan-Medium'}}>Unfollow</Text>
+                                            </Pressable>
+                                            :
+                                            <Pressable onPress={()=>{
+                                                followUser();
+                                            }}>
+                                                <Text style={{color: 'white',fontSize: 16,textAlign:'center',backgroundColor: '#343434',padding: 15,paddingTop: 7.5,paddingBottom: 7.5,borderRadius: 5,fontFamily: 'LeagueSpartan-Medium'}}>Follow</Text>
+                                            </Pressable>
+                                        }
+                                    </View>
                                 </View>
                             </View>
-                            <View>
-                                {
-                                    following
-                                    ?
-                                    <Pressable onPress={()=>{
-                                        removeFollower();
-                                    }}>
-                                        <Text style={{color: 'white',fontSize: 16,textAlign:'center',backgroundColor: 'black',padding: 15,paddingTop: 7.5,paddingBottom: 7.5,borderRadius: 5,fontFamily: 'LeagueSpartan-Medium'}}>Unfollow</Text>
-                                    </Pressable>
-                                    :
-                                    <Pressable onPress={()=>{
-                                        followUser();
-                                    }}>
-                                        <Text style={{color: 'white',fontSize: 16,textAlign:'center',backgroundColor: '#2B8CFF',padding: 15,paddingTop: 7.5,paddingBottom: 7.5,borderRadius: 5,fontFamily: 'LeagueSpartan-Medium'}}>Follow</Text>
-                                    </Pressable>
-                                }
-                            </View>
                         </View>
-                        {/* <View style={{height: '100%',backgroundColor: 'red',display: 'flex',flexDirection: 'column',justifyContent: 'space-around'}}>
-                            <Text>HELLO</Text>
-                            <Text>Yo</Text>
-                        </View> */}
-                    </View>
-                    <ScrollView style={{paddingTop: 20,paddingBottom: 30,width: '100%',paddingLeft: 10,paddingRight: 10}}>
-                        <Text style={{fontSize: 20,fontFamily: 'LeagueSpartan-Medium',alignSelf: 'flex-start'}}>Workouts</Text>
-                        <Workout uid={uid}/>
+                        <ScrollView style={{paddingTop: 0,paddingBottom: 30,width: '100%',paddingLeft: 10,paddingRight: 10}}>
+                            <Workout uid={uid}/>
+                        </ScrollView>
                     </ScrollView>
-                </ScrollView>
-                :
-                <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: '80%',backgroundColor: 'white',height: '100%',width: '100%'}}>
-                    <ActivityIndicator size="large" color="black"/>
-                </View>
-            }
-        </View>
-    )
+                    :
+                    <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',height: '80%',backgroundColor: 'white',height: '100%',width: '100%'}}>
+                        <ActivityIndicator size="large" color="black"/>
+                    </View>
+                }
+            </View>
+        )
+    }
 }
 
 const styles = StyleSheet.create({
@@ -187,7 +212,7 @@ const styles = StyleSheet.create({
         height: '100%',
         width: '100%',
         padding: 15,
-        backgroundColor: '#fff',
+        backgroundColor: '#F6F6F6',
         position: 'relative',
     }
 })

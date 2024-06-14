@@ -221,40 +221,45 @@ export default function ViewFollowers() {
     }, []);
 
     if(isLoading){
+        // return(
+        //     <View style={{height: '100%',minWidth:'100%',display: 'flex',justifyContent: 'center',alignItems: 'center',minHeight: 500,backgroundColor: '#fff'}}>
+        //         <View style={{padding: 20,minWidth:'90%',borderRadius: 10}}>
+        //             <View style={{backgroundColor: '#f5f4f4',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
+        //                 <Animated.View style={[styles.box, animatedDefault,{minWidth:40}]}/>
+        //             </View>
+        //             <View style={{padding: 10,backgroundColor: '#f5f4f4',borderRadius: 10,height: 200,marginTop: 20,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',}}>
+        //                 <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+        //                     <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+        //                 </View>
+        //                 <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+        //                     <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+        //                 </View>
+        //                 <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+        //                     <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+        //                 </View>
+        //             </View>
+        //         </View>
+        //         <View style={{padding: 20,minWidth:'90%',borderRadius: 10}}>
+        //             <View style={{backgroundColor: '#f5f4f4',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
+        //                 <Animated.View style={[styles.box, animatedDefault,{minWidth:40}]}/>
+        //             </View>
+        //             <View style={{padding: 10,backgroundColor: '#f5f4f4',borderRadius: 10,height: 200,marginTop: 20,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',}}>
+        //                 <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+        //                     <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+        //                 </View>
+        //                 <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+        //                     <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+        //                 </View>
+        //                 <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
+        //                     <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
+        //                 </View>
+        //             </View>
+        //         </View>
+        //     </View>
+        // )
         return(
-            <View style={{height: '100%',minWidth:'100%',display: 'flex',justifyContent: 'center',alignItems: 'center',minHeight: 500,backgroundColor: '#fff'}}>
-                <View style={{padding: 20,minWidth:'90%',borderRadius: 10}}>
-                    <View style={{backgroundColor: '#f5f4f4',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
-                        <Animated.View style={[styles.box, animatedDefault,{minWidth:40}]}/>
-                    </View>
-                    <View style={{padding: 10,backgroundColor: '#f5f4f4',borderRadius: 10,height: 200,marginTop: 20,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',}}>
-                        <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
-                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
-                        </View>
-                        <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
-                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
-                        </View>
-                        <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
-                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
-                        </View>
-                    </View>
-                </View>
-                <View style={{padding: 20,minWidth:'90%',borderRadius: 10}}>
-                    <View style={{backgroundColor: '#f5f4f4',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
-                        <Animated.View style={[styles.box, animatedDefault,{minWidth:40}]}/>
-                    </View>
-                    <View style={{padding: 10,backgroundColor: '#f5f4f4',borderRadius: 10,height: 200,marginTop: 20,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',}}>
-                        <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
-                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
-                        </View>
-                        <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
-                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
-                        </View>
-                        <View style={{backgroundColor: '#DDD',borderRadius: 10,display: 'flex',justifyContent: 'center',alignItems: 'center',minWidth:'90%'}}>
-                            <Animated.View style={[styles.box, animatedColumn,{minWidth:40,backgroundColor:'#E0E0E0'}]}/>
-                        </View>
-                    </View>
-                </View>
+            <View style={{height: '100%',minWidth: '100%',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                <ActivityIndicator size="large" color="#000" />
             </View>
         )
     }
@@ -269,21 +274,20 @@ export default function ViewFollowers() {
                             <Pressable onPress={()=>{
                                 navigation.goBack();
                             }} style={{position: 'absolute',left: 10}}>
-                                {/* <Image source={backIconBlack} style={{height: 35,width: 35}}/> */}
                                 <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{}}/>
                             </Pressable>
-                            <Pressable style={{display: 'flex',flexDirection: 'row'}}>
-                                <Text style={{color: '#000',fontSize: 20,fontWeight: '600',fontFamily: 'LeagueSpartan-Medium',marginRight: 10}}>{followersArray.length}</Text>
-                                <View style={{borderBottomWidth: 2,borderBottomColor: '#1e1e1e',paddingBottom: 10,}}>
-                                    <Text style={{color: '#000',fontSize: 20,fontWeight: '600',fontFamily: 'LeagueSpartan'}}>Followers</Text>
+                            <Pressable style={{display: 'flex',flexDirection: 'row',borderBottomWidth: 2,borderBottomColor: '#343434',paddingBottom: 10,marginLeft: 20}}>
+                                <Text style={{color: '#000',fontSize: 20,fontFamily: 'LeagueSpartan-SemiBold',marginRight: 10}}>{followersArray.length}</Text>
+                                <View style={{}}>
+                                    <Text style={{color: '#343434',fontSize: 20,fontFamily: 'LeagueSpartan'}}>Followers</Text>
                                 </View>
                             </Pressable>
                             <Pressable onPress={()=>{
                                 setTabBool(false);
                             }} style={{display: 'flex',flexDirection: 'row'}}>
-                                <Text style={{color: '#696969',fontSize: 20,fontWeight: '600',fontFamily: 'LeagueSpartan-Medium',marginRight: 10}}>{followingArray.length}</Text>
+                                <Text style={{color: '#696969',fontSize: 20,fontFamily: 'LeagueSpartan-Medium',marginRight: 10}}>{followingArray.length}</Text>
                                 <View style={{paddingBottom: 10,}}>
-                                    <Text style={{color: '#696969',fontSize: 20,fontWeight: '600',fontFamily: 'LeagueSpartan'}}>Following</Text>
+                                    <Text style={{color: '#696969',fontSize: 20,fontFamily: 'LeagueSpartan'}}>Following</Text>
                                 </View>
                             </Pressable>
                         </View>
@@ -300,7 +304,7 @@ export default function ViewFollowers() {
                                                         uid: user.uid,
                                                         name: user.name,
                                                     })
-                                                }} key={user.uid} style={{width: '100%',display: 'flex',padding: 15,flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',paddingLeft: 20,backgroundColor: '#1e1e1e',borderRadius: 10,marginTop: 10,marginBottom: 10}}>
+                                                }} key={user.uid} style={{width: '100%',display: 'flex',padding: 12.5,flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',paddingLeft: 20,backgroundColor: '#fff',borderRadius: 5,marginTop: 10,marginBottom: 10,borderWidth: 1,borderColor: '#f1f1f1'}}>
                                                     <View style={{display:'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
                                                         {
                                                             user.profileUrl=="" || user.profileUrl==undefined
@@ -308,14 +312,13 @@ export default function ViewFollowers() {
                                                             <Pressable onPress={()=>{
 
                                                             }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
-                                                              {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
                                                               <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
                                                             </Pressable>
                                                             :
                                                             <Image src={user.profileUrl} style={{height: 45,width: 45,borderRadius: 50,borderColor: '#DDD',borderWidth: 2}}/>
                                                         }
                                                         <View style={{marginLeft: 10,display: 'flex',flexDirection: 'column'}}>
-                                                            <Text style={{color: '#fff',fontSize: 18,fontWeight: '500',fontFamily: 'LeagueSpartan'}}>{user.name}</Text>
+                                                            <Text style={{color: '#343434',fontSize: 18,fontWeight: '500',fontFamily: 'LeagueSpartan-Medium'}}>{user.name}</Text>
                                                         </View>
                                                     </View>
                                                     {
@@ -324,28 +327,26 @@ export default function ViewFollowers() {
                                                         <View style={{display: 'flex',flexDirection: 'row'}}>
                                                             <Pressable onPress={()=>{
                                                                 followBackUser(user.uid)
-                                                            }} style={{marginRight: 5,padding: 5,paddingLeft: 12.5,paddingRight: 12.5,borderRadius: 10,backgroundColor: '#2B8CFF'}}>
+                                                            }} style={{marginRight: 5,padding: 5,paddingLeft: 12.5,paddingRight: 12.5,borderRadius: 5,backgroundColor: '#343434'}}>
                                                                 <Text style={{color: '#fff',fontFamily: 'LeagueSpartan',fontSize: 16}}>Follow</Text>
                                                             </Pressable>
                                                             <Pressable onPress={()=>{
                                                                 removeFollower(user.uid);
-                                                            }} style={{padding: 5,paddingLeft: 7.5,paddingRight: 7.5,borderRadius: 50,backgroundColor: '#3e3e3e',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                {/* <Image source={crossIcon} style={{height: 12.5,width: 12.5,}}/> */}
-                                                                <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#fff'}}/>
+                                                            }} style={{padding: 5,paddingLeft: 7.5,paddingRight: 7.5,borderRadius: 50,backgroundColor: '#f5f4f4',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                                <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#747474'}}/>
                                                             </Pressable>
                                                         </View>
                                                         :
                                                         <View style={{display: 'flex',flexDirection: 'row'}}>
                                                             <Pressable onPress={()=>{
                                                                 unfollowUser(user.uid)
-                                                            }} style={{marginRight: 5,padding: 5,paddingLeft: 12.5,paddingRight: 12.5,borderRadius: 10,backgroundColor: '#3e3e3e'}}>
-                                                                <Text style={{color: '#fff',fontFamily: 'LeagueSpartan',fontSize: 16}}>Unfollow</Text>
+                                                            }} style={{marginRight: 5,padding: 5,paddingLeft: 12.5,paddingRight: 12.5,borderRadius: 5,backgroundColor: '#f5f4f4'}}>
+                                                                <Text style={{color: '#747474',fontFamily: 'LeagueSpartan',fontSize: 16}}>Unfollow</Text>
                                                             </Pressable>
                                                             <Pressable onPress={()=>{
                                                                 removeFollower(user.uid);
-                                                            }} style={{padding: 5,paddingLeft: 7.5,paddingRight: 7.5,borderRadius: 50,backgroundColor: '#3e3e3e',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                                {/* <Image source={crossIcon} style={{height: 12.5,width: 12.5,}}/> */}
-                                                                <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#fff'}}/>
+                                                            }} style={{padding: 5,paddingLeft: 7.5,paddingRight: 7.5,borderRadius: 50,backgroundColor: '#f5f4f4',display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
+                                                                <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#747474'}}/>
                                                             </Pressable>
                                                         </View>
                                                     }
@@ -355,12 +356,12 @@ export default function ViewFollowers() {
                                     }
                                 </View>
                                 :
-                                <View style={{backgroundColor: '#1e1e1e',height: 150,padding: 20,width: '90%',display: 'flex',justifyContent: 'space-around',alignItems: 'center',borderRadius: 10,marginLeft: 'auto',marginRight: 'auto'}}>
+                                <View style={{backgroundColor: '#fff',height: 150,padding: 20,width: '90%',display: 'flex',justifyContent: 'space-around',alignItems: 'center',borderRadius: 5,marginLeft: 'auto',marginRight: 'auto',borderWidth: 1,borderColor: '#f1f1f1'}}>
                                     <View>
-                                        <Text style={{color: '#fff',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,paddingBottom: 5,fontFamily: 'LeagueSpartan',fontSize: 18}}>No Users Found</Text>
+                                        <Text style={{color: '#343434',borderBottomColor: '#f1f1f1',borderBottomWidth: 2,paddingBottom: 5,fontFamily: 'LeagueSpartan-Medium',fontSize: 18}}>No Users Found</Text>
                                     </View>
                                     <View>
-                                        <Text style={{color: '#fff',fontFamily: 'LeagueSpartan',fontSize: 18}}>You don't have any followers yet :(</Text>
+                                        <Text style={{color: '#949494',fontFamily: 'LeagueSpartan',fontSize: 18}}>You don't have any followers yet :(</Text>
                                     </View>
                                 </View>
                             }
@@ -372,21 +373,20 @@ export default function ViewFollowers() {
                             <Pressable onPress={()=>{
                                 navigation.goBack();
                             }} style={{position: 'absolute',left: 10}}>
-                                {/* <Image source={backIconBlack} style={{height: 35,width: 35}}/> */}
                                 <FontAwesomeIcon icon="fa-solid fa-arrow-left" size={25} style={{}}/>
                             </Pressable>
                             <Pressable onPress={()=>{
                                 setTabBool(true);
-                            }} style={{display: 'flex',flexDirection: 'row'}}>
-                                <Text style={{color: '#696969',fontSize: 20,fontWeight: '600',fontFamily: 'LeagueSpartan-Medium',marginRight: 10}}>{followersArray.length}</Text>
+                            }} style={{display: 'flex',flexDirection: 'row',marginLeft: 20}}>
+                                <Text style={{color: '#696969',fontSize: 20,fontFamily: 'LeagueSpartan-SemiBold',marginRight: 10}}>{followersArray.length}</Text>
                                 <View style={{paddingBottom: 10,}}>
-                                    <Text style={{color: '#696969',fontSize: 20,fontWeight: '600',fontFamily: 'LeagueSpartan'}}>Followers</Text>
+                                    <Text style={{color: '#696969',fontSize: 20,fontFamily: 'LeagueSpartan'}}>Followers</Text>
                                 </View>
                             </Pressable>
-                            <Pressable style={{display: 'flex',flexDirection: 'row'}}>
-                                <Text style={{color: '#000',fontSize: 20,fontWeight: '600',fontFamily: 'LeagueSpartan-Medium',marginRight: 10}}>{followingArray.length}</Text>
-                                <View style={{borderBottomWidth: 2,borderBottomColor: '#1e1e1e',paddingBottom: 10,}}>
-                                    <Text style={{color: '#000',fontSize: 20,fontWeight: '600',fontFamily: 'LeagueSpartan'}}>Following</Text>
+                            <Pressable style={{display: 'flex',flexDirection: 'row',borderBottomWidth: 2,borderBottomColor: '#343434',paddingBottom: 10,}}>
+                                <Text style={{color: '#000',fontSize: 20,fontFamily: 'LeagueSpartan-SemiBold',marginRight: 10}}>{followingArray.length}</Text>
+                                <View style={{}}>
+                                    <Text style={{color: '#343434',fontSize: 20,fontFamily: 'LeagueSpartan'}}>Following</Text>
                                 </View>
                             </Pressable>
                         </View>
@@ -403,7 +403,7 @@ export default function ViewFollowers() {
                                                         uid: user.uid,
                                                         name: user.name,
                                                     })
-                                                }} key={user.uid} style={{width: '100%',display: 'flex',padding: 15,flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',paddingLeft: 20,backgroundColor: '#1e1e1e',borderRadius: 10,marginTop: 10,marginBottom: 10}}>
+                                                }} key={user.uid} style={{width: '100%',display: 'flex',padding: 12.5,flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',paddingLeft: 20,backgroundColor: '#fff',borderRadius: 5,marginTop: 10,marginBottom: 10}}>
                                                     <View style={{display:'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
                                                         {
                                                             user.profileUrl=="" || user.profileUrl==undefined
@@ -411,20 +411,19 @@ export default function ViewFollowers() {
                                                             <Pressable onPress={()=>{
 
                                                             }} style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
-                                                              {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
                                                               <FontAwesomeIcon icon="fa-solid fa-user" size={35} style={{color: '#fff'}}/>
                                                             </Pressable>
                                                             :
                                                             <Image src={user.profileUrl} style={{height: 45,width: 45,borderRadius: 50,borderColor: '#DDD',borderWidth: 2}}/>
                                                         }
                                                         <View style={{marginLeft: 10,display: 'flex',flexDirection: 'column'}}>
-                                                            <Text style={{color: '#fff',fontSize: 18,fontWeight: '500',fontFamily: 'LeagueSpartan'}}>{user.name}</Text>
+                                                            <Text style={{color: '#343434',fontSize: 18,fontWeight: '500',fontFamily: 'LeagueSpartan-Medium'}}>{user.name}</Text>
                                                         </View>
                                                     </View>
                                                     <Pressable onPress={()=>{
                                                         unfollowUser(user.uid);
-                                                    }} style={{marginRight: 5,padding: 5,paddingLeft: 12.5,paddingRight: 12.5,borderRadius: 10,backgroundColor: '#3e3e3e'}}>
-                                                        <Text style={{color: '#fff',fontFamily: 'LeagueSpartan',fontSize: 16}}>Unfollow</Text>
+                                                    }} style={{marginRight: 5,padding: 5,paddingLeft: 12.5,paddingRight: 12.5,borderRadius: 5,backgroundColor: '#f5f4f4'}}>
+                                                        <Text style={{color: '#747474',fontFamily: 'LeagueSpartan',fontSize: 16}}>Unfollow</Text>
                                                     </Pressable>
                                                 </Pressable>
                                             )
@@ -432,12 +431,12 @@ export default function ViewFollowers() {
                                     }
                                 </View>
                                 :
-                                <View style={{backgroundColor: '#1e1e1e',height: 150,padding: 20,width: '90%',display: 'flex',justifyContent: 'space-around',alignItems: 'center',borderRadius: 10,marginLeft: 'auto',marginRight: 'auto'}}>
+                                <View style={{backgroundColor: '#fff',height: 150,padding: 20,width: '90%',display: 'flex',justifyContent: 'space-around',alignItems: 'center',borderRadius: 10,marginLeft: 'auto',marginRight: 'auto',borderWidth: 1,borderColor: '#f1f1f1'}}>
                                     <View>
-                                        <Text style={{color: '#fff',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,paddingBottom: 5,fontFamily: 'LeagueSpartan',fontSize: 18}}>No Users Found</Text>
+                                        <Text style={{color: '#343434',borderBottomColor: '#f1f1f1',borderBottomWidth: 2,paddingBottom: 5,fontFamily: 'LeagueSpartan-Medium',fontSize: 18}}>No Users Found</Text>
                                     </View>
                                     <View>
-                                        <Text style={{color: '#fff',fontFamily: 'LeagueSpartan',fontSize: 18}}>You don't follow anyone yet :(</Text>
+                                        <Text style={{color: '#949494',fontFamily: 'LeagueSpartan',fontSize: 18}}>You don't follow anyone yet :(</Text>
                                     </View>
                                 </View>
                             }
@@ -456,7 +455,7 @@ const styles = StyleSheet.create({
         height: '100%',
         width: '100%',
         padding: 15,
-        backgroundColor: '#fff',
+        backgroundColor: '#f6f6f6',
         paddingTop: 50,
         position: 'relative'
     },

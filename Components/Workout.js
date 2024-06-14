@@ -6,7 +6,7 @@ import Animated, {
     Easing,
     withRepeat,
   } from 'react-native-reanimated';
-import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHeart } from '@fortawesome/free-regular-svg-icons'
 import { debounce } from 'lodash';
@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from 'uuid';
 const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfile}) => {
     const [showWorkoutBox,setShowWorkoutBox] = useState(false);
     const [clickedWorkoutID,setClickedWorkoutID] = useState();
+    const [clickedWorkout,setClickedWorkout] = useState([]);
     const [isLoading,setIsLoading] = useState(false);
     
     const [followingUserArray,setFollowingUserArray] = useState([]);
@@ -34,6 +35,9 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
     const [newUidBool,setNewUidBool] = useState(false);
     const [showLikesBool,setShowLikesBool] = useState(false);
     const [likedUsers,setLikedUsers] = useState([]);
+    
+    const [originalWorkoutList,setOriginalWorkoutList] = useState([]);
+
     const storage = getStorage();
 
     const [fontsLoaded, fontError] = useFonts({
@@ -159,8 +163,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
     const searchWorkouts = async () => {
         try{
             setIsLoading(true);
-
-            const q = query(collection(FIREBASE_DB, `${userID}`));
             
             let newAllUsers = await getAllUsers();
 
@@ -173,45 +175,8 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                 loggedUserName = loggedUser.name
             }
 
-            const allWorkouts = [];
-        
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-                allWorkouts.push({
-                    timeStamp: doc.data().timeStamp,
-                    workout: doc.data(),
-                    uid: userID,
-                    name: loggedUserName,
-                    likes: doc.data().likes,
-                    comments: doc.data().comments,
-                    profileUrl: loggedProfileUrl
-                });
-            });
-        
-            const followingArray = loggedUser!=undefined && loggedUser!="" ? loggedUser.followingArr : [];
-        
-            await Promise.all(followingArray.map(async (following) => {
-                const q = query(collection(FIREBASE_DB, `${following}`));
+            const allWorkouts = originalWorkoutList;
 
-                let follUser = newAllUsers.length>0 ? newAllUsers.find(user => user.uid==following) : "";
-
-                let name = follUser.name;
-                let profileUrl = follUser.profileUrl;
-    
-                const querySnapshot = await getDocs(q);
-                querySnapshot.forEach((doc) => {
-                    allWorkouts.push({
-                        timeStamp: doc.data().timeStamp,
-                        workout: doc.data(),
-                        uid: following,
-                        name: name,
-                        likes: doc.data().likes,
-                        comments: doc.data().comments,
-                        profileUrl: profileUrl
-                    });
-                });
-            }));
-    
             allWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis());
     
             let updatedArray = allWorkouts;
@@ -296,6 +261,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
         }
 
         setClickedWorkoutID(workout.id);
+        setClickedWorkout(workout);
         setShowWorkoutBox(true);
         if(hideUserNavbar!=null){
             hideUserNavbar(true);
@@ -311,7 +277,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
 
         UserGroup.set(`${workout.name}`,'1')
         return(
-            <View style={{display: 'flex',justifyContent: 'space-between',flexDirection: 'column',backgroundColor: '#FFFFFF',padding: 15,paddingLeft: 20,paddingRight: 20,borderWidth: 2,borderColor: '#F1F1F1'}}>
+            <View style={{display: 'flex',justifyContent: 'space-between',flexDirection: 'column',backgroundColor: '#FFFFFF',padding: 15,paddingLeft: 20,paddingRight: 20,borderWidth: 1,borderColor: '#F1F1F1'}}>
                 <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',flexDirection: 'row',marginBottom: 15}}>
                     <Pressable onPress={()=>{
                         if(profileUid!=auth.currentUser.uid){
@@ -340,7 +306,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                 <Text style={{color: '#1e1e1e',fontSize: 18,marginLeft: 10,fontFamily: 'LeagueSpartan-Medium'}}>{workout.name}</Text>
                                 <Pressable onPress={()=>{
                                     openWorkoutBox(workout.workout,workout.uid);
-                                }} style={{display: 'flex',flexDirection: 'row',marginLeft: 10,alignItems: 'center'}}>
+                                }} style={{display: 'flex',flexDirection: 'row',marginLeft: 10,alignItems: 'center',marginTop: 10}}>
                                 {
                                     workout.timeStamp.toDate().toTimeString().slice(0,2)<12
                                     ?
@@ -359,7 +325,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                         <Text style={styles.workoutTitle}>{workout.workout.workoutName}</Text>
                     </View>
                     
-                    <View style={{marginTop: 15,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
+                    <View style={{marginTop: 20,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
                         <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center'}}>
                             {
                                 workout.workout.allWorkouts.length>1
@@ -370,7 +336,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                             }
                         </View>
                     </View>
-                    <View style={{marginTop: 15,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
+                    <View style={{marginTop: 20,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
                         <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center'}}>
                             {
                                 workout.workout.allWorkouts.map(w => {
@@ -386,7 +352,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                             }
                         </View>
                     </View>
-                    <View style={{marginTop: 15,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
+                    <View style={{marginTop: 20,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
                         <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center'}}>
                             {
                                 workout.workout.allWorkouts.map(w => {
@@ -404,7 +370,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                             }
                         </View>
                     </View>
-                    <View style={{marginTop: 15,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
+                    <View style={{marginTop: 20,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',width: '100%',marginLeft: 5}}>
                         <View style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center'}}>
                             {
                                 workout.workout.allWorkouts.map(w => {
@@ -724,6 +690,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                 const getUsers = await getAllUsers();
 
                 setFollowingUserArray(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()));
+                setOriginalWorkoutList(combinedWorkouts.sort((x, y) => y.timeStamp.toMillis() - x.timeStamp.toMillis()))
                 setAllUsers(getUsers);
             } catch (error) {
                 console.error("Error fetching data: ", error);
@@ -737,7 +704,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                 if (isLoading) {
                     setIsLoading(false);
                 }
-            }, 1000); // Adjust the timeout duration as needed
+            }, 1000); 
 
             fetchData();
 
@@ -751,7 +718,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                 if (isLoading) {
                     setIsLoading(false);
                 }
-            }, 1000); // Adjust the timeout duration as needed
+            }, 1000); 
 
             fetchData();
 
@@ -837,10 +804,10 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                         ?
                                         <View>
                                             <View style={{marginBottom: 10}}>
-                                                <Text style={{fontFamily: 'LeagueSpartan-Medium',marginLeft: 5,fontSize: 23,alignSelf: 'flex-start'}}>Users</Text>
+                                                <Text style={{fontFamily: 'LeagueSpartan',marginLeft: 5,fontSize: 23,alignSelf: 'flex-start',color: '#949494'}}>Users</Text>
                                             </View>
-                                            <View style={{width: '100%',height: 220,marginBottom: 20}}>
-                                                <ScrollView horizontal={true} style={{width: '100%',height: '100%',padding: 10,paddingLeft: 0,paddingRight: 0,display: 'flex',flexDirection: 'row',overflow: 'scroll'}}>
+                                            <View style={{width: '100%',marginBottom: 20}}>
+                                                <ScrollView style={{width: '100%',padding: 10,paddingLeft: 0,paddingRight: 0,display: 'flex',flexDirection: 'column'}}>
                                                     {searchUsers.map(user => {
                                                         if(user.uid!=auth.currentUser.uid){
                                                             return(
@@ -848,33 +815,36 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                                                     navigation.navigate('IndividualUser',{
                                                                         uid: user.uid,
                                                                         name: user.name,
-                                                                        profileUrl: user.profileUrl
+                                                                        profileUrl: user.profileUrl,
                                                                     })
-                                                                }} key={user.uid} style={{height: '100%',width: 170,backgroundColor: '#1e1e1e',borderRadius: 10,marginRight: 10,display: 'flex',flexDirection: 'column',justifyContent: 'space-around',alignItems: 'center',padding: 10,paddingLeft: 0,paddingRight: 0}}>
-                                                                    {
-                                                                        user.profileUrl=="" || user.profileUrl==undefined
-                                                                        ?
-                                                                        <View style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd'}}>
-                                                                          {/* <Image source={pfp} style={{height: 50,width: 50,borderRadius: 50,}}/> */}
-                                                                          <FontAwesomeIcon icon="fa-solid fa-user" size={40} style={{color: '#fff'}}/>
-                                                                        </View>
-                                                                        :
-                                                                        <Image src={user.profileUrl} style={{height: 60,width: 60,borderRadius: 50,borderWidth: 2,borderColor: '#fff'}}/>
-                                                                    }
-                                                                    <Text style={{fontFamily: 'LeagueSpartan',fontSize: 18,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>{user.name}</Text>
+                                                                }} key={user.uid} style={{width: '100%',backgroundColor: '#fff',borderRadius: 5,display: 'flex',flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',padding: 10,paddingLeft: 15,paddingRight: 15,marginTop: 10,marginBottom: 10}}>
+                                                                    <View style={{display: 'flex',flexDirection: 'row'}}>
+                                                                        {
+                                                                            user.profileUrl=="" || user.profileUrl==undefined
+                                                                            ?
+                                                                            <View style={{padding: 10,borderRadius: 50,backgroundColor: '#ddd',marginRight: 10}}>
+                                                                                <FontAwesomeIcon icon="fa-solid fa-user" size={18} style={{color: '#fff'}}/>
+                                                                            </View>
+                                                                            :
+                                                                            <Image src={user.profileUrl} style={{height: 40,width: 40,borderRadius: 50,borderWidth: 2,borderColor: '#E3E3E3',marginRight: 10}}/>
+                                                                        }
+                                                                        <Text style={{fontFamily: 'LeagueSpartan-Medium',fontSize: 16,color: '#343434',textAlign: 'center',textAlignVertical: 'center'}}>{user.name}</Text>
+                                                                    </View>
                                                                     {
                                                                         user.following
                                                                         ?
                                                                         <Pressable onPress={()=>{
                                                                             unfollowUser(user.uid)
-                                                                        }} style={{width: '60%',backgroundColor: '#303030',borderRadius: 5,padding: 5,borderWidth: 2,borderColor: '#404040'}}>
-                                                                            <Text style={{fontFamily: 'LeagueSpartan',fontSize: 16,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>Unfollow</Text>
+                                                                            user.following = !user.following
+                                                                        }} style={{backgroundColor: '#f5f4f4',borderRadius: 5,padding: 5,paddingLeft: 10,paddingRight: 10,width: 75}}>
+                                                                            <Text style={{fontFamily: 'LeagueSpartan',fontSize: 14,color: '#767676',textAlign: 'center',textAlignVertical: 'center'}}>Unfollow</Text>
                                                                         </Pressable>
                                                                         :
                                                                         <Pressable onPress={()=>{
                                                                             followBackUser(user.uid)
-                                                                        }} style={{width: '60%',backgroundColor: '#2B8CFF',borderRadius: 5,padding: 5}}>
-                                                                            <Text style={{fontFamily: 'LeagueSpartan',fontSize: 16,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>Follow</Text>
+                                                                            user.following = !user.following
+                                                                        }} style={{backgroundColor: '#343434',borderRadius: 5,padding: 5,paddingLeft: 10,paddingRight: 10,width: 75}}>
+                                                                            <Text style={{fontFamily: 'LeagueSpartan',fontSize: 14,color: '#fff',textAlign: 'center',textAlignVertical: 'center'}}>Follow</Text>
                                                                         </Pressable>
                                                                     }
                                                                 </Pressable>
@@ -888,13 +858,6 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                         null
                                     }
                                     <View style={{width: '100%',height: '100%',paddingBottom: 20,}}>
-                                        {/* {
-                                            searchBar
-                                            ?
-                                            <Text style={{fontFamily: 'LeagueSpartan-Medium',marginLeft: 5,fontSize: 23,marginBottom: 20,alignSelf: 'flex-start',color: '#E3E3E3'}}>Workouts</Text>
-                                            :
-                                            null
-                                        } */}
                                         <Text style={{fontFamily: 'LeagueSpartan',fontSize: 20,marginTop: 10,marginBottom: 30,alignSelf: 'flex-start',color: '#8F8F8F',borderBottomColor: '#E3E3E3',borderBottomWidth: 2,paddingBottom: 5}}>Workouts</Text>
                                         {
                                             followingUserArray.length>0 && !isLoading
@@ -922,18 +885,18 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                             </View>
                                             :
                                             <View  style={[styles.emptyWorkoutContainer,{paddingTop: 25,paddingBottom: 25,minHeight: 180,display: 'flex',justifyContent: 'space-around'}]}>
-                                                <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',borderBottomColor: '#2B8CFF',borderBottomWidth: 2,paddingBottom: 5,alignSelf: 'center'}}>
-                                                    <Text style={{color: 'white',fontSize:20,fontFamily: 'LeagueSpartan'}}>No Workouts Found</Text>
+                                                <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center',borderBottomColor: '#f5f4f4',borderBottomWidth: 2,paddingBottom: 5,alignSelf: 'center'}}>
+                                                    <Text style={{color: '#343434',fontSize:20,fontFamily: 'LeagueSpartan-Medium'}}>No Workouts Found</Text>
                                                 </View>
                                                 {
                                                     userProfile
                                                     ?
                                                     <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                        <Text style={{color: 'black',marginLeft: 10,fontSize: 18,color: '#fff',fontFamily: 'LeagueSpartan'}}>Please add new workouts to view them here :)</Text>
+                                                        <Text style={{color: '#949494',marginLeft: 10,fontSize: 18,fontFamily: 'LeagueSpartan'}}>Please add new workouts to view them here :)</Text>
                                                     </View>
                                                     :
                                                     <View style={{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
-                                                        <Text style={{color: 'black',marginLeft: 10,fontSize: 18,color: '#fff',fontFamily: 'LeagueSpartan'}}>Please start following people to view their workouts here :)</Text>
+                                                        <Text style={{color: '#949494',marginLeft: 10,fontSize: 18,fontFamily: 'LeagueSpartan'}}>Please start following people to view their workouts here :)</Text>
                                                     </View>
                                                 }
                                             </View>
@@ -942,7 +905,7 @@ const Workout = ({showNavbar,searchParams,uid,hideUserNavbar,searchBar,userProfi
                                 </View>
                             </View>
                             :
-                            <IndividualWorkout ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid} hideUserNavbar={hideUserNavbar} followingUserArray={followingUserArray} setFollowingUserArray={setFollowingUserArray} allUsers={allUsers}/>
+                            <IndividualWorkout clickedWorkout={clickedWorkout} setClickedWorkout={setClickedWorkout} ID={clickedWorkoutID} showWorkoutBox={setShowWorkoutBox} showNavbar={showNavbar} uid={newUidBool? newUid : uid} hideUserNavbar={hideUserNavbar} followingUserArray={followingUserArray} setFollowingUserArray={setFollowingUserArray} allUsers={allUsers}/>
                         }
                     </ScrollView>
                     :
@@ -1167,11 +1130,11 @@ const styles = StyleSheet.create({
     },
     emptyWorkoutContainer: {
         borderWidth: 1,
-        borderColor: '#DDD',
+        borderColor: '#F1F1F1',
         display: 'flex',
         width: '100%',
-        backgroundColor: '#1e1e1e',
-        borderRadius: 10,
+        backgroundColor: '#fff',
+        borderRadius: 5,
         marginLeft: 'auto',
         marginRight: 'auto',
         padding: 20,

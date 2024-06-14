@@ -25,7 +25,7 @@ export const LandingPage = () => {
     <SafeAreaView style={styles.homepage}>
         <View style={styles.homecontent}>
           <View>
-            <Text style={{color: '#343434',fontSize: 50,fontFamily: 'LeagueSpartan-Medium',marginBottom: 10}}>Track your workouts.</Text>
+            <Text style={{color: '#1e1e1e',fontSize: 50,fontFamily: 'LeagueSpartan-Medium',marginBottom: 10}}>Track your workouts.</Text>
             <Text style={{color: '#949494',fontFamily: 'LeagueSpartan',fontSize: 20}}>In the most minimalist app you have ever used.</Text>
           </View>
           
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
       width: '100%'
     },
     btn: {
-      backgroundColor: '#343434',
+      backgroundColor: '#1e1e1e',
       borderRadius: 30,
       fontSize: 20,
       paddingTop: 10,

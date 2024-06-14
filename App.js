@@ -11,10 +11,10 @@ import InsideLayout from './Components/InsideLayout';
 import { useFonts } from 'expo-font';
 import { LogBox } from 'react-native';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUser,faArrowLeft,faBell,faArrowUp,faXmark,faTrash,faAngleDown,faPen,faAt,faHouse,faDumbbell,faHeart,faArrowRightFromBracket,faGear,faLock,faPlus,faAngleUp,faCheck,faMagnifyingGlass,faImage } from '@fortawesome/free-solid-svg-icons'
+import { faUser,faArrowLeft,faBell,faArrowUp,faXmark,faTrash,faAngleDown,faPen,faAt,faHouse,faDumbbell,faHeart,faArrowRightFromBracket,faGear,faLock,faPlus,faAngleUp,faCheck,faMagnifyingGlass,faImage,faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 import {faComment,faEye,faEyeSlash} from '@fortawesome/free-regular-svg-icons'
 
-library.add(faUser,faArrowLeft,faBell,faArrowUp,faComment,faXmark,faTrash,faAngleDown,faPen,faAt,faEye,faEyeSlash,faHouse,faDumbbell,faHeart,faArrowRightFromBracket,faGear,faLock,faPlus,faAngleUp,faCheck,faMagnifyingGlass,faImage)
+library.add(faUser,faArrowLeft,faBell,faArrowUp,faComment,faXmark,faTrash,faAngleDown,faPen,faAt,faEye,faEyeSlash,faHouse,faDumbbell,faHeart,faArrowRightFromBracket,faGear,faLock,faPlus,faAngleUp,faCheck,faMagnifyingGlass,faImage,faChevronLeft)
 
 const Stack = createNativeStackNavigator();
 

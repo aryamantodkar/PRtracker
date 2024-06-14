@@ -19,12 +19,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { useFonts } from 'expo-font';
 
 
-const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,followingUserArray,setFollowingUserArray,allUsers}) => {
+const IndividualWorkout = ({clickedWorkout,setClickedWorkout,ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,followingUserArray,setFollowingUserArray,allUsers}) => {
     const [editWorkout,setEditWorkout] = useState(false);
-    const [clickedWorkout,setClickedWorkout] = useState({});
+    // const [clickedWorkout,setClickedWorkout] = useState({});
     const [originalClickedWorkout,setOriginalClickedWorkout] = useState({});
     const [editedWorkoutName,setEditedWorkoutName] = useState("");
-    const [isLoading,setIsLoading] = useState(true);
     const [docID,setDocID] = useState("");
     const [readOnly,setReadOnly] = useState(false);
     const [showLikesBool,setShowLikesBool] = useState(false);
@@ -134,7 +133,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                 setReadOnly(true);
             }
         }
-
+        setOriginalClickedWorkout(clickedWorkout);
         getUserNameAndPfp();   
 
         const q = query(collection(FIREBASE_DB, `${userID}`));
@@ -143,29 +142,13 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
         .then(snap => {
             snap.forEach((doc) => {
                 if(doc.data().id==ID){
-                    setClickedWorkout(doc.data());
                     getDisplayLikedUsers(doc.data());
                     setEditedWorkoutName(doc.data().workoutName);
-                    setOriginalClickedWorkout(doc.data());
                     setDocID(doc.id);
                 }
             });
         })
     },[])
-    
-    const getOriginalWorkout = () => {
-        const q = query(collection(FIREBASE_DB, `${userID}`));
-
-        const querySnapshot = getDocs(q)
-        .then(snap => {
-            snap.forEach((doc) => {
-                if(doc.data().id==ID){
-                    setEditedWorkoutName(doc.data().workoutName);
-                    setOriginalClickedWorkout(doc.data());
-                }
-            });
-        })
-    }
 
     const likeWorkout = async (userProfile) => {
         let docID = "";
@@ -283,7 +266,6 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
         })
 
         setCommentInput("");
-        setIsLoading(false);
     }
 
     const showLikes = async (likes) => {
@@ -322,7 +304,6 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
             ...clickedWorkout,
             comments: newCommentArray
         })
-        setIsLoading(false);
     }
 
     const likeComment = async (userProfile) => {
@@ -456,15 +437,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
         );
     }, []);
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setIsLoading(false);
-        }, 500);
-    
-        return () => clearTimeout(timeout);
-    }, [showWorkoutBox]);
-
-    if(isLoading){
+    if(userPfp=="" || userName==""){
         return(
             <View style={{height: '100%',minWidth:'100%',display: 'flex',justifyContent: 'flex-start',alignItems: 'center',minHeight: 500}}>
                 <View style={{padding: 20,minWidth:'90%',borderRadius: 10}}>
@@ -521,7 +494,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                         </Pressable>
                         <Text style={{textAlign: 'center',textAlignVertical: 'center',fontFamily: 'LeagueSpartan-Medium',fontSize: 25,color: '#1e1e1e'}}>Workout</Text>
                         <Pressable onPress={()=>{
-                            navigation.navigate('Home');
+                            // navigation.navigate('Home');
                             showWorkoutBox(false);
                             if(hideUserNavbar!=null){
                                 hideUserNavbar(false);
@@ -538,7 +511,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                     {
                         editWorkout
                         ?
-                        <ScrollView ref={scrollViewRef} style={[styles.individualWorkout,{backgroundColor: '#fff',paddingBottom: 30,borderWidth: 2,borderColor: '#f1f1f1',marginTop: 15}]}>
+                        <ScrollView ref={scrollViewRef} style={[styles.individualWorkout,{backgroundColor: '#fff',paddingBottom: 30,borderWidth: 1,borderColor: '#f1f1f1',marginTop: 15}]}>
                             <View style={styles.individualWorkoutHeader}>
                                 <View style={{display: 'flex',flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
                                     <TextInput value={editedWorkoutName} placeholder={editedWorkoutName} onChangeText={async(text) => {
@@ -554,7 +527,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                     <Pressable onPress={async ()=>{
                                         setEditWorkout(false);
                                         setEditedWorkoutName(originalClickedWorkout.workoutName);
-                                        getOriginalWorkout();
+                                        // getOriginalWorkout();
     
                                         setClickedWorkout(originalClickedWorkout);
                                     }}>
@@ -1021,7 +994,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                                         <Pressable onPress={()=>{
                                                             likeWorkout(clickedWorkout)
                                                         }}>
-                                                            <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#fff'}}/>
+                                                            <FontAwesomeIcon icon={faHeart} size={22} style={{color: '#A19EA3'}}/>
                                                         </Pressable>
                                                         <Pressable onPress={()=>{
                                                             showLikes(clickedWorkout.likes)
@@ -1043,7 +1016,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
                                         </View>
                                         </View>     
                                     </ScrollView>
-                                    <ScrollView  style={{backgroundColor: '#fff',borderColor: '#F1F1F1',borderWidth: 2,marginTop: 30,position: 'relative'}}>
+                                    <ScrollView  style={{backgroundColor: '#fff',borderColor: '#F1F1F1',borderWidth: 1,marginTop: 30,position: 'relative'}}>
                                         <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start',marginBottom: 10,padding: 20,paddingBottom: 0}}>
                                             <View style={{marginRight: 10,justifyContent: 'center',alignItems: 'center'}}>
                                                 <FontAwesomeIcon icon="fa-regular fa-comment" size={20} style={{color: '#343434'}}/>
@@ -1269,7 +1242,7 @@ const IndividualWorkout = ({ID,showWorkoutBox,showNavbar,uid,hideUserNavbar,foll
 const styles = StyleSheet.create({
     individualWorkout: {
         backgroundColor: '#fff',
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: '#F1F1F1',
         display: 'flex',
         width: '100%',

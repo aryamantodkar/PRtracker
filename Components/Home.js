@@ -110,15 +110,15 @@ export default function Home() {
                       </View>
                       :
                       <View style={{display: 'flex',flexDirection: 'row',width: '100%',flex: 1,justifyContent: 'space-between'}}>
-                        <View style={{display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',backgroundColor: '#2d2d2d',flex: 0.9,padding: 5,paddingLeft: 15,paddingRight: 15,borderRadius: 15,marginBottom: 0,paddingBottom: 0,paddingTop: 0}}>
+                        <View style={{display: 'flex',justifyContent: 'space-between',flexDirection: 'row',alignItems: 'center',backgroundColor: '#fff',flex: 0.9,padding: 5,paddingLeft: 15,paddingRight: 15,borderRadius: 5,marginBottom: 0,paddingBottom: 0,paddingTop: 0}}>
                           <View style={{display: 'flex',flexDirection: 'row',alignItems: 'center'}}>
-                            <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={18} style={{marginRight: 10,color: '#A7A7A7',}}/>
-                            <TextInput ref={inputRef} value={searchText} placeholderTextColor='#A7A7A7' placeholder='Search Workouts or Users' onChangeText={(text)=>{
+                            <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" size={18} style={{marginRight: 10,color: '#343434',}}/>
+                            <TextInput ref={inputRef} value={searchText} placeholderTextColor='#949494' placeholder='Search Workouts or Users' onChangeText={(text)=>{
                                 setSearchText(text);
                                 setSearchParams(text);
                                 inputRef.current.focus();
                             }} 
-                            style={{height: 50,fontSize: 16,color: '#fff',fontWeight: '500',textAlignVertical: 'center',fontFamily: 'LeagueSpartan',flex: 1}}/>
+                            style={{height: 50,fontSize: 16,color: '#343434',textAlignVertical: 'center',fontFamily: 'LeagueSpartan-Medium',flex: 1}}/>
                           </View>
                           {
                             searchParams!=""
@@ -126,8 +126,8 @@ export default function Home() {
                             <Pressable onPress={()=>{
                               setSearchParams("");
                               setSearchText("");
-                            }} style={{backgroundColor: '#3e3e3e',padding: 5,borderRadius: 10,position: 'absolute',right: 10}}>
-                              <Text style={{fontFamily: 'LeagueSpartan',color: '#fff'}}>Clear</Text>
+                            }} style={{backgroundColor: '#F5F4F4',padding: 5,paddingLeft: 10,paddingRight: 10,borderRadius: 10,position: 'absolute',right: 10}}>
+                              <Text style={{fontFamily: 'LeagueSpartan-Medium',color: '#949494'}}>Clear</Text>
                             </Pressable>
                             :
                             null
@@ -138,8 +138,8 @@ export default function Home() {
                             setSearchBar(false);
                             setSearchParams("");
                             setSearchText("");
-                          }} style={{backgroundColor: '#2d2d2d',padding: 7.5,borderRadius: 50}}>
-                            <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#fff'}}/>
+                          }} style={{}}>
+                            <FontAwesomeIcon icon="fa-solid fa-xmark" size={20} style={{color: '#343434'}}/>
                           </Pressable>
                         </View>
                       </View> 
@@ -154,7 +154,7 @@ export default function Home() {
         </ScrollView>
         <Pressable onPress={()=>{
           navigation.navigate('NewWorkout');
-        }} style={{position: 'absolute',bottom: 25,right: 25,borderRadius: 50,backgroundColor: '#1e1e1e',elevation: 10,height: 60,width: 60,display: 'flex',justifyContent: 'center',alignItems: 'center',}}>
+        }} style={{position: 'absolute',bottom: 25,right: 25,borderRadius: 50,backgroundColor: '#1e1e1e',elevation: 10,height: 60,width: 60,display: 'flex',justifyContent: 'center',alignItems: 'center',borderWidth: 2,borderColor: '#F6F6F6'}}>
           <FontAwesomeIcon icon="fa-solid fa-plus" size={30} style={{color: '#fff'}}/>
         </Pressable>
     </View>
